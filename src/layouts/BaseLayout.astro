@@ -1,0 +1,138 @@
+---
+// src/layouts/BaseLayout.astro
+import '../styles/global.css';
+import { siteConfig } from '../config/site';
+
+const { seo, theme, brand, images } = siteConfig;
+const siteUrl = seo.siteUrl || 'https://mareabistro.com';
+
+// Fontsource imports (self-hosted)
+import '@fontsource/fraunces/400.css';
+import '@fontsource/fraunces/600.css';
+import '@fontsource/fraunces/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = seo.title, description = seo.description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es" class={theme.mode === 'dark' ? 'dark' : ''}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={seo.keywords.join(', ')} />
+    <link rel="canonical" href={siteUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}${images.ogImage}`} />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:site_name" content={brand.name} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}${images.ogImage}`} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content={theme.colors.ground} />
+
+    <!-- Structured data (Restaurant schema) -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": brand.name,
+      "description": seo.description,
+      "url": siteUrl,
+      "telephone": siteConfig.location.phone,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": siteConfig.location.address,
+        "addressLocality": siteConfig.location.city,
+        "addressCountry": siteConfig.location.country,
+      },
+      "servesCuisine": "Mediterranean",
+      "priceRange": "€€",
+      "aggregateRating": siteConfig.social.googleRating ? {
+        "@type": "AggregateRating",
+        "ratingValue": siteConfig.social.googleRating,
+        "reviewCount": siteConfig.social.googleReviewCount,
+      } : undefined,
+    })} />
+
+    <!-- Theme CSS variables (injected from config) -->
+    <style define:vars={{
+      '--site-ground': theme.colors.ground,
+      '--site-ground-alt': theme.colors.groundAlt,
+      '--site-ink': theme.colors.ink,
+      '--site-accent': theme.colors.accent,
+      '--site-secondary': theme.colors.secondary,
+      '--site-muted': theme.colors.muted,
+      '--site-font-display': theme.fonts.display,
+      '--site-font-body': theme.fonts.body,
+    }}>
+    </style>
+
+    <!-- View Transitions -->
+    <meta name="view-transition" content="same-origin" />
+  </head>
+  <body>
+    <slot />
+
+    <!-- Scroll animation observer with Motion One -->
+    <script>
+      import { animate, inView, scroll } from 'motion';
+
+      // Entrance animations for sections
+      document.querySelectorAll('[data-reveal]').forEach((el) => {
+        inView(el, () => {
+          animate(el, { opacity: [0, 1], y: [30, 0] }, { duration: 0.6, easing: 'ease-out' });
+        }, { amount: 0.2 });
+      });
+
+      // Kinetic typography
+      document.querySelectorAll('[data-kinetic]').forEach((el) => {
+        const text = el.textContent || '';
+        el.textContent = '';
+        const chars = [...text].map((char, i) => {
+          const span = document.createElement('span');
+          span.textContent = char === ' ' ? '\u00A0' : char;
+          span.style.display = 'inline-block';
+          span.style.opacity = '0';
+          span.style.transform = 'translateY(20px)';
+          el.appendChild(span);
+          return { span, delay: i * 0.05 };
+        });
+
+        inView(el, () => {
+          chars.forEach(({ span, delay }) => {
+            animate(span, { opacity: [0, 1], y: [20, 0] }, { duration: 0.4, delay, easing: 'ease-out' });
+          });
+        }, { amount: 0.5 });
+      });
+
+      // Scroll-driven parallax for hero image
+      const heroImg = document.querySelector('#hero img');
+      if (heroImg) {
+        scroll(animate(heroImg, { y: [0, 100] }), { target: document.querySelector('#hero'), offset: ['start start', 'end start'] });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+---
+// src/components/Hero.astro
+import { siteConfig } from '../config/site';
+import DishSelector from './DishSelector';
+
+const { brand, images } = siteConfig;
+const featuredDishes = siteConfig.menu.categories
+  .flatMap((cat) => cat.items)
+  .filter((item) => item.featured);
+---
+
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden" id="hero">
+  <!-- Full-bleed background image -->
+  <div class="absolute inset-0 z-0">
+    <img
+      src={images.hero}
+      alt={`Vista del mar en ${brand.name}`}
+      class="w-full h-full object-cover"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-ground/60 via-ground/40 to-ground"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 text-center px-6 max-w-5xl mx-auto">
+    <!-- Kinetic typography title -->
+    <h1
+      class="font-display text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-ink mb-4"
+      data-kinetic
+    >
+      {brand.name}
+    </h1>
+
+    <p class="text-xl md:text-2xl text-muted mb-8 max-w-2xl mx-auto font-body">
+      {brand.tagline}
+    </p>
+
+    <!-- Live thing: Dish selector -->
+    <div class="mb-10" data-reveal>
+      <p class="text-sm text-muted mb-4 uppercase tracking-wider">Descubre un plato</p>
+      <DishSelector client:visible dishes={featuredDishes} />
+    </div>
+
+    <!-- CTA -->
+    <a
+      href="#reservas"
+      class="inline-block bg-accent hover:bg-accent/90 text-ink font-semibold px-8 py-4 rounded-full text-lg transition-all duration-300 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      Reservar mesa
+    </a>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
+    <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+    </svg>
+  </div>
+</section>

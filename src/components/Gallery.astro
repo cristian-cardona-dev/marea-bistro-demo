@@ -1,0 +1,30 @@
+---
+// src/components/Gallery.astro
+import { siteConfig } from '../config/site';
+
+const { images, brand } = siteConfig;
+---
+
+<section class="py-24 px-6 bg-ground/50" id="galeria">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="font-display text-4xl md:text-5xl font-bold text-ink mb-4 text-center" data-reveal>
+      Galería
+    </h2>
+    <p class="text-muted text-center mb-12">
+      Un vistazo a {brand.name}
+    </p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" data-reveal>
+      {images.gallery.map((img, i) => (
+        <div class={`overflow-hidden rounded-xl ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
+          <img
+            src={img}
+            alt={`Foto ${i + 1} de ${brand.name}`}
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500 aspect-square"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
