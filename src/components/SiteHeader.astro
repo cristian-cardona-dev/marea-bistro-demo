@@ -1,0 +1,23 @@
+---
+// src/components/SiteHeader.astro
+// Plain navigation: wordmark on row one, Carta/Reservas/Ubicación plus the
+// compact booking action on row two (mobile). Desktop keeps the single
+// justify-between row, unchanged.
+// Square-corner buttons, petrol ink on mineral paper ground.
+import { siteConfig } from '../config/site';
+const { brand } = siteConfig;
+---
+<nav aria-label="Principal" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-5 py-4 sm:py-8 bg-ground">
+  <a href="#hero" class="font-display text-lg font-bold text-ink inline-block min-h-[44px]">{brand.name}</a>
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-5 text-base">
+    <a href="#carta" class="text-ink inline-block min-h-[44px]">Carta</a>
+    <a href="#reservas" class="text-ink inline-block min-h-[44px]">Reservas</a>
+    <a href="#ubicacion" class="text-ink inline-block min-h-[44px]">Ubicación</a>
+    <a
+      href="#reservas"
+      class="btn-square"
+    >
+      Reservar
+    </a>
+  </div>
+</nav>

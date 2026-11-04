@@ -1,4 +1,6 @@
 // src/components/ReservationForm.tsx
+// Honest demo reservation form: never confirms a booking, never claims an
+// email was sent. Falls back to mailto/WhatsApp only.
 import { useState } from 'react';
 
 interface Props {
@@ -25,7 +27,7 @@ export default function ReservationForm({
     party: '2',
     notes: '',
   });
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -48,10 +50,11 @@ export default function ReservationForm({
     if (Object.keys(errs).length > 0) return;
 
     setStatus('submitting');
-    // Demo: simulate API call
+    // Demo: never actually submits. After a short pause, shows a
+    // prepared-request message (never "confirmed", never "email sent").
     setTimeout(() => {
       setStatus('success');
-    }, 1000);
+    }, 800);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -66,7 +69,7 @@ export default function ReservationForm({
   };
 
   // Generate time slots
-  const timeSlots = [];
+  const timeSlots: string[] = [];
   for (let h = 13; h <= 16; h++) {
     for (let m = 0; m < 60; m += 30) {
       if (h === 16 && m > 0) break;
@@ -85,18 +88,17 @@ export default function ReservationForm({
       <div className="bg-ground/50 rounded-2xl p-8 border border-secondary/30 text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-secondary/20 flex items-center justify-center">
           <svg className="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="font-display text-2xl font-bold text-ink mb-2">¡Reserva confirmada!</h3>
+        <h3 className="font-display text-2xl font-bold text-ink mb-2">
+          Solicitud de reserva preparada
+        </h3>
         <p className="text-muted mb-2">
           Mesa para {form.party} personas el {form.date} a las {form.time}.
         </p>
-        <p className="text-muted text-sm mb-6">
-          Te enviamos un email de confirmación a {form.email}.
-        </p>
-        <p className="text-xs text-muted/60 italic">
-          (Demo: no se envió ningún email. En producción, conecta un backend.)
+        <p className="text-xs text-muted/60 italic mb-6">
+          (Demo: ninguna reserva se confirma realmente. En producción, conecta un backend.)
         </p>
         <button
           onClick={() => {
@@ -105,117 +107,108 @@ export default function ReservationForm({
           }}
           className="mt-4 text-secondary hover:text-secondary/80 text-sm font-medium transition-colors"
         >
-          Hacer otra reserva
+          Hacer otra solicitud
         </button>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-ground/50 rounded-2xl p-6 md:p-8 border border-muted/20" noValidate>
+    <form onSubmit={handleSubmit} className="bg-ground/50 p-6 md:p-8 border border-muted/20" noValidate>
       <div className="grid md:grid-cols-2 gap-4 mb-4">
-        {/* Name */}
         <div>
-          <label htmlFor="res-name" className="block text-sm text-muted mb-1">Nombre *</label>
+          <label htmlFor="res-name" className="block text-sm text-muted mb-1">
+            Nombre *
+          </label>
           <input
             id="res-name"
             type="text"
             value={form.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink placeholder-muted/50 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${
-              errors.name ? 'border-red-500' : 'border-muted/30'
-            }`}
+            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink placeholder-muted/50 focus:outline-none focus:ring-2 focus-ring-accent/50 transition-all ${errors.name ? 'border-red-500' : 'border-muted/30'}`}
             placeholder="Tu nombre"
             aria-describedby={errors.name ? 'res-name-error' : undefined}
             aria-invalid={!!errors.name}
           />
-          {errors.name && <p id="res-name-error" className="text-red-400 text-xs mt-1">{errors.name}</p>}
+          {errors.name && <p id="res-name-error" className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
-
-        {/* Email */}
         <div>
-          <label htmlFor="res-email" className="block text-sm text-muted mb-1">Email *</label>
+          <label htmlFor="res-email" className="block text-sm text-muted mb-1">
+            Email *
+          </label>
           <input
             id="res-email"
             type="email"
             value={form.email}
             onChange={(e) => handleChange('email', e.target.value)}
-            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink placeholder-muted/50 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${
-              errors.email ? 'border-red-500' : 'border-muted/30'
-            }`}
+            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink placeholder-muted/50 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${errors.email ? 'border-red-500' : 'border-muted/30'}`}
             placeholder="tu@email.com"
             aria-describedby={errors.email ? 'res-email-error' : undefined}
             aria-invalid={!!errors.email}
           />
-          {errors.email && <p id="res-email-error" className="text-red-400 text-xs mt-1">{errors.email}</p>}
+          {errors.email && <p id="res-email-error" className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
-
-        {/* Phone */}
         <div>
-          <label htmlFor="res-phone" className="block text-sm text-muted mb-1">Teléfono *</label>
+          <label htmlFor="res-phone" className="block text-sm text-muted mb-1">
+            Teléfono *
+          </label>
           <input
             id="res-phone"
             type="tel"
             value={form.phone}
             onChange={(e) => handleChange('phone', e.target.value)}
-            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink placeholder-muted/50 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${
-              errors.phone ? 'border-red-500' : 'border-muted/30'
-            }`}
+            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink placeholder-muted/50 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${errors.phone ? 'border-red-500' : 'border-muted/30'}`}
             placeholder="+34 600 000 000"
             aria-describedby={errors.phone ? 'res-phone-error' : undefined}
             aria-invalid={!!errors.phone}
           />
-          {errors.phone && <p id="res-phone-error" className="text-red-400 text-xs mt-1">{errors.phone}</p>}
+          {errors.phone && <p id="res-phone-error" className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
-
-        {/* Party size */}
         <div>
-          <label htmlFor="res-party" className="block text-sm text-muted mb-1">Personas *</label>
+          <label htmlFor="res-party" className="block text-sm text-muted mb-1">
+            Personas *
+          </label>
           <select
             id="res-party"
             value={form.party}
             onChange={(e) => handleChange('party', e.target.value)}
-            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${
-              errors.party ? 'border-red-500' : 'border-muted/30'
-            }`}
+            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${errors.party ? 'border-red-500' : 'border-muted/30'}`}
             aria-describedby={errors.party ? 'res-party-error' : undefined}
             aria-invalid={!!errors.party}
           >
             {Array.from({ length: maxParty - minParty + 1 }, (_, i) => minParty + i).map((n) => (
-              <option key={n} value={n}>{n} {n === 1 ? 'persona' : 'personas'}</option>
+              <option key={n} value={n}>
+                {n} {n === 1 ? 'persona' : 'personas'}
+              </option>
             ))}
           </select>
-          {errors.party && <p id="res-party-error" className="text-red-400 text-xs mt-1">{errors.party}</p>}
+          {errors.party && <p id="res-party-error" className="text-red-500 text-xs mt-1">{errors.party}</p>}
         </div>
-
-        {/* Date */}
         <div>
-          <label htmlFor="res-date" className="block text-sm text-muted mb-1">Fecha *</label>
+          <label htmlFor="res-date" className="block text-sm text-muted mb-1">
+            Fecha *
+          </label>
           <input
             id="res-date"
             type="date"
             value={form.date}
             onChange={(e) => handleChange('date', e.target.value)}
-            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${
-              errors.date ? 'border-red-500' : 'border-muted/30'
-            }`}
+            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${errors.date ? 'border-red-500' : 'border-muted/30'}`}
             aria-describedby={errors.date ? 'res-date-error' : undefined}
             aria-invalid={!!errors.date}
             min={new Date().toISOString().split('T')[0]}
           />
-          {errors.date && <p id="res-date-error" className="text-red-400 text-xs mt-1">{errors.date}</p>}
+          {errors.date && <p id="res-date-error" className="text-red-500 text-xs mt-1">{errors.date}</p>}
         </div>
-
-        {/* Time */}
         <div>
-          <label htmlFor="res-time" className="block text-sm text-muted mb-1">Hora *</label>
+          <label htmlFor="res-time" className="block text-sm text-muted mb-1">
+            Hora *
+          </label>
           <select
             id="res-time"
             value={form.time}
             onChange={(e) => handleChange('time', e.target.value)}
-            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${
-              errors.time ? 'border-red-500' : 'border-muted/30'
-            }`}
+            className={`w-full px-4 py-3 rounded-xl bg-ground/80 border text-ink focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all ${errors.time ? 'border-red-500' : 'border-muted/30'}`}
             aria-describedby={errors.time ? 'res-time-error' : undefined}
             aria-invalid={!!errors.time}
           >
@@ -224,13 +217,14 @@ export default function ReservationForm({
               <option key={t} value={t}>{t}</option>
             ))}
           </select>
-          {errors.time && <p id="res-time-error" className="text-red-400 text-xs mt-1">{errors.time}</p>}
+          {errors.time && <p id="res-time-error" className="text-red-500 text-xs mt-1">{errors.time}</p>}
         </div>
       </div>
 
-      {/* Notes */}
       <div className="mb-6">
-        <label htmlFor="res-notes" className="block text-sm text-muted mb-1">Notas (alergias, celebración, etc.)</label>
+        <label htmlFor="res-notes" className="block text-sm text-muted mb-1">
+          Notas (alergias, celebración, etc.)
+        </label>
         <textarea
           id="res-notes"
           value={form.notes}
@@ -241,16 +235,14 @@ export default function ReservationForm({
         />
       </div>
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed text-ink font-semibold py-4 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed text-ink font-semibold py-4 rounded-xl text-lg transition-all hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
-        {status === 'submitting' ? 'Reservando...' : 'Reservar mesa'}
+        {status === 'submitting' ? 'Enviando solicitud...' : 'Enviar solicitud de reserva'}
       </button>
 
-      {/* Fallbacks */}
       <div className="mt-6 pt-6 border-t border-muted/10 text-center space-y-2">
         {whatsappFallback && whatsappUrl && (
           <p className="text-sm text-muted">
@@ -267,7 +259,10 @@ export default function ReservationForm({
         )}
         <p className="text-sm text-muted">
           O envíanos un email a{' '}
-          <a href={`mailto:${emailFallback}`} className="text-secondary hover:text-secondary/80 font-medium transition-colors">
+          <a
+            href={`mailto:${emailFallback}`}
+            className="text-secondary hover:text-secondary/80 font-medium transition-colors"
+          >
             {emailFallback}
           </a>
         </p>

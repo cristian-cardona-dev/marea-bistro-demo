@@ -1,18 +1,34 @@
 /* src/styles/global.css */
 @import "tailwindcss";
 
-/* Tailwind v4 theme — CSS variables are injected at runtime by BaseLayout.astro
-   from src/config/site.ts. These are fallback defaults. */
-@theme {
-  --color-ground: #0A1628;
-  --color-ground-alt: #F5F0E8;
-  --color-ink: #F8F5F0;
-  --color-accent: #8B3A20;
-  --color-secondary: #D4A853;
-  --color-muted: #908B85;
+/* Tailwind v4 theme — colors/fonts are wired to valid root custom properties
+   injected by BaseLayout.astro from src/config/site.ts at runtime. These are
+   fallback defaults only; configured SiteConfig values win via inline style
+   on the root HTML element. No colors change. */
+@theme inline {
+  --color-ground: var(--site-ground);
+  --color-ground-alt: var(--site-ground-alt);
+  --color-ink: var(--site-ink);
+  --color-accent: var(--site-accent);
+  --color-secondary: var(--site-secondary);
+  --color-muted: var(--site-muted);
 
-  --font-display: "Fraunces", serif;
-  --font-body: "Inter", sans-serif;
+  --font-display: var(--site-font-display);
+  --font-body: var(--site-font-body);
+}
+
+/* Fallback defaults for the root custom properties (current light palette).
+   Inline styles from BaseLayout/SiteConfig override these at runtime. */
+html {
+  --site-ground: #F2F3EE;
+  --site-ground-alt: #E6EBE6;
+  --site-ink: #18343A;
+  --site-accent: #1A6F70;
+  --site-secondary: #53706C;
+  --site-muted: #4B615E;
+  --site-font-display: "Newsreader", serif;
+  --site-font-body: "DM Sans", sans-serif;
+  color-scheme: light;
 }
 
 /* Base styles */
@@ -49,22 +65,38 @@ body {
 /* Selection */
 ::selection {
   background-color: var(--color-accent);
-  color: var(--color-ink);
+  color: var(--color-ground);
 }
 
-/* Utility: glassmorphism (used sparingly) */
-.glass {
-  background: rgba(10, 22, 40, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Utility: kinetic text reveal */
-.kinetic-char {
-  display: inline-block;
+/* Progressive enhancement: content is visible by default. It is hidden and
+   revealed only once JS has confirmed it can run (the `html.js` class). If the
+   script fails or is disabled, no rule hides the content. */
+html.js [data-reveal] {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(24px);
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
 }
+html.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Control feedback */
+a, button {
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+a:hover, button:hover { transform: translateY(-1px); }
+a:active, button:active { transform: translateY(0); }
+
+/* No glassmorphism: backdrop blur is banned by the design system. */
 
 /* Utility: full-bleed */
 .full-bleed {
@@ -72,23 +104,69 @@ body {
   margin-left: calc(-50vw + 50%);
 }
 
-/* Utility: bento grid */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* Editorial: market ledger row — name left, price right, no leaders */
+.market-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 1rem;
 }
-
-@media (min-width: 768px) {
-  .bento-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+.market-row .dish-name {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+}
+.market-row .dish-price {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.market-note {
+  margin-top: 0.25rem;
+  color: var(--color-muted);
+  font-size: 0.875rem;
 }
 
-.bento-featured {
-  grid-column: span 2;
-  grid-row: span 2;
+/* Editorial: category heading */
+.market-category {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  margin-bottom: 1rem;
 }
+
+/* Square-corner button (the one button shape) */
+.btn-square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-accent);
+  color: var(--color-ground);
+  font-weight: 600;
+  border: none;
+  border-radius: 0;
+  min-height: 44px;
+  padding: 0 1.5rem;
+  cursor: pointer;
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+.btn-square:hover { transform: translateY(-1px); opacity: 0.95; }
+.btn-square:active { transform: translateY(0); }
+
+.btn-square-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  border-radius: 0;
+  min-height: 44px;
+  padding: 0 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 160ms ease-out, opacity 160ms ease-out;
+}
+.btn-square-outline:hover { transform: translateY(-1px); opacity: 0.95; }
+.btn-square-outline:active { transform: translateY(0); }
 
 /* Utility: no scrollbar */
 .no-scrollbar::-webkit-scrollbar {
@@ -97,4 +175,17 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Gallery link microinteraction (<200ms control feedback). */
+#galeria a {
+  transition: transform 160ms ease-out, opacity 160ms ease-out, color 160ms ease-out;
+}
+#galeria a:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+#galeria a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

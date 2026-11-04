@@ -22,3 +22,11 @@ pnpm-debug.log*
 
 # lighthouse
 .lighthouse.json
+
+# design-taste / superpowers (local only)
+.taste-skill/
+.superpowers/
+
+# playwright
+test-results/
+playwright-report/

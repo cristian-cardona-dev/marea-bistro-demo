@@ -9,6 +9,7 @@
 import { z } from 'zod';
 
 // --- Schema validation (do not edit) ---
+
 const ColorSchema = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 
 const MenuItemSchema = z.object({
@@ -34,9 +35,6 @@ const SocialSchema = z.object({
   tiktok: z.string().url().optional(),
   facebook: z.string().url().optional(),
   whatsapp: z.string().url().optional(),
-  googleBusiness: z.string().url().optional(),
-  googleRating: z.number().min(0).max(5).optional(),
-  googleReviewCount: z.number().int().optional(),
 });
 
 const SiteConfigSchema = z.object({
@@ -44,10 +42,6 @@ const SiteConfigSchema = z.object({
     name: z.string(),
     tagline: z.string(),
     logo: z.string(),
-    yearFounded: z.number(),
-    capacity: z.object({ indoor: z.number(), terrace: z.number() }),
-    chef: z.string(),
-    specialty: z.string(),
   }),
   theme: z.object({
     mode: z.enum(['dark', 'light']),
@@ -115,32 +109,29 @@ export type SiteConfig = z.infer<typeof SiteConfigSchema>;
 
 // ============================================================
 // DEMO DATA: Marea Bistro (edit this to customize your restaurant)
+// All data is sample/demo content. Marea is a fictional restaurant.
 // ============================================================
 
 export const siteConfig: SiteConfig = SiteConfigSchema.parse({
   brand: {
     name: "Marea",
-    tagline: "Donde el mar se sienta a la mesa",
+    tagline: "Bistró mediterráneo · Valencia",
     logo: "/images/logo.svg",
-    yearFounded: 2019,
-    capacity: { indoor: 48, terrace: 12 },
-    chef: "Lucia Ferrer",
-    specialty: "Arroces de mar y pescados a la brasa",
   },
 
   theme: {
-    mode: "dark",
+    mode: "light",
     colors: {
-      ground: "#0A1628",
-      groundAlt: "#F5F0E8",
-      ink: "#F8F5F0",
-      accent: "#8B3A20",
-      secondary: "#D4A853",
-      muted: "#908B85",
+      ground: "#F2F3EE",
+      groundAlt: "#E6EBE6",
+      ink: "#18343A",
+      accent: "#1A6F70",
+      secondary: "#53706C",
+      muted: "#4B615E",
     },
     fonts: {
-      display: "Fraunces",
-      body: "Inter",
+      display: "Newsreader",
+      body: "DM Sans",
     },
   },
 
@@ -168,44 +159,44 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
         id: "entrantes",
         name: "Entrantes",
         items: [
-          { name: "Carpaccio de gamba roja", description: "Gamba de Denia, aceite de oliva, limón, sal de Ibiza", price: 16, image: "/images/carpaccio.jpg", tags: ["marisco", "crudo"], featured: true, ingredients: ["Gamba roja de Denia", "Aceite de oliva virgen extra", "Limón de Ibiza", "Sal marina"], story: "Plato estrella desde 2019. La gamba roja de Denia es considerada la mejor del Mediterráneo.", pairing: "Albariño Rías Baixas" },
-          { name: "Croquetas de marisco", description: "Bechamel de marisco, panko, alioli de ajo negro", price: 12, image: "/images/croquetas.jpg", tags: ["marisco", "frito"] },
-          { name: "Ensalada de pulpo", description: "Pulpo a la gallega, patata confitada, pimentón, aceite", price: 14, image: "/images/gallery-octopus.jpg", tags: ["marisco", "ensalada"], featured: true, ingredients: ["Pulpo gallego", "Patata confitada", "Pimentón de la Vera", "Aceite de oliva"], story: "Receta de la abuela de Lucia. El pulpo se cocina a baja temperatura durante 4 horas.", pairing: "Verdejo Rueda" },
-          { name: "Mejillones a la marinera", description: "Mejillones de roca, vino blanco, ajo, perejil", price: 13, image: "/images/mejillones.jpg", tags: ["marisco", "vapor"] },
+          { name: "Carpaccio de gamba roja", description: "Gamba de Denia, aceite de oliva, limón, sal de Ibiza", price: 16, tags: ["marisco", "crudo"] },
+          { name: "Croquetas de marisco", description: "Bechamel de marisco, panko, alioli de ajo negro", price: 12, tags: ["marisco", "frito"] },
+          { name: "Ensalada de pulpo", description: "Pulpo a la gallega, patata confitada, pimentón, aceite", price: 14, tags: ["marisco", "ensalada"] },
+          { name: "Mejillones a la marinera", description: "Mejillones de roca, vino blanco, ajo, perejil", price: 13, tags: ["marisco", "vapor"] },
         ],
       },
       {
         id: "principales",
         name: "Principales",
         items: [
-          { name: "Paella de marisco", description: "Arroz bomba, gamba, mejillón, sepia, azafrán (mín. 2 pers.)", price: 22, image: "/images/paella.jpg", tags: ["arroz", "marisco"], featured: true, ingredients: ["Arroz bomba de Valencia", "Gamba roja", "Mejillón de roca", "Sepia", "Azafrán de La Mancha"], story: "La paella que da sentido a Marea. Arroz bomba de la Albufera, cocido a fuego de leña.", pairing: "Albariño Rías Baixas" },
-          { name: "Fideuá negra", description: "Fideo fino, sepia, alioli, tinta de calamar", price: 19, image: "/images/fideua.jpg", tags: ["pasta", "marisco"] },
-          { name: "Lubina a la brasa", description: "Lubina salvaje, verduras de temporada, salsa de limón", price: 24, image: "/images/lubina.jpg", tags: ["pescado", "brasa"], featured: true, ingredients: ["Lubina salvaje del Mediterráneo", "Verduras de temporada", "Salsa de limón y hierbas"], story: "Pescado del día, cocinado a la brasa con madera de naranjo. Sabor ahumado único.", pairing: "Verdejo Rueda" },
-          { name: "Arroz a banda", description: "Arroz con sabor a mar, alioli, langostinos", price: 20, image: "/images/arroz-banda.jpg", tags: ["arroz", "marisco"] },
-          { name: "Calamar relleno", description: "Calamar, sobrasada, piñones, salsa de tomate", price: 21, image: "/images/calamar.jpg", tags: ["marisco", "relleno"] },
+          { name: "Paella de marisco", description: "Arroz bomba, gamba, mejillón, sepia, azafrán (mín. 2 pers.)", price: 22, tags: ["arroz", "marisco"] },
+          { name: "Fideuá negra", description: "Fideo fino, sepia, alioli, tinta de calamar", price: 19, tags: ["pasta", "marisco"] },
+          { name: "Lubina a la brasa", description: "Lubina salvaje, verduras de temporada, salsa de limón", price: 24, tags: ["pescado", "brasa"] },
+          { name: "Arroz a banda", description: "Arroz con sabor a mar, alioli, langostinos", price: 20, tags: ["arroz", "marisco"] },
+          { name: "Calamar relleno", description: "Calamar, sobrasada, piñones, salsa de tomate", price: 21, tags: ["marisco", "relleno"] },
         ],
       },
       {
         id: "postres",
         name: "Postres",
         items: [
-          { name: "Tarta de queso valenciana", description: "Queso fresco, naranja, base de galleta", price: 8, image: "/images/tarta-queso.jpg", tags: ["dulce", "queso"] },
-          { name: "Crema catalana", description: "Clásica, con azúcar quemado", price: 7, image: "/images/crema-catalana.jpg", tags: ["dulce", "clásico"] },
-          { name: "Helado de turrón", description: "Turrón de Jijona, almendra tostada", price: 6, image: "/images/helado-turron.jpg", tags: ["dulce", "helado"] },
+          { name: "Tarta de queso valenciana", description: "Queso fresco, naranja, base de galleta", price: 8, tags: ["dulce", "queso"] },
+          { name: "Crema catalana", description: "Clásica, con azúcar quemado", price: 7, tags: ["dulce", "clásico"] },
+          { name: "Helado de turrón", description: "Turrón de Jijona, almendra tostada", price: 6, tags: ["dulce", "helado"] },
         ],
       },
       {
         id: "vinos",
         name: "Vinos",
         items: [
-          { name: "Albariño Rías Baixas", description: "Blanco fresco y mineral", price: 5, image: "/images/vino-blanco.jpg", tags: ["blanco", "galicia"] },
-          { name: "Verdejo Rueda", description: "Blanco aromático y afrutado", price: 4.5, image: "/images/vino-blanco.jpg", tags: ["blanco", "rueda"] },
-          { name: "Rosado Navarra", description: "Rosado ligero y fresco", price: 4, image: "/images/vino-blanco.jpg", tags: ["rosado", "navarra"] },
-          { name: "Tempranillo Rioja", description: "Tinto con crianza", price: 5.5, image: "/images/vino-tinto.jpg", tags: ["tinto", "rioja"] },
-          { name: "Monastrell Alicante", description: "Tinto potente y mediterráneo", price: 6, image: "/images/vino-tinto.jpg", tags: ["tinto", "alicante"] },
-          { name: "Cava Brut", description: "Espumoso catalán", price: 6, image: "/images/vino-blanco.jpg", tags: ["espumoso", "cataluña"] },
-          { name: "Vermut rojo", description: "Aperitivo clásico", price: 4, image: "/images/vino-tinto.jpg", tags: ["aperitivo"] },
-          { name: "Agua mineral", description: "Agua de manantial", price: 2.5, image: "/images/vino-blanco.jpg", tags: ["bebida"] },
+          { name: "Albariño Rías Baixas", description: "Blanco fresco y mineral", price: 5, tags: ["blanco", "galicia"] },
+          { name: "Verdejo Rueda", description: "Blanco aromático y afrutado", price: 4.5, tags: ["blanco", "rueda"] },
+          { name: "Rosado Navarra", description: "Rosado ligero y fresco", price: 4, tags: ["rosado", "navarra"] },
+          { name: "Tempranillo Rioja", description: "Tinto con crianza", price: 5.5, tags: ["tinto", "rioja"] },
+          { name: "Monastrell Alicante", description: "Tinto potente y mediterráneo", price: 6, tags: ["tinto", "alicante"] },
+          { name: "Cava Brut", description: "Espumoso catalán", price: 6, tags: ["espumoso", "cataluña"] },
+          { name: "Vermut rojo", description: "Aperitivo clásico", price: 4, tags: ["aperitivo"] },
+          { name: "Agua mineral", description: "Agua de manantial", price: 2.5, tags: ["bebida"] },
         ],
       },
     ],
@@ -216,9 +207,6 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
     tiktok: "https://tiktok.com/@mareabistro",
     facebook: "https://facebook.com/mareabistro",
     whatsapp: "https://wa.me/34612345678",
-    googleBusiness: "https://g.page/mareabistro",
-    googleRating: 4.8,
-    googleReviewCount: 127,
   },
 
   reservations: {
@@ -231,25 +219,24 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
   },
 
   images: {
-    hero: "/images/hero-paella.jpg",
+    hero: "/images/gallery-market.jpg",
     gallery: [
-      "/images/gallery-market.jpg",
-      "/images/gallery-coast.jpg",
-      "/images/gallery-tiles.jpg",
-      "/images/gallery-octopus.jpg",
+      "/images/mercado-central-exterior.jpg",
+      "/images/albufera-gaianes.jpg",
+      "/images/valencia-market-artichokes.jpg",
     ],
-    ogImage: "/images/hero-paella.jpg",
+    ogImage: "/images/gallery-market.jpg",
   },
 
   seo: {
-    title: "Marea — Bistro Mediterráneo en Valencia",
-    description: "Bistro mediterráneo en Ruzafa, Valencia. Arroces de mar, pescados a la brasa y vinos del Mediterráneo.",
+    title: "Marea — Bistró Mediterráneo en Valencia",
+    description: "Bistró mediterráneo en Ruzafa, Valencia. Arroces de mar, pescados a la brasa y vinos del Mediterráneo. Contenido de demostración.",
     keywords: ["bistro", "mediterráneo", "Valencia", "restaurante", "arroces", "mariscos"],
     siteUrl: "",
   },
 
   content: {
-    aboutText: "En Marea creemos que el mar no es solo un ingrediente, es una forma de entender la cocina. Cada mañana, Lucia Ferrer recorre el mercado de Ruzafa seleccionando el pescado del día. Cada noche, el horno de leña se enciende a las 5 de la tarde para que, cuando llegues, el fuego esté listo para recibir la lubina salvaje, el pulpo gallego y el arroz bomba de la Albufera. No somos un restaurante de moda. Somos un bistro donde el mar se sienta a la mesa.",
-    footerText: "© 2019-2026 Marea Bistro. Todos los derechos reservados.",
+    aboutText: "Demostración: Marea es un restaurante ficticio. Este sitio es una plantilla de portada para un bistró mediterráneo en Valencia. Los platos, precios, horarios y datos de contacto son contenido de ejemplo.",
+    footerText: "© 2026 Marea Bistro. Demo — contenido de ejemplo.",
   },
 });
