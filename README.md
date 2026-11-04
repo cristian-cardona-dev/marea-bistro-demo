@@ -1,6 +1,6 @@
 # Marea — Restaurant Template
 
-A configurable restaurant website template built with Astro 5, Tailwind CSS v4, and React 19 islands.
+A configurable restaurant website template built with Astro 7, Tailwind CSS v4, and React 19 (optional islands).
 
 ## Quick Start
 
@@ -26,11 +26,11 @@ See `docs/CUSTOMIZATION.md` for a step-by-step guide.
 
 ## Tech Stack
 
-- **Astro 5** — Islands architecture, zero JS by default
+- **Astro 7** — Islands architecture, zero JS by default
 - **Tailwind CSS v4** — CSS-first configuration
-- **React 19** — Interactive islands (reservation form, menu filter, dish selector)
+- **React 19** — Optional interactive islands available in `src/components/` (reservation form, menu filter, dish selector); not mounted on the current homepage
 - **TypeScript** — Type-safe config with Zod validation
-- **Fontsource** — Self-hosted fonts (Fraunces + Inter)
+- **Fontsource** — Self-hosted fonts (active pairing: Newsreader + DM Sans; Fraunces and Inter remain installed but unused by default)
 
 ## Project Structure
 
@@ -41,7 +41,9 @@ src/
 ├── pages/index.astro        # All sections
 ├── components/              # Astro + React components
 ├── styles/global.css        # Tailwind v4 @theme
-└── assets/images/           # Your photos (replace demo images)
+└── scripts/marea-motion.ts  # Editorial motion layer (client)
+public/
+└── images/                  # Your photos (replace demo images); credits in credits.json
 ```
 
 ## Deploy
@@ -59,9 +61,9 @@ src/
 
 ## Performance
 
-- Lighthouse 95+ on all metrics
 - Zero JS by default (islands only where needed)
-- Optimized images (WebP/AVIF via Astro Image)
+- A small editorial motion layer runs as a client module (`src/scripts/marea-motion.ts`), targeting `[data-motion]` elements only; it never hides content and defers to `prefers-reduced-motion`
+- Images are served from `public/images/` as ordinary `<img>` markup; no Astro Image pipeline/WebP/AVIF conversion is used on this page (Pexels/Wikimedia images are illustrative, not Marea's own food or venue)
 - Self-hosted fonts (no Google Fonts CDN)
 
 ## License

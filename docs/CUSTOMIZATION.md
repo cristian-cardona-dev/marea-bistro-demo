@@ -127,9 +127,6 @@ social: {
   tiktok: "https://tiktok.com/@yourhandle",
   facebook: "https://facebook.com/yourpage",
   whatsapp: "https://wa.me/34600000000",
-  googleBusiness: "https://g.page/yourbusiness",
-  googleRating: 4.8,
-  googleReviewCount: 127,
 }
 ```
 
@@ -137,7 +134,7 @@ Remove any link by setting it to `undefined` or deleting the line.
 
 ## 8. Change Images
 
-1. Add your photos to `src/assets/images/` (or `public/images/`)
+1. Add your photos to `public/images/`
 2. Update paths in config:
 
 ```typescript
@@ -177,11 +174,11 @@ content: {
 }
 ```
 
-## 11. Toggle Reservations
+## 11. Reservations
 
 ```typescript
 reservations: {
-  enabled: true,  // Set to false to hide reservation form
+  enabled: true,  // Currently informational only: the homepage does not read this flag to show/hide the booking action
   minParty: 1,
   maxParty: 8,
   advanceDays: 30,
@@ -189,6 +186,8 @@ reservations: {
   emailFallback: "reservas@yourrestaurant.com",
 }
 ```
+
+The current homepage always renders a booking button that opens a prefilled `mailto:` link (it does not send automatically or confirm a booking). `enabled` is kept in the schema/config for future use but is not wired to page visibility.
 
 ## 12. Deploy
 
@@ -210,12 +209,13 @@ reservations: {
 
 **Images not showing:**
 - Check that image paths start with `/` (e.g., `/images/photo.jpg`)
-- Ensure images are in `public/images/` or `src/assets/images/`
+- Ensure images are in `public/images/` (this template serves them as static files; there is no Astro Image optimization pipeline)
 
 **Colors not updating:**
 - Make sure you're editing `theme.colors` in `src/config/site.ts`
 - Restart the dev server (`npm run dev`)
 
-**Form not working:**
-- The reservation form is a demo (no backend). It shows a success message but doesn't send emails.
-- To enable real reservations, connect a backend service (Formspree, EmailJS, etc.)
+**Reservations are mailto-only:**
+- The current homepage does not include a reservation form. The booking button opens a prefilled `mailto:` link using `reservations.emailFallback`; it does not send automatically or confirm a booking.
+- A standalone `ReservationForm` React component exists in `src/components/` but is optional and not mounted on the current homepage. If you mount it, treat it as a demo (no backend): it does not send emails or confirm bookings.
+- To enable real reservations, connect a backend service (Formspree, EmailJS, etc.) and wire it into your chosen component.
