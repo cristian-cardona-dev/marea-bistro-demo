@@ -123,11 +123,6 @@ body {
     scroll-behavior: auto !important;
   }
 
-  html.js [data-reveal] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -143,32 +138,6 @@ body {
 ::selection {
   background-color: var(--color-accent);
   color: var(--color-ground);
-}
-
-/* ------------------------------------------------------------------ */
-/* Progressive reveal (section entrance) — Phase 5 choreographed */
-/* ------------------------------------------------------------------ */
-
-/* Initial hidden state (JS-gated via html.js class) */
-html.js [data-reveal] {
-  opacity: 0;
-  transform: translateY(24px);
-}
-
-/* Stagger delay calculated per container via --reveal-index (set by script) */
-html.js [data-reveal] {
-  transition: opacity var(--duration-slow) var(--ease-out-expo),
-              transform var(--duration-slow) var(--ease-out-expo);
-  transition-delay: min(
-    calc(var(--reveal-index, 0) * var(--stagger-short)),
-    var(--stagger-max)
-  );
-}
-
-/* Revealed state */
-html.js [data-reveal].is-in {
-  opacity: 1;
-  transform: none;
 }
 
 /* ------------------------------------------------------------------ */
@@ -285,6 +254,58 @@ button:active {
   transform: translateY(0);
 }
 
+/* ------------------------------------------------------------------ */
+/* Editorial motion targets — visible baselines, never opacity-gated    */
+/* ------------------------------------------------------------------ */
+
+/* Hero image [data-motion="hero"] img: scale + object-position are
+   scroll-driven by src/scripts/marea-motion.ts from a visible baseline
+   (scale 1, object-position center). No opacity gating: the image stays
+   visible without JS, under reduced motion, on late JS, and if an image
+   fails to load. */
+[data-motion="hero"] img {
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* Restrained transform interactions for sections and dishes: a subtle
+   lift on hover / focus-visible, a settled press on :active. */
+[data-motion="section"],
+[data-motion="dish"] {
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+[data-motion="section"]:hover,
+[data-motion="section"]:focus-visible,
+[data-motion="dish"]:hover,
+[data-motion="dish"]:focus-visible {
+  transform: translateY(-2px);
+}
+
+[data-motion="section"]:active,
+[data-motion="dish"]:active {
+  transform: scale(0.98);
+}
+
+/* Reduced motion: remove travel/scroll-linked and restrained transform
+   effects. Everything stays static and fully visible. */
+@media (prefers-reduced-motion: reduce) {
+  [data-motion="hero"] img,
+  [data-motion="section"],
+  [data-motion="dish"] {
+    transition: none !important;
+  }
+
+  [data-motion="section"]:hover,
+  [data-motion="section"]:focus-visible,
+  [data-motion="dish"]:hover,
+  [data-motion="dish"]:focus-visible,
+  [data-motion="section"]:active,
+  [data-motion="dish"]:active {
+    transform: none !important;
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -373,15 +394,6 @@ button:active {
     position: sticky;
     top: auto;
     bottom: 0;
-  }
-}
-
-/* Mobile: static band (no scroll-linked transform) — already default. */
-@media (max-width: 1023px) {
-  html.js [data-hero-scroll-band] {
-    opacity: 1;
-    transform: none;
-    transition: none;
   }
 }
 
@@ -583,11 +595,4 @@ nav.scrolled {
   box-shadow: var(--shadow-1); /* taste-skill-ignore:shadow intentional CTA press feedback */
 }
 
-/* Image load fade — solo para imágenes lazy (no hero eager) */
-img[loading="lazy"] {
-  opacity: 0;
-  transition: opacity 200ms ease-out;
-}
-img[loading="lazy"].loaded {
-  opacity: 1;
-}
+
