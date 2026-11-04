@@ -365,5 +365,31 @@
     ],
     "saved": "2026-11-04T17:59:19.322Z",
     "use": "gallery - octopus and potatoes on plate (illustrative dish photo; not Marea dish)"
+  },
+  {
+    "file": "/images/marea-octopus-gourmet.jpg",
+    "media": "image",
+    "ref": "pexels:39452701",
+    "title": "Gourmet dish with grilled octopus and microgreens",
+    "creator": "Deane Bayas",
+    "creatorUrl": "https://www.pexels.com/@deane-bayas-2150536599/",
+    "date": null,
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/gourmet-dish-with-grilled-octopus-and-microgreens-39452701/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/39452701/pexels-photo-39452701.jpeg",
+    "width": 1920,
+    "height": 2880,
+    "bytes": 531237,
+    "credit": "\"Gourmet dish with grilled octopus and microgreens\" by Deane Bayas, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea dish.",
+      "Replacement for marea-octopus-plate.jpg (casual hand-holding snapshot) with tighter art-directed plating."
+    ],
+    "saved": "2026-11-04T18:06:34.156Z",
+    "use": "gallery - art-directed grilled octopus with microgreens (illustrative dish photo; not Marea dish)"
   }
 ]

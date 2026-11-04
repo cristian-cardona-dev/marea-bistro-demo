@@ -221,7 +221,7 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
   images: {
     hero: "/images/marea-hero-seafood.jpg",
     gallery: [
-      "/images/marea-octopus-plate.jpg",
+      "/images/marea-octopus-gourmet.jpg",
     ],
     ogImage: "/images/marea-hero-seafood.jpg",
   },
