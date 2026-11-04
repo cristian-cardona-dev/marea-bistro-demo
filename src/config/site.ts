@@ -219,14 +219,13 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
   },
 
   images: {
-    hero: "/images/marea-hero.jpg",
+    hero: "/images/marea-hero-food.jpg",
     gallery: [
       "/images/marea-paella.jpg",
-      "/images/marea-octopus.jpg",
-      "/images/marea-crema-catalana.jpg",
-      "/images/marea-valencia-produce.jpg",
+      "/images/marea-octopus-grilled.jpg",
+      "/images/marea-crema-tostada.jpg",
     ],
-    ogImage: "/images/marea-hero.jpg",
+    ogImage: "/images/marea-hero-food.jpg",
   },
 
   seo: {
