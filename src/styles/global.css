@@ -99,6 +99,13 @@ html {
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+
+@media (max-width: 639px) {
+  html {
+    scroll-padding-top: 116px;
+  }
 }
 
 body {
@@ -257,24 +264,8 @@ button:active {
   will-change: transform;
 }
 
-/* Restrained transform interactions for sections and dishes: a subtle
-   lift on hover / focus-visible, a settled press on :active. */
-[data-motion="section"],
-[data-motion="dish"] {
-  transition: transform var(--duration-base) var(--ease-standard);
-}
-
-[data-motion="section"]:hover,
-[data-motion="section"]:focus-visible,
-[data-motion="dish"]:hover,
-[data-motion="dish"]:focus-visible {
-  transform: translateY(-2px);
-}
-
-[data-motion="section"]:active,
-[data-motion="dish"]:active {
-  transform: scale(0.98);
-}
+/* Section/dish wrappers are non-interactive: no hover/focus/press transforms.
+   Interactive controls (a, button) keep their own feedback via global rules. */
 
 /* Reduced motion: remove travel/scroll-linked and restrained transform
    effects. Everything stays static and fully visible. */

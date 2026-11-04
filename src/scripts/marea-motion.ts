@@ -16,7 +16,8 @@
 import { animate, transform } from 'motion';
 
 const HERO_SELECTOR = '[data-motion="hero"]';
-const INTERACTION_SELECTORS = '[data-motion="section"], [data-motion="dish"]';
+const INTERACTION_SELECTORS =
+  '[data-motion="section"] a, [data-motion="section"] button, [data-motion="dish"] a, [data-motion="dish"] button';
 
 const HERO_SCALE_MIN = 1;
 const HERO_SCALE_MAX = 1.06;
@@ -95,10 +96,14 @@ function onReduceChange(): void {
 }
 
 function attachPressFeedback(): void {
+  if (reduced) return;
   try {
     document.querySelectorAll<HTMLElement>(INTERACTION_SELECTORS).forEach((el) => {
       let active: Animation | null = null;
+      let pressed = false;
       const release = (): void => {
+        if (!pressed) return;
+        pressed = false;
         if (active) {
           active.stop();
           active = null;
@@ -106,6 +111,7 @@ function attachPressFeedback(): void {
         active = animate(el, { scale: [PRESS_SCALE_ACTIVE, 1] }, { duration: 160 });
       };
       el.addEventListener('pointerdown', () => {
+        pressed = true;
         if (active) active.stop();
         active = animate(el, { scale: [1, PRESS_SCALE_ACTIVE] }, { duration: 100 });
       });

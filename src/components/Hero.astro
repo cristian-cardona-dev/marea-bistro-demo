@@ -23,6 +23,8 @@ const creditLicense = heroCredit?.license ?? '';
 const creditPage = heroCredit?.page ?? null;
 const creditLicenseUrl = heroCredit?.licenseUrl ?? null;
 
+const heroWidth = Number(heroCredit?.width ?? 1920) || 1920;
+const heroHeight = Number(heroCredit?.height ?? 1280) || 1280;
 // Generic, honest description regardless of which archive file the config points at.
 const archiveAlt = creditTitle
   ? `Fotografía ilustrativa de archivo: ${creditTitle}. No representa el local ni los platos de Marea.`
@@ -34,8 +36,8 @@ const archiveAlt = creditTitle
       id="hero-img"
       src={heroFile}
       alt={archiveAlt}
-      width="1920"
-      height="1280"
+      width={heroWidth}
+      height={heroHeight}
       loading="eager"
       fetchpriority="high"
       decoding="async"
@@ -73,7 +75,7 @@ const archiveAlt = creditTitle
   <!-- Honest archive attribution + demo disclosure on a plain, legible surface. -->
   <div class="bg-ground text-ink">
     <div class="mx-auto max-w-[1400px] px-5 sm:px-8 py-4 flex flex-col gap-2">
-      <p id="hero-caption" data-hero-credit class="text-xs sm:text-sm text-ink/60">
+      <p id="hero-caption" data-hero-credit class="text-xs sm:text-sm text-ink/70">
         Fotografía ilustrativa de archivo{creditTitle ? `: ${creditTitle}` : ''}.{' '}
         {creditCreator && <>{' '}Foto: <span id="hero-scene-creator">{creditCreator}</span>{creditLicense ? `, ${creditLicense}` : ''}.</>}
         {(creditPage || creditLicenseUrl) && ' '}
