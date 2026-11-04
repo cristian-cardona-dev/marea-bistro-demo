@@ -8,7 +8,7 @@ const { menu } = siteConfig;
 ---
 <section id="carta" data-sample-claim class="px-5 py-10 md:py-16">
   <div class="max-w-[46ch] mx-auto">
-    <h2 class="market-category text-4xl md:text-5xl font-bold leading-[0.95] mb-6" data-reveal>La carta</h2>
+    <h2 class="text-4xl md:text-5xl font-display text-ink font-bold leading-[0.95] mb-6" data-reveal>La carta</h2>
     <p class="text-lg text-ink mb-8" data-reveal>Del mar a la mesa, plato a plato.</p>
     <p class="text-base text-ink mb-12" data-reveal>
       Platos y precios de ejemplo; Marea es un restaurante ficticio de demostración.
@@ -16,22 +16,28 @@ const { menu } = siteConfig;
 
     {menu.categories.map((category) => (
       <div class="mb-14" data-reveal>
-        <h3 class="market-category text-2xl md:text-3xl font-bold mb-6" data-reveal>
+        <h3 class="market-category tracking-wide" data-reveal>
           {category.name}
         </h3>
-        <ul>
-          {category.items.map((item) => (
-            <li class="market-item py-4" data-reveal>
-              <div class="market-row">
-                <span class="dish-name text-lg font-semibold">{item.name}</span>
-                <span class="dish-price text-lg font-semibold">
-                  {item.price}{menu.currency}
-                </span>
-              </div>
-              <p class="market-note" data-reveal>{item.description}</p>
-            </li>
-          ))}
-        </ul>
+        {category.items.length > 0 ? (
+          <ul class="market-list">
+            {category.items.map((item) => (
+              <li class="market-item" data-reveal>
+                <div class="market-row">
+                  <span class="dish-name">{item.name}</span>
+                  <span class="dish-price">
+                    {item.price}{menu.currency}
+                  </span>
+                </div>
+                <p class="market-note text-ink-soft" data-reveal>{item.description}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="market-empty" data-reveal>
+            No disponible esta temporada.
+          </div>
+        )}
       </div>
     ))}
   </div>

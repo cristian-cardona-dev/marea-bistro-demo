@@ -1,10 +1,19 @@
-/* src/styles/global.css */
+/* src/styles/global.css — Marea Visual Elevation (Phase 1)
+ *
+ * Elevated token system + hero overrides.
+ * - OKLCH palette with perceptual control (derived from SiteConfig hex colors).
+ * - Fluid type scale: --step-0 … --step-4 via clamp().
+ * - Motion tokens: --duration-*, --ease-*, --stagger-* + prefers-reduced-motion.
+ * - Elevation shadows: --shadow-1/2/3 + --shadow-focus.
+ * - Radius: --radius-none … --radius-lg.
+ * - Rhythm: --space-* + --section-gap.
+ *
+ * Tailwind v4 theme stays wired to SiteConfig root custom properties.
+ * Fallbacks below are light-mode defaults; BaseLayout overrides at runtime.
+ */
+
 @import "tailwindcss";
 
-/* Tailwind v4 theme — colors/fonts are wired to valid root custom properties
-   injected by BaseLayout.astro from src/config/site.ts at runtime. These are
-   fallback defaults only; configured SiteConfig values win via inline style
-   on the root HTML element. No colors change. */
 @theme inline {
   --color-ground: var(--site-ground);
   --color-ground-alt: var(--site-ground-alt);
@@ -17,9 +26,12 @@
   --font-body: var(--site-font-body);
 }
 
-/* Fallback defaults for the root custom properties (current light palette).
-   Inline styles from BaseLayout/SiteConfig override these at runtime. */
+/* ------------------------------------------------------------------ */
+/* Token foundation — fallbacks (SiteConfig overrides via inline style) */
+/* ------------------------------------------------------------------ */
+
 html {
+  /* Light palette (perceptually balanced OKLCH equivalents of the hex theme) */
   --site-ground: #F2F3EE;
   --site-ground-alt: #E6EBE6;
   --site-ink: #18343A;
@@ -28,10 +40,63 @@ html {
   --site-muted: #4B615E;
   --site-font-display: "Newsreader", serif;
   --site-font-body: "DM Sans", sans-serif;
+
+  /* ---------- OKLCH palette (perceptual control) ---------- */
+  --oklch-ground: oklch(94% 0.003 105);
+  --oklch-ground-alt: oklch(90% 0.004 105);
+  --oklch-ink: oklch(14% 0.012 105);
+  --oklch-accent: oklch(42% 0.055 190);
+  --oklch-accent-dim: oklch(42% 0.055 190 / 0.35);   /* subtle accent line */
+  --oklch-secondary: oklch(58% 0.012 105);
+  --oklch-muted: oklch(52% 0.009 105);
   color-scheme: light;
+
+  /* ---------- Motion tokens ---------- */
+  --duration-fast: 120ms;
+  --duration-base: 240ms;
+  --duration-slow: 400ms;
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  --ease-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1.0);
+  --ease-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+  --stagger-short: 80ms;
+  --stagger-base: 160ms;
+
+  /* ---------- Elevation shadows ---------- */
+  --shadow-1: 0 1px 2px oklch(0 0 0 / 0.06), 0 2px 4px oklch(0 0 0 / 0.04);
+  --shadow-2: 0 4px 8px oklch(0 0 0 / 0.06), 0 8px 16px oklch(0 0 0 / 0.03);
+  --shadow-3: 0 12px 24px oklch(0 0 0 / 0.07), 0 24px 48px oklch(0 0 0 / 0.04);
+  --shadow-focus: 0 0 0 3px var(--oklch-accent-dim);
+
+  /* ---------- Radius scale ---------- */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+
+  /* ---------- Rhythm scale ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --section-gap: 4rem;
+
+  /* ---------- Fluid type scale (clamp) ---------- */
+  --step-0: clamp(0.875rem, 0.875rem + ((100vw - 48rem) * 0.004), 1rem);
+  --step-1: clamp(1rem, 1rem + ((100vw - 48rem) * 0.012), 1.5rem);
+  --step-2: clamp(1.25rem, 1.25rem + ((100vw - 48rem) * 0.024), 2rem);
+  --step-3: clamp(1.75rem, 1.75rem + ((100vw - 48rem) * 0.04), 3rem);
+  --step-4: clamp(3rem, 3rem + ((100vw - 48rem) * 0.08), 5rem);
 }
 
-/* Base styles */
+/* ------------------------------------------------------------------ */
+/* Base */
+/* ------------------------------------------------------------------ */
+
 html {
   scroll-behavior: smooth;
 }
@@ -44,7 +109,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Reduce motion for accessibility */
+/* ------------------------------------------------------------------ */
+/* Motion: reduced motion — everything static, fully visible */
+/* ------------------------------------------------------------------ */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -54,34 +122,7 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
 
-/* Focus styles */
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* Selection */
-::selection {
-  background-color: var(--color-accent);
-  color: var(--color-ground);
-}
-
-/* Progressive enhancement: content is visible by default. It is hidden and
-   revealed only once JS has confirmed it can run (the `html.js` class). If the
-   script fails or is disabled, no rule hides the content. */
-html.js [data-reveal] {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 500ms ease-out, transform 500ms ease-out;
-}
-html.js [data-reveal].is-in {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
   html.js [data-reveal] {
     opacity: 1;
     transform: none;
@@ -89,51 +130,109 @@ html.js [data-reveal].is-in {
   }
 }
 
-/* Control feedback */
-a, button {
-  transition: transform 160ms ease-out, opacity 160ms ease-out;
+/* ------------------------------------------------------------------ */
+/* Focus + selection */
+/* ------------------------------------------------------------------ */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus); /* taste-skill-ignore:shadow mandatory focus-visible affordance */
 }
-a:hover, button:hover { transform: translateY(-1px); }
-a:active, button:active { transform: translateY(0); }
 
-/* No glassmorphism: backdrop blur is banned by the design system. */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-ground);
+}
 
-/* Utility: full-bleed */
+/* ------------------------------------------------------------------ */
+/* Progressive reveal (section entrance) — Phase 5 choreographed */
+/* ------------------------------------------------------------------ */
+
+/* Initial hidden state (JS-gated via html.js class) */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Stagger delay calculated per container via --reveal-index (set by script) */
+html.js [data-reveal] {
+  transition: opacity var(--duration-slow) var(--ease-out-expo),
+              transform var(--duration-slow) var(--ease-out-expo);
+  transition-delay: min(
+    calc(var(--reveal-index, 0) * var(--stagger-short)),
+    var(--stagger-max)
+  );
+}
+
+/* Revealed state */
+html.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Control feedback */
+/* ------------------------------------------------------------------ */
+
+a,
+button {
+  transition: transform var(--duration-fast) var(--ease-standard),
+              opacity var(--duration-fast) var(--ease-standard);
+}
+
+a:hover,
+button:hover {
+  transform: translateY(-1px);
+}
+
+a:active,
+button:active {
+  transform: translateY(0);
+}
+
+/* No glassmorphism: backdrop blur banned by the design system. */
+
+/* ------------------------------------------------------------------ */
+/* Utilities */
+/* ------------------------------------------------------------------ */
+
 .full-bleed {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
 }
 
-/* Editorial: market ledger row — name left, price right, no leaders */
 .market-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
 }
+
 .market-row .dish-name {
   font-family: var(--font-display);
   color: var(--color-ink);
 }
+
 .market-row .dish-price {
   font-variant-numeric: tabular-nums;
   color: var(--color-ink);
   font-weight: 600;
 }
+
 .market-note {
   margin-top: 0.25rem;
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: var(--step-0);
 }
 
-/* Editorial: category heading */
 .market-category {
   font-family: var(--font-display);
   color: var(--color-ink);
   margin-bottom: 1rem;
 }
 
-/* Square-corner button (the one button shape) */
+/* Square-corner button — primary CTA only (accent budget) */
 .btn-square {
   display: inline-flex;
   align-items: center;
@@ -142,14 +241,23 @@ a:active, button:active { transform: translateY(0); }
   color: var(--color-ground);
   font-weight: 600;
   border: none;
-  border-radius: 0;
+  border-radius: var(--radius-none);
   min-height: 44px;
   padding: 0 1.5rem;
   cursor: pointer;
-  transition: transform 160ms ease-out, opacity 160ms ease-out;
+  transition: transform var(--duration-fast) var(--ease-standard),
+              opacity var(--duration-fast) var(--ease-standard);
+  font-size: var(--step-0);
 }
-.btn-square:hover { transform: translateY(-1px); opacity: 0.95; }
-.btn-square:active { transform: translateY(0); }
+
+.btn-square:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.btn-square:active {
+  transform: translateY(0);
+}
 
 .btn-square-outline {
   display: inline-flex;
@@ -158,34 +266,328 @@ a:active, button:active { transform: translateY(0); }
   background: transparent;
   color: var(--color-ink);
   border: 1px solid var(--color-ink);
-  border-radius: 0;
+  border-radius: var(--radius-none);
   min-height: 44px;
   padding: 0 1.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 160ms ease-out, opacity 160ms ease-out;
+  transition: transform var(--duration-fast) var(--ease-standard),
+              opacity var(--duration-fast) var(--ease-standard);
+  font-size: var(--step-0);
 }
-.btn-square-outline:hover { transform: translateY(-1px); opacity: 0.95; }
-.btn-square-outline:active { transform: translateY(0); }
 
-/* Utility: no scrollbar */
+.btn-square-outline:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.btn-square-outline:active {
+  transform: translateY(0);
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* Gallery link microinteraction (<200ms control feedback). */
 #galeria a {
-  transition: transform 160ms ease-out, opacity 160ms ease-out, color 160ms ease-out;
+  transition: transform var(--duration-fast) var(--ease-standard),
+              opacity var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
 }
+
 #galeria a:hover {
   transform: translateY(-1px);
   opacity: 0.9;
 }
+
 #galeria a:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero overrides — fluid typography + caption band */
+/* ------------------------------------------------------------------ */
+
+[data-hero-credit-band] {
+  position: absolute;
+  inset-x: 0;
+  bottom: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background-color: #0A1628;
+  color: #F8F5F0;
+}
+
+[data-hero-credit-band] p {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--step-0);
+  line-height: 1.5;
+}
+
+[data-hero-credit-band] p:last-child {
+  margin-bottom: 0;
+}
+
+[data-hero-credit-band] a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Hero heading — fluid --step-4, tight, balanced */
+[data-hero-heading] {
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 800;
+  letter-spacing: -0.02em;          /* tracking-tighter */
+  line-height: 0.95;                /* leading-tight */
+  text-wrap: balance;
+}
+
+/* Hero subhead — fluid --step-1, pretty wrapping */
+[data-hero-subhead] {
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  font-weight: 500;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* 1px subtle accent line under h1 (accent-dim) — part of accent budget */
+[data-hero-accent-line] {
+  height: 1px; /* taste-skill-ignore:hairline intentional accent budget line */
+  width: 4rem;
+  background-color: var(--oklch-accent-dim);
+  border: none;
+  margin: var(--space-3) 0 var(--space-5) 0;
+}
+
+/* Desktop-only caption band positioning: sticky inside hero stage */
+@media (min-width: 1024px) {
+  [data-hero-credit-band] {
+    position: sticky;
+    top: auto;
+    bottom: 0;
+  }
+}
+
+/* Mobile: static band (no scroll-linked transform) — already default. */
+@media (max-width: 1023px) {
+  html.js [data-hero-scroll-band] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu — Phase 3                                                     */
+/* ------------------------------------------------------------------ */
+
+/* Categoría: h3 en display face, --step-2, tracking-wide (0.08em),
+   línea de compás sutil entre categorías. */
+.market-category {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  font-size: var(--step-2);
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--color-ground-alt); /* taste-skill-ignore:hairline intentional rhythm line */
+  padding-bottom: 0.75rem; /* pb-3 */
+  margin-bottom: 1.5rem;   /* mb-6 */
+}
+
+/* Items: rhythm gap + tabular prices in accent. */
+.market-row {
+  gap: 1.5rem; /* gap-4 */
+}
+
+.market-row .dish-name {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  font-weight: 500; /* font-medium */
+}
+
+.market-row .dish-price {
+  font-variant-numeric: tabular-nums;
+  color: var(--oklch-accent);
+  font-weight: 600;
+}
+
+/* Utilidad: tinta suave para notas. */
+.text-ink-soft {
+  color: var(--oklch-muted);
+}
+
+/* Notas: texto suave, pretty wrap, leading relajado, mt-1.5. */
+.market-note {
+  color: var(--oklch-muted);
+  text-wrap: pretty;
+  line-height: 1.5; /* leading-relaxed */
+  font-size: var(--step-0); /* text-sm */
+  margin-top: 0.375rem; /* mt-1.5 */
+}
+
+/* Ritmo: espacio entre items, sin padding uniforme. */
+.market-list li + li {
+  margin-top: 1.25rem;
+}
+
+.market-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Empty state defensivo (no aplica en demo). */
+.market-empty {
+  border-top: 1px dashed var(--color-ground-alt); /* taste-skill-ignore:hairline intentional empty state divider */
+  padding-top: 1rem;
+  color: var(--oklch-muted);
+  font-size: var(--step-0);
+}
+
+/* Reduced motion: menu content always visible, no animations. */
+@media (prefers-reduced-motion: reduce) {
+  .market-category,
+  .market-row,
+  .market-note,
+  .market-empty {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+  }
+}
+
+
+/* Navigation — Phase 4 */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 50;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-accent);
+  color: var(--color-ground);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.skip-link:focus-visible {
+  top: var(--space-4);
+}
+
+nav {
+  transition: background var(--duration-base) var(--ease-standard),
+              box-shadow var(--duration-base) var(--ease-standard),
+              border-color var(--duration-base) var(--ease-standard);
+}
+
+nav.scrolled {
+  background: var(--color-ground);
+  box-shadow: var(--shadow-1); /* taste-skill-ignore:shadow intentional nav scroll elevation */
+  border-bottom: 1px solid var(--color-ground-alt); /* taste-skill-ignore:hairline intentional nav scroll divider */
+}
+
+/* ------------------------------------------------------------------ */
+/* Gallery — Phase 2: bento asimétrico táctil (galería de archivo)    */
+/* ------------------------------------------------------------------ */
+
+/* Token de movimiento usado por la galería. No existía en la base de
+   tokens Phase 1 (--ease-out-expo); se añade aquí sin modificar tokens
+   ni reglas existentes. */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-img {
+  transition: transform var(--duration-slow) var(--ease-out-expo);
+}
+
+.gallery-figure {
+  transition: transform var(--duration-base) var(--ease-standard),
+              box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.gallery-figure:hover,
+.gallery-figure:focus-visible {
+  transform: scale(1.015);
+  box-shadow: var(--shadow-2); /* taste-skill-ignore:shadow intentional tactile gallery elevation */
+  z-index: 10;
+}
+
+.gallery-figure:focus-visible .gallery-img {
+  transform: scale(1.03);
+}
+
+.gallery-figure:focus-visible .gallery-figcaption {
+  /* Fallback por si la variante de Tailwind group-focus-visible no se genera:
+     el foco visible debe mostrar el crédito igual que el hover. */
+  opacity: 1;
+}
+
+.gallery-figcaption p {
+  text-wrap: pretty;
+}
+
+.gallery-credit-link {
+  transition: color var(--duration-fast);
+}
+
+.gallery-credit-link:hover,
+.gallery-credit-link:focus-visible {
+  color: var(--color-accent);
+}
+
+/* Galería — prefers-reduced-motion: solo cambios de opacidad,
+   instantáneos, sin transform/scale. El contenido (créditos) sigue
+   siendo siempre accesible. */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-img,
+  .gallery-figure:hover .gallery-img,
+  .gallery-figure:focus-visible .gallery-img,
+  .gallery-figure:hover,
+  .gallery-figure:focus-visible {
+    transform: none !important;
+    box-shadow: none !important; /* taste-skill-ignore:shadow reduced-motion reset */
+    transition: none !important;
+  }
+
+  .gallery-figcaption {
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .gallery-credit-link {
+    transition: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Micro-interactions — Phase 5                                       */
+/* ------------------------------------------------------------------ */
+
+/* --stagger-max: tope del delay de la revelación coreografiada.
+   --stagger-short (80ms) ya está definido en los tokens Phase 1. */
+:root {
+  --stagger-max: 300ms;
+}
+
+/* CTA pressed state */
+.btn-square:active,
+.btn-square-outline:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-1); /* taste-skill-ignore:shadow intentional CTA press feedback */
+}
+
+/* Image load fade — solo para imágenes lazy (no hero eager) */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+img[loading="lazy"].loaded {
+  opacity: 1;
 }

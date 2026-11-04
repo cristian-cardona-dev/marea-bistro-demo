@@ -68,20 +68,52 @@ const { title = seo.title, description = seo.description } = Astro.props;
     <meta name="view-transition" content="same-origin" />
   </head>
   <body>
+    <a href="#hero" class="skip-link">Saltar al contenido</a>
+
     <slot />
 
-    <!-- Progressive motion layer (v0: a light entrance only; Task 7 owns polish).
+    <!-- Progressive motion layer — Phase 5: choreographed reveal stagger.
+         [data-reveal] elements are grouped by ancestor <section> or
+         <div data-reveal-container>; the stagger index restarts per group.
+         transition-delay = min(index * var(--stagger-short), var(--stagger-max))
+         (--stagger-short: 80ms, --stagger-max: 300ms), resolved in CSS from
+         --reveal-index written by this script.
+         Transition: opacity/transform var(--duration-slow) var(--ease-out-expo),
+         opacity 0 → 1, translateY 24px → 0.
          No module import: content is visible unless this script runs and the
          browser supports IntersectionObserver, so a script failure cannot hide
          the page. Reduced motion keeps everything visible and static. -->
-    <script>
+    <script is:inline>
       const root = document.documentElement;
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (!reduceMotion) {
         try {
           root.classList.add('js');
-          const targets = document.querySelectorAll('[data-reveal]');
+
+          // Contenedores de reparto: el índice de stagger se reinicia en cada
+          // <section> o <div data-reveal-container>.
+          const containers = Array.from(
+            document.querySelectorAll('section, div[data-reveal-container]')
+          );
+
+          const assignIndex = (els) => {
+            els.forEach((el, index) => {
+              el.style.setProperty('--reveal-index', String(index));
+            });
+          };
+
+          containers.forEach((container) => {
+            assignIndex(Array.from(container.querySelectorAll('[data-reveal]')));
+          });
+
+          // Los [data-reveal] fuera de cualquier contenedor forman un grupo
+          // en <body> (orden de documento), p. ej. las propias <section>.
+          const orphans = Array.from(document.querySelectorAll('[data-reveal]')).filter(
+            (el) => !containers.some((c) => c !== el && c.contains(el))
+          );
+          assignIndex(orphans);
+
           const observer = new IntersectionObserver(
             (entries) => {
               for (const entry of entries) {
@@ -91,14 +123,70 @@ const { title = seo.title, description = seo.description } = Astro.props;
                 }
               }
             },
-            { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+            { threshold: 0.12, rootMargin: '0px 0px -5% 0px' },
           );
-          targets.forEach((el) => observer.observe(el));
+
+          const revealElements = document.querySelectorAll('[data-reveal]');
+          revealElements.forEach((el) => observer.observe(el));
+
+          // Reveal elements already in viewport on initial load.
+          // Defer to next microtask so browser computes intersections first.
+          queueMicrotask(() => {
+            const initialEntries = observer.takeRecords();
+            initialEntries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                observer.unobserve(entry.target);
+              }
+            });
+          });
         } catch {
           // If anything above is unsupported or throws, keep every element visible.
           root.classList.remove('js');
         }
       }
+    </script>
+
+    <!-- Navigation scroll state (Phase 4): toggles .scrolled on #main-nav past 100px
+         (rAF-throttled, passive listener). Inline, <500 bytes. -->
+    <script>
+      (function() {
+        const nav = document.getElementById('main-nav');
+        if (!nav) return;
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+          if (!ticking) { requestAnimationFrame(() => { nav.classList.toggle('scrolled', window.scrollY > 100); ticking = false; }); ticking = true; }
+        }, { passive: true });
+      })();
+    </script>
+
+    <!-- Image load fade — Phase 5: images start at opacity: 0 and fade in
+         once loaded (transition: opacity 200ms ease-out, defined in
+         global.css). Cached/complete images are marked synchronously; the
+         rest are marked on their load event. MutationObserver catches
+         images added after initial render (SSR hydration, dynamic components).
+         Error handler ensures broken images don't stay invisible. -->
+    <script is:inline>
+      function markLoaded(img) {
+        img.classList.add('loaded');
+      }
+      function handleImg(img) {
+        if (img.complete) { markLoaded(img); return; }
+        img.addEventListener('load', () => markLoaded(img), { once: true });
+        img.addEventListener('error', () => markLoaded(img), { once: true });
+      }
+      document.querySelectorAll('img[loading="lazy"]:not(.loaded)').forEach(handleImg);
+      new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          for (const node of m.addedNodes) {
+            if (node.nodeType === 1) {
+              const el = node;
+              if (el.matches('img[loading="lazy"]')) handleImg(el);
+              el.querySelectorAll?.('img[loading="lazy"]').forEach(handleImg);
+            }
+          }
+        }
+      }).observe(document.body, { subtree: true, childList: true });
     </script>
   </body>
 </html>

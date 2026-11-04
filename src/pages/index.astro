@@ -58,8 +58,9 @@ const gallery = siteConfig.images.gallery.map((src) => {
     <!-- Right: reading column — the market ledger -->
     <div class="bg-ground px-5 pt-6 md:pt-16 lg:pt-0 lg:sticky lg:top-5">
       <section id="hero" class="pb-10 md:pb-24" data-reveal>
-        <h1 class="font-display text-6xl md:text-7xl font-bold text-ink leading-[0.95] tracking-tighter" data-reveal>Marea</h1>
-        <p class="text-xl md:text-2xl text-ink mt-4 leading-relaxed" data-reveal>
+        <h1 data-hero-heading class="font-display font-bold text-ink leading-[0.95] tracking-tighter" data-reveal>Marea</h1>
+        <hr data-hero-accent-line aria-hidden="true" class="taste-skill-ignore" />
+        <p data-hero-subhead class="text-ink mt-4 leading-relaxed" data-reveal>
           Bistró mediterráneo · Valencia
         </p>
         <div class="flex flex-col sm:flex-row sm:items-center gap-3 mt-8" data-reveal>
@@ -86,22 +87,24 @@ const gallery = siteConfig.images.gallery.map((src) => {
       <section id="galeria" class="px-5 pt-16 md:pt-20" data-reveal>
         <h2 class="font-display text-3xl md:text-4xl font-bold text-ink mb-4" data-reveal>Galería de archivo</h2>
         <p class="text-ink text-base mb-10" data-reveal>Imágenes de archivo del entorno valenciano; no muestran el local ni los platos de Marea.</p>
-        <!-- One bento composition: exterior spans the width; Albufera + artichokes pair at tablet/desktop, stacked at phone. -->
-        <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-8">
+        <!-- Bento asimétrico intencional: exterior a todo ancho en escritorio (lg:col-span-2, aspect-[4/3]);
+             Albufera + alcachofas apiladas en móvil y lado a lado en escritorio, segunda columna con offset deliberado (mt-8 lg:mt-8). -->
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8" data-reveal>
           {gallery.map((g) => {
             const isWide = g.src === '/images/mercado-central-exterior.jpg';
+            const isSecondColumn = g.src === '/images/valencia-market-artichokes.jpg';
             return (
-              <figure class={['overflow-hidden', isWide ? 'lg:col-span-2' : ''].filter(Boolean).join(' ')} data-reveal>
+              <figure tabindex={0} class={['group relative overflow-hidden rounded-md bg-ground', isWide ? 'lg:col-span-2' : '', isSecondColumn ? 'mt-8 lg:mt-8' : ''].filter(Boolean).join(' ')} data-reveal>
                 <img
                   src={g.src}
                   alt={g.alt}
                   width={g.w}
                   height={g.h}
                   loading="lazy"
-                  class="w-full h-auto block object-cover object-center"
+                  class={['gallery-img block w-full object-cover object-center group-hover:scale-[1.03]', isWide ? 'aspect-[4/3]' : ''].filter(Boolean).join(' ')}
                 />
-                <figcaption class="text-base text-ink mt-3 leading-relaxed" data-reveal>
-                  <p>
+                <figcaption class="gallery-figcaption absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-ink/90 to-transparent text-ground text-sm leading-relaxed opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-visible:opacity-100 group-focus-visible:pointer-events-auto taste-skill-ignore:gradient" style="transition: opacity var(--duration-base) var(--ease-standard)">
+                  <p class="text-sm leading-relaxed">
                     {g.credit?.title}. Foto:{' '}
                     <span class="font-semibold">{g.credit?.creator}</span>,
                     {g.credit?.license}, vía {g.credit?.via}.
@@ -111,7 +114,7 @@ const gallery = siteConfig.images.gallery.map((src) => {
                       href={g.credit?.page ?? '#'}
                       target="_blank"
                       rel="noopener"
-                      class="underline"
+                      class="gallery-credit-link underline underline-offset-2"
                       style="color: inherit; text-underline-offset: 2px"
                     >
                       fuente
@@ -120,14 +123,11 @@ const gallery = siteConfig.images.gallery.map((src) => {
                       href={g.credit?.licenseUrl ?? '#'}
                       target="_blank"
                       rel="noopener"
-                      class="underline"
+                      class="gallery-credit-link underline underline-offset-2"
                       style="color: inherit; text-underline-offset: 2px"
                     >
                       licencia
                     </a>.
-                  </p>
-                  <p class="mt-1 text-sm text-muted">
-                    Imagen de archivo del entorno valenciano; no muestra el local ni los platos de Marea.
                   </p>
                 </figcaption>
               </figure>

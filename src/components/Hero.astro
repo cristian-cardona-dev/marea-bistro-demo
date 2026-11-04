@@ -1,8 +1,8 @@
 ---
 // src/components/Hero.astro
-// Static sticky archive hero: one Mercado Central interior photograph with
-// linked source/license/archive credit. Desktop: sticky beside the reading
-// column (>=1024px). Mobile: 32svh crop at top. Always visible, no JS.
+// Hero stage: Mercado Central interior archive photograph with a scroll-linked
+// caption band (desktop only). Progressive enhancement: the band is fully
+// visible without JS; JS only applies opacity/translateY tied to scrollY.
 import { siteConfig } from '../config/site';
 import creditsData from '../../public/images/credits.json';
 
@@ -43,15 +43,26 @@ const heroCredit = creditFor(heroFile);
   />
 
   <figcaption
+    id="hero-caption"
     data-hero-credit
     data-hero-credit-band
+    data-hero-scroll-band
     class="absolute inset-x-0 bottom-0 px-5 pt-3 pb-4"
-    style="background-color: #0A1628; color: #F8F5F0"
   >
     <div class="text-sm leading-relaxed">
-      <p id="hero-scene-context">Imagen de archivo: Mercado Central, Valencia. Interior del mercado.</p>
-      <p id="hero-scene-credit" class="mt-1">
-        <span id="hero-scene-title">{heroCredit?.title ?? ''}</span>. Foto:
+      <p
+        id="hero-scene-context"
+        data-hero-band-line
+        style="--band-stagger: 0ms"
+      >
+        Imagen de archivo: Mercado Central, Valencia. Interior del mercado.
+      </p>
+      <p
+        id="hero-scene-credit"
+        data-hero-band-line
+        style="--band-stagger: 80ms"
+      >
+        <span id="hero-scene-title">{heroCredit?.title ?? ''}</span>. Foto:{' '}
         <span id="hero-scene-creator">{heroCredit?.creator ?? ''}</span>,
         <span id="hero-scene-license">{heroCredit?.license ?? ''}</span>, vía{' '}
         <span id="hero-scene-via">{heroCredit?.via ?? ''}</span>.
@@ -84,9 +95,57 @@ const heroCredit = creditFor(heroFile);
           <span id="hero-scene-link-license">licencia</span>
         )}.
       </p>
-      <p id="hero-scene-archive" class="mt-1">
+      <p
+        id="hero-scene-archive"
+        data-hero-band-line
+        style="--band-stagger: 160ms"
+      >
         No es el local de Marea: es una fotografía de archivo del mercado.
       </p>
     </div>
   </figcaption>
 </figure>
+
+<script>
+  (function () {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const desktop = window.matchMedia('(min-width: 1024px)').matches;
+    const band = document.querySelector<HTMLElement>('[data-hero-scroll-band]');
+    if (!band || reduceMotion || !desktop) return;
+
+    const lines = Array.from(band.querySelectorAll<HTMLElement>('[data-hero-band-line]'));
+
+    // Progressive enhancement: JS can run, so hide the band and reveal it
+    // scroll-linked (0-100vh -> opacity/translateY). Without JS the band stays
+    // static and fully visible (no rule hides it).
+    band.style.opacity = '0';
+    band.style.transform = 'translateY(16px)';
+    band.style.transition = 'none'; // driven by scroll
+
+    lines.forEach((line, i) => {
+      line.style.opacity = '0';
+      line.style.transform = 'translateY(12px)';
+      line.style.transition = 'opacity 400ms ease, transform 400ms ease';
+      line.style.transitionDelay = (i * 80) + 'ms';
+    });
+
+    function update() {
+      const progress = Math.min(
+        Math.max(window.scrollY / Math.max(window.innerHeight, 1), 0),
+        1
+      );
+      band!.style.opacity = String(progress);
+      band!.style.transform =
+        'translateY(' + 16 * (1 - progress) + 'px)';
+      if (progress > 0) {
+        lines.forEach((line) => {
+          line.style.opacity = '1';
+          line.style.transform = 'none';
+        });
+      }
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+</script>
