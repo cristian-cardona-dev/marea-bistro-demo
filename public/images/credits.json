@@ -315,5 +315,55 @@
     ],
     "saved": "2026-11-04T17:54:26.736Z",
     "use": "illustrative dish photograph - crema catalana tostada (archive context; not a Marea dish)"
+  },
+  {
+    "file": "/images/marea-hero-seafood.jpg",
+    "media": "image",
+    "ref": "pexels:16743486",
+    "title": "Seafood paella with lobster",
+    "creator": "Marcelo Verfe",
+    "creatorUrl": "https://www.pexels.com/@marcelo-verfe-1282143/",
+    "date": null,
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/seafood-paella-with-lobster-16743486/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/16743486/pexels-photo-16743486.jpeg",
+    "width": 1920,
+    "height": 1272,
+    "bytes": 466237,
+    "credit": "\"Seafood paella with lobster\" by Marcelo Verfe, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea dish."
+    ],
+    "saved": "2026-11-04T17:59:19.322Z",
+    "use": "hero - seafood paella in natural light (illustrative dish photo; not Marea dish or venue)"
+  },
+  {
+    "file": "/images/marea-octopus-plate.jpg",
+    "media": "image",
+    "ref": "pexels:20226303",
+    "title": "Man hand holding plate of food (octopus and potatoes)",
+    "creator": "Doğu Tuncer",
+    "creatorUrl": "https://www.pexels.com/@dogu-tuncer-18719458/",
+    "date": null,
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/man-hand-holding-plate-of-food-20226303/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/20226303/pexels-photo-20226303.jpeg",
+    "width": 1920,
+    "height": 1280,
+    "bytes": 177851,
+    "credit": "\"Man hand holding plate of food\" by Doğu Tuncer, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea dish."
+    ],
+    "saved": "2026-11-04T17:59:19.322Z",
+    "use": "gallery - octopus and potatoes on plate (illustrative dish photo; not Marea dish)"
   }
 ]
