@@ -391,5 +391,31 @@
     ],
     "saved": "2026-11-04T18:06:34.156Z",
     "use": "gallery - art-directed grilled octopus with microgreens (illustrative dish photo; not Marea dish)"
+  },
+  {
+    "file": "/images/marea-octopus-elegant.jpg",
+    "media": "image",
+    "ref": "pexels:39452706",
+    "title": "Gourmet grilled octopus on elegant plate",
+    "creator": "Deane Bayas",
+    "creatorUrl": "https://www.pexels.com/@deane-bayas-2150536599/",
+    "date": null,
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/gourmet-grilled-octopus-on-elegant-plate-39452706/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/39452706/pexels-photo-39452706.jpeg",
+    "width": 1920,
+    "height": 2880,
+    "bytes": 629207,
+    "credit": "\"Gourmet grilled octopus on elegant plate\" by Deane Bayas, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea dish.",
+      "Replacement for marea-octopus-gourmet.jpg (out of focus/blurred) with sharp, clearly plated grilled octopus, warm/neutral tones, less clutter."
+    ],
+    "saved": "2026-11-04T18:12:16.027Z",
+    "use": "gallery - sharp grilled octopus on elegant plate (illustrative dish photo; not Marea dish)"
   }
 ]
