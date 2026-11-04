@@ -1,73 +1,37 @@
 ---
 // src/components/Menu.astro
+// The typographic market ledger: category headings in the display face,
+// items with tabular prices, a one-line note under each. No cards, no grids,
+// no hairlines, no pill filters. Text-led unless a photo exactly matches the dish.
 import { siteConfig } from '../config/site';
-import MenuFilter from './MenuFilter';
-
 const { menu } = siteConfig;
 ---
-
-<section class="py-24 px-6" id="carta">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="font-display text-4xl md:text-5xl font-bold text-ink mb-4 text-center" data-reveal>
-      La carta
-    </h2>
-    <p class="text-muted text-center mb-12 max-w-2xl mx-auto">
-      Ingredientes del mercado de Ruzafa. Cocina de mar y fuego de leña.
+<section id="carta" data-sample-claim class="px-5 py-10 md:py-16">
+  <div class="max-w-[46ch] mx-auto">
+    <h2 class="market-category text-4xl md:text-5xl font-bold leading-[0.95] mb-6" data-reveal>La carta</h2>
+    <p class="text-lg text-ink mb-8" data-reveal>Del mar a la mesa, plato a plato.</p>
+    <p class="text-base text-ink mb-12" data-reveal>
+      Platos y precios de ejemplo; Marea es un restaurante ficticio de demostración.
     </p>
 
-    <!-- Category filter (React island) -->
-    <div class="mb-12" data-reveal>
-      <MenuFilter client:visible categories={menu.categories.map((c) => ({ id: c.id, name: c.name }))} />
-    </div>
-
-    <!-- Menu categories -->
     {menu.categories.map((category) => (
-      <div class="mb-16" data-category={category.id} data-reveal>
-        <h3 class="font-display text-2xl font-bold text-secondary mb-6 flex items-center gap-3">
-          <span class="w-8 h-px bg-secondary/40"></span>
+      <div class="mb-14" data-reveal>
+        <h3 class="market-category text-2xl md:text-3xl font-bold mb-6" data-reveal>
           {category.name}
         </h3>
-
-        <div class="bento-grid">
+        <ul>
           {category.items.map((item) => (
-            <article
-              class={`group relative overflow-hidden rounded-2xl bg-ground/50 border border-muted/10 hover:border-accent/30 transition-all duration-300 ${
-                item.featured ? 'bento-featured' : ''
-              }`}
-            >
-              {item.image && (
-                <div class="aspect-square overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                </div>
-              )}
-              <div class="p-4">
-                <div class="flex justify-between items-start gap-2 mb-2">
-                  <h4 class="font-display font-bold text-ink group-hover:text-secondary transition-colors">
-                    {item.name}
-                  </h4>
-                  <span class="text-secondary font-bold whitespace-nowrap">
-                    {item.price}{menu.currency}
-                  </span>
-                </div>
-                <p class="text-muted text-sm line-clamp-2">{item.description}</p>
-                {item.tags && (
-                  <div class="flex gap-1 mt-2 flex-wrap">
-                    {item.tags.map((tag) => (
-                      <span class="text-xs text-ink bg-muted/20 px-2 py-0.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+            <li class="market-item py-4" data-reveal>
+              <div class="market-row">
+                <span class="dish-name text-lg font-semibold">{item.name}</span>
+                <span class="dish-price text-lg font-semibold">
+                  {item.price}{menu.currency}
+                </span>
               </div>
-            </article>
+              <p class="market-note" data-reveal>{item.description}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     ))}
   </div>

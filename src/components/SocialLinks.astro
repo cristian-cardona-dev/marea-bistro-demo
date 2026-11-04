@@ -23,7 +23,7 @@ const socialLinks = [
           href={s.url}
           target="_blank"
           rel="noopener noreferrer"
-          class="w-12 h-12 rounded-full bg-ground/60 border border-muted/30 flex items-center justify-center text-muted hover:text-accent hover:border-accent/50 transition-all duration-200 hover:scale-110"
+          class="w-12 h-12 bg-groundAlt border border-muted/20 flex items-center justify-center text-muted hover:text-accent hover:border-accent/50 transition-all duration-200 hover:scale-110"
           aria-label={s.name}
         >
           {s.icon === 'instagram' && (
@@ -49,8 +49,5 @@ const socialLinks = [
         </a>
       ))}
     </div>
-    <p class="text-muted text-sm mt-6">
-      {brand.name} — {social.googleRating}★ en Google ({social.googleReviewCount} reseñas)
-    </p>
   </div>
 </section>

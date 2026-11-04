@@ -1,60 +1,92 @@
 ---
 // src/components/Hero.astro
+// Static sticky archive hero: one Mercado Central interior photograph with
+// linked source/license/archive credit. Desktop: sticky beside the reading
+// column (>=1024px). Mobile: 32svh crop at top. Always visible, no JS.
 import { siteConfig } from '../config/site';
-import DishSelector from './DishSelector';
+import creditsData from '../../public/images/credits.json';
 
-const { brand, images } = siteConfig;
-const featuredDishes = siteConfig.menu.categories
-  .flatMap((cat) => cat.items)
-  .filter((item) => item.featured);
+const { images } = siteConfig;
+
+const credits = creditsData as unknown as Array<Record<string, string | null>>;
+const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
+
+function creditFor(file: string) {
+  const c = creditByFile[file];
+  if (!c) return null;
+  return {
+    title: c.title,
+    creator: c.creator,
+    license: c.license,
+    licenseUrl: c.licenseUrl,
+    page: c.page,
+    via: c.via,
+  };
+}
+
+const heroFile = images.hero; // /images/gallery-market.jpg
+const heroCredit = creditFor(heroFile);
 ---
+<figure
+  id="hero-stage"
+  class="relative h-[32svh] lg:h-[calc(100svh-3rem)] lg:sticky lg:top-12 lg:self-start w-full overflow-hidden bg-ground/50"
+>
+  <img
+    id="hero-img"
+    src={heroFile}
+    alt="Imagen de archivo: Mercado Central de Valencia, interior del mercado. No es el local de Marea."
+    class="w-full h-full object-cover object-center"
+    width="1920"
+    height="1240"
+    loading="eager"
+    fetchpriority="high"
+  />
 
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden" id="hero">
-  <!-- Full-bleed background image -->
-  <div class="absolute inset-0 z-0">
-    <img
-      src={images.hero}
-      alt={`Vista del mar en ${brand.name}`}
-      class="w-full h-full object-cover"
-      loading="eager"
-      fetchpriority="high"
-    />
-    <div class="absolute inset-0 bg-gradient-to-b from-ground/60 via-ground/40 to-ground"></div>
-  </div>
-
-  <!-- Content -->
-  <div class="relative z-10 text-center px-6 max-w-5xl mx-auto">
-    <!-- Kinetic typography title -->
-    <h1
-      class="font-display text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight text-ink mb-4"
-      data-kinetic
-    >
-      {brand.name}
-    </h1>
-
-    <p class="text-xl md:text-2xl text-muted mb-8 max-w-2xl mx-auto font-body">
-      {brand.tagline}
-    </p>
-
-    <!-- Live thing: Dish selector -->
-    <div class="mb-10" data-reveal>
-      <p class="text-sm text-muted mb-4 uppercase tracking-wider">Descubre un plato</p>
-      <DishSelector client:visible dishes={featuredDishes} />
+  <figcaption
+    data-hero-credit
+    data-hero-credit-band
+    class="absolute inset-x-0 bottom-0 px-5 pt-3 pb-4"
+    style="background-color: #0A1628; color: #F8F5F0"
+  >
+    <div class="text-sm leading-relaxed">
+      <p id="hero-scene-context">Imagen de archivo: Mercado Central, Valencia. Interior del mercado.</p>
+      <p id="hero-scene-credit" class="mt-1">
+        <span id="hero-scene-title">{heroCredit?.title ?? ''}</span>. Foto:
+        <span id="hero-scene-creator">{heroCredit?.creator ?? ''}</span>,
+        <span id="hero-scene-license">{heroCredit?.license ?? ''}</span>, vía{' '}
+        <span id="hero-scene-via">{heroCredit?.via ?? ''}</span>.
+        {heroCredit?.page ? (
+          <a
+            id="hero-scene-link-page"
+            href={heroCredit.page}
+            target="_blank"
+            rel="noopener"
+            class="underline"
+            style="color: inherit; text-underline-offset: 2px"
+          >
+            fuente
+          </a>
+        ) : (
+          <span id="hero-scene-link-page">fuente</span>
+        )}{' · '}
+        {heroCredit?.licenseUrl ? (
+          <a
+            id="hero-scene-link-license"
+            href={heroCredit.licenseUrl}
+            target="_blank"
+            rel="noopener"
+            class="underline"
+            style="color: inherit; text-underline-offset: 2px"
+          >
+            licencia
+          </a>
+        ) : (
+          <span id="hero-scene-link-license">licencia</span>
+        )}.
+      </p>
+      <p id="hero-scene-archive" class="mt-1">
+        No es el local de Marea: es una fotografía de archivo del mercado.
+      </p>
     </div>
-
-    <!-- CTA -->
-    <a
-      href="#reservas"
-      class="inline-block bg-accent hover:bg-accent/90 text-ink font-semibold px-8 py-4 rounded-full text-lg transition-all duration-300 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-    >
-      Reservar mesa
-    </a>
-  </div>
-
-  <!-- Scroll indicator -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-    <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-    </svg>
-  </div>
-</section>
+  </figcaption>
+</figure>

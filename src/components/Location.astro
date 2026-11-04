@@ -3,7 +3,6 @@
 import { siteConfig } from '../config/site';
 
 const { location, hours } = siteConfig;
-const { social } = siteConfig;
 ---
 
 <section class="py-24 px-6" id="ubicacion">
@@ -11,13 +10,13 @@ const { social } = siteConfig;
     <h2 class="font-display text-4xl md:text-5xl font-bold text-ink mb-4 text-center" data-reveal>
       Ubicación
     </h2>
-    <p class="text-muted text-center mb-12">
+    <p class="text-ink text-center mb-12">
       {location.address}, {location.city}
     </p>
 
     <div class="grid md:grid-cols-2 gap-8 items-start">
       <!-- Map -->
-      <div class="rounded-2xl overflow-hidden border border-muted/20" data-reveal>
+      <div class="overflow-hidden bg-groundAlt/30" data-reveal>
         <iframe
           src={location.mapEmbedUrl}
           width="100%"
@@ -27,26 +26,21 @@ const { social } = siteConfig;
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           title={`Mapa de ${location.city}`}
-          class="w-full h-[400px]"
+          class="w-full h-[400px] block"
         ></iframe>
       </div>
 
       <!-- Info -->
       <div class="space-y-6" data-reveal>
         <div>
-          <h3 class="font-display text-xl font-bold text-ink mb-3">Horarios</h3>
+          <h3 class="font-display text-xl font-bold text-ink mb-3">Horario</h3>
           <div class="space-y-2">
             {hours.map((h) => (
-              <div class="flex justify-between items-center py-2 border-b border-muted/10">
+              <div class="flex justify-between items-center py-2 border-b border-muted/20" data-reveal>
                 <span class="text-ink font-medium">{h.day}</span>
-                {h.closed ? (
-                  <span class="text-muted">Cerrado</span>
-                ) : (
-                  <span class="text-muted">
-                    {h.open}–{h.close}
-                    {h.open2 && ` / ${h.open2}–${h.close2}`}
-                  </span>
-                )}
+                <span class="text-muted">
+                  {h.closed ? 'Cerrado' : `${h.open}${h.open2 ? ` / ${h.open2}–${h.close2}` : ''} – ${h.close}${h.close2 ? ` / ${h.close2}` : ''}`}
+                </span>
               </div>
             ))}
           </div>
@@ -68,21 +62,6 @@ const { social } = siteConfig;
             </p>
           </div>
         </div>
-
-        <!-- Google Business badge -->
-        {social.googleRating && (
-          <div class="flex items-center gap-2 bg-ground/50 rounded-xl px-4 py-3 border border-muted/20">
-            <div class="flex text-secondary">
-              {[1,2,3,4,5].map((star) => (
-                <svg class={`w-4 h-4 ${star <= Math.round(social.googleRating!) ? 'fill-current' : 'fill-muted/30'}`} viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              ))}
-            </div>
-            <span class="text-ink font-bold">{social.googleRating}</span>
-            <span class="text-muted text-sm">({social.googleReviewCount} reseñas en Google)</span>
-          </div>
-        )}
       </div>
     </div>
   </div>

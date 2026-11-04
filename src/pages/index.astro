@@ -1,47 +1,173 @@
 ---
 // src/pages/index.astro
+// Direction: page-is-the-object — the page reads like a printed market ledger
+// ("Cuaderno del mercado"). Light-first: mineral paper ground, petrol ink,
+// sea-glass accent. Desktop: archive photograph beside a reading column.
+// Mobile: photograph first, then the reading column. Every image is credited
+// as archive; no dish photo claims to be Marea's own; no chef/history/story
+// claims; no fake ratings or confirmations.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Hero from '../components/Hero.astro';
 import Menu from '../components/Menu.astro';
-import About from '../components/About.astro';
-import Gallery from '../components/Gallery.astro';
-import ReservationForm from '../components/ReservationForm';
-import Location from '../components/Location.astro';
-import SocialLinks from '../components/SocialLinks.astro';
-import Footer from '../components/Footer.astro';
 import { siteConfig } from '../config/site';
+const { hours, location, reservations } = siteConfig;
 
-const { reservations, social } = siteConfig;
+const mailtoSubject = encodeURIComponent('Solicitud de reserva — Marea Bistro (demostración)');
+const mailtoBody = encodeURIComponent(
+  'Hola, me gustaría solicitar una reserva en Marea Bistro.\n\n' +
+  'Aviso de demostración: este sitio es una plantilla de ejemplo. Marea es un restaurante ficticio. ' +
+  'Esta página solo prepara el correo: no lo envía automáticamente ni confirma una reserva. Tú decides si enviar este mensaje.\n\n' +
+  'Detalles por definir: fecha, hora y número de comensales.'
+);
+
+import creditsData from '../../public/images/credits.json';
+const credits = creditsData as unknown as Array<Record<string, string | null>>;
+const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
+function creditFor(file: string) {
+  const c = creditByFile[file];
+  if (!c) return null;
+  return {
+    title: c.title,
+    creator: c.creator,
+    license: c.license,
+    licenseUrl: c.licenseUrl,
+    page: c.page,
+    via: c.via,
+  };
+}
+
+const gallery = siteConfig.images.gallery.map((src) => {
+  const c = creditFor(src);
+  return {
+    src,
+    alt: `Imagen de archivo: ${c?.title ?? src.split('/').pop()}. No muestra el local ni los platos de Marea.`,
+    w: 1920,
+    h: 1280,
+    credit: c,
+  };
+});
 ---
-
 <BaseLayout>
-  <main>
+  <SiteHeader />
+
+  <div class="lg:grid lg:grid-cols-[48fr_52fr] lg:gap-8 lg:items-start">
+    <!-- Left: archive photograph (hero), sticky on desktop -->
     <Hero />
-    <Menu />
-    <About />
-    <Gallery />
-    <section class="py-24 px-6" id="reservas">
-      <div class="max-w-3xl mx-auto">
-        <h2 class="font-display text-4xl md:text-5xl font-bold text-ink mb-4 text-center" data-reveal>
-          Reservas
-        </h2>
-        <p class="text-muted text-center mb-12">
-          Mesa para {reservations.minParty} a {reservations.maxParty} personas. Reserva con hasta {reservations.advanceDays} días de antelación.
+
+    <!-- Right: reading column — the market ledger -->
+    <div class="bg-ground px-5 pt-6 md:pt-16 lg:pt-0 lg:sticky lg:top-5">
+      <section id="hero" class="pb-10 md:pb-24" data-reveal>
+        <h1 class="font-display text-6xl md:text-7xl font-bold text-ink leading-[0.95] tracking-tighter" data-reveal>Marea</h1>
+        <p class="text-xl md:text-2xl text-ink mt-4 leading-relaxed" data-reveal>
+          Bistró mediterráneo · Valencia
         </p>
-        {reservations.enabled && (
-          <ReservationForm
-            client:visible
-            minParty={reservations.minParty}
-            maxParty={reservations.maxParty}
-            whatsappFallback={reservations.whatsappFallback}
-            emailFallback={reservations.emailFallback}
-            whatsappUrl={social.whatsapp}
-          />
-        )}
-      </div>
-    </section>
-    <Location />
-    <SocialLinks />
-  </main>
-  <Footer />
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mt-8" data-reveal>
+          <a
+            href="#reservas"
+            class="btn-square"
+          >
+            Reservar mesa
+          </a>
+          <a
+            href="#carta"
+            class="btn-square-outline"
+          >
+            Ver la carta
+          </a>
+        </div>
+        <p data-demo-disclosure role="note" class="text-base text-ink mt-6 leading-relaxed" data-reveal>
+          <strong>Demostración:</strong> Marea es un restaurante ficticio. Los platos, precios, horarios y datos de contacto son contenido de ejemplo y no describen un negocio real.
+        </p>
+      </section>
+
+      <Menu />
+
+      <section id="galeria" class="px-5 pt-16 md:pt-20" data-reveal>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-ink mb-4" data-reveal>Galería de archivo</h2>
+        <p class="text-ink text-base mb-10" data-reveal>Imágenes de archivo del entorno valenciano; no muestran el local ni los platos de Marea.</p>
+        <!-- One bento composition: exterior spans the width; Albufera + artichokes pair at tablet/desktop, stacked at phone. -->
+        <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-8">
+          {gallery.map((g) => {
+            const isWide = g.src === '/images/mercado-central-exterior.jpg';
+            return (
+              <figure class={['overflow-hidden', isWide ? 'lg:col-span-2' : ''].filter(Boolean).join(' ')} data-reveal>
+                <img
+                  src={g.src}
+                  alt={g.alt}
+                  width={g.w}
+                  height={g.h}
+                  loading="lazy"
+                  class="w-full h-auto block object-cover object-center"
+                />
+                <figcaption class="text-base text-ink mt-3 leading-relaxed" data-reveal>
+                  <p>
+                    {g.credit?.title}. Foto:{' '}
+                    <span class="font-semibold">{g.credit?.creator}</span>,
+                    {g.credit?.license}, vía {g.credit?.via}.
+                  </p>
+                  <p class="mt-1">
+                    <a
+                      href={g.credit?.page ?? '#'}
+                      target="_blank"
+                      rel="noopener"
+                      class="underline"
+                      style="color: inherit; text-underline-offset: 2px"
+                    >
+                      fuente
+                    </a>{' · '}
+                    <a
+                      href={g.credit?.licenseUrl ?? '#'}
+                      target="_blank"
+                      rel="noopener"
+                      class="underline"
+                      style="color: inherit; text-underline-offset: 2px"
+                    >
+                      licencia
+                    </a>.
+                  </p>
+                  <p class="mt-1 text-sm text-muted">
+                    Imagen de archivo del entorno valenciano; no muestra el local ni los platos de Marea.
+                  </p>
+                </figcaption>
+              </figure>
+            );
+          })}
+        </div>
+      </section>
+
+      <section id="reservas" class="px-5 pt-16 md:pt-20 pb-16" data-reveal>
+        <div class="max-w-[46ch]">
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-ink mb-6" data-reveal>Reservas</h2>
+          <p class="text-ink text-base mb-4" data-reveal>
+            Mesa para {reservations.minParty} a {reservations.maxParty} personas. Reserva con hasta {reservations.advanceDays} días de antelación.
+          </p>
+          <p id="ubicacion" class="text-ink text-base mb-10" data-reveal>
+            {location.address}, {location.city}. Tel. {location.phone}.
+          </p>
+
+          <h3 class="font-display text-xl font-bold text-ink mb-4" data-reveal>Horario</h3>
+          <ul class="text-ink text-base space-y-2" data-reveal>
+            {hours.map((h) => (
+              <li class="flex justify-between" data-reveal>
+                <span>{h.day}</span>
+                <span>{h.closed ? 'Cerrado' : `${h.open}${h.open2 ? ` / ${h.open2}` : ''} – ${h.close}${h.close2 ? ` / ${h.close2}` : ''}`}</span>
+              </li>
+            ))}
+          </ul>
+
+          <a
+            href={`mailto:${encodeURIComponent(reservations.emailFallback)}?subject=${mailtoSubject}&body=${mailtoBody}`}
+            class="btn-square mt-10 block text-center w-fit"
+            data-reveal
+          >
+            Solicitar reserva
+          </a>
+          <p class="text-sm text-ink mt-8" data-reveal>
+            Datos de ejemplo (Marea es un restaurante ficticio de demostración).
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
 </BaseLayout>
