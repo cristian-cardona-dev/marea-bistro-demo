@@ -10,8 +10,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import Hero from '../components/Hero.astro';
 import Menu from '../components/Menu.astro';
+import Gallery from '../components/Gallery.astro';
+import Footer from '../components/Footer.astro';
 import { siteConfig } from '../config/site';
-const { hours, location, reservations, content } = siteConfig;
+const { hours, location, reservations } = siteConfig;
 
 const mailtoSubject = encodeURIComponent('Solicitud de reserva — Marea Bistro (demostración)');
 const mailtoBody = encodeURIComponent(
@@ -21,33 +23,6 @@ const mailtoBody = encodeURIComponent(
   'Detalles por definir: fecha, hora y número de comensales.'
 );
 const mailtoHref = `mailto:${encodeURIComponent(reservations.emailFallback)}?subject=${mailtoSubject}&body=${mailtoBody}`;
-
-import creditsData from '../../public/images/credits.json';
-const credits = creditsData as unknown as Array<Record<string, string | null>>;
-const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
-function creditFor(file: string) {
-  const c = creditByFile[file];
-  if (!c) return null;
-  return {
-    title: c.title,
-    creator: c.creator,
-    license: c.license,
-    licenseUrl: c.licenseUrl,
-    page: c.page,
-    via: c.via,
-  };
-}
-
-// Archive gallery, in siteConfig order. Alt + caption state plainly that these
-// are archive photographs of the Mediterranean/Valencian context, not Marea.
-const gallery = siteConfig.images.gallery.map((src) => {
-  const c = creditFor(src);
-  return {
-    src,
-    alt: `Imagen de archivo: ${c?.title ?? src.split('/').pop()}. No muestra el local ni los platos de Marea.`,
-    credit: c,
-  };
-});
 ---
 <BaseLayout>
   <SiteHeader />
@@ -55,62 +30,7 @@ const gallery = siteConfig.images.gallery.map((src) => {
   <main>
     <Hero />
     <Menu />
-
-    <!-- Archive gallery — one supporting image, shown deliberately and balanced -->
-    <section id="galeria" data-motion="section" class="bg-ground-alt px-5 sm:px-8 py-20 md:py-28">
-      <div class="mx-auto max-w-[1400px]">
-        <div class="max-w-[52ch]">
-          <h2 class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
-            Archivo fotográfico
-          </h2>
-          <p class="mt-4 text-lg text-ink/80">
-            Imágenes de archivo del entorno valenciano y mediterráneo. No muestran el local ni los platos de Marea.
-          </p>
-        </div>
-
-        <div class="mt-12 flex flex-col gap-10">
-          {gallery.map((g) => (
-            <figure class="m-0">
-              <div class="overflow-hidden bg-ink/5 aspect-[16/9]">
-                <img
-                  src={g.src}
-                  alt={g.alt}
-                  width="1920"
-                  height="1280"
-                  loading="lazy"
-                  class="gallery-img h-full w-full object-cover object-center"
-                />
-              </div>
-              <figcaption class="mt-3 text-sm leading-relaxed text-ink/70">
-                <span class="text-ink font-medium">{g.credit?.title ?? 'Imagen de archivo'}</span>. Foto:{' '}
-                <span class="font-medium">{g.credit?.creator}</span>{g.credit?.license ? `, ${g.credit.license}` : ''}, vía {g.credit?.via}.{' '}
-                {g.credit?.page && (
-                  <a
-                    href={g.credit.page}
-                    target="_blank"
-                    rel="noopener"
-                    class="gallery-credit-link underline underline-offset-2"
-                  >
-                    fuente
-                  </a>
-                )}
-                {g.credit?.page && g.credit?.licenseUrl && ' · '}
-                {g.credit?.licenseUrl && (
-                  <a
-                    href={g.credit.licenseUrl}
-                    target="_blank"
-                    rel="noopener"
-                    class="gallery-credit-link underline underline-offset-2"
-                  >
-                    licencia
-                  </a>
-                )}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
+    <Gallery />
 
     <!-- Booking close — dark cinematic panel -->
     <section id="reservas" data-motion="section" class="bg-ink text-ground px-5 sm:px-8 py-20 md:py-28">
@@ -150,10 +70,5 @@ const gallery = siteConfig.images.gallery.map((src) => {
     </section>
   </main>
 
-  <footer class="bg-ink text-ground/60 border-t border-ground/10 px-5 sm:px-8 py-8">
-    <div class="mx-auto max-w-[1400px] flex flex-col sm:flex-row justify-between gap-3 text-sm">
-      <p>{content.footerText}</p>
-      <p>Imágenes ilustrativas de archivo (Pexels). No representan el local ni los platos de Marea.</p>
-    </div>
-  </footer>
+  <Footer />
 </BaseLayout>

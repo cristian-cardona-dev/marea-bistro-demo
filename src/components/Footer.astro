@@ -1,54 +1,15 @@
 ---
 // src/components/Footer.astro
+// Canonical footer for the active page. Truthful, provider-neutral credit note:
+// sources/licenses are listed per image in their captions (see Gallery).
 import { siteConfig } from '../config/site';
 
-const { brand, content } = siteConfig;
-const currentYear = new Date().getFullYear();
+const { content } = siteConfig;
 ---
 
-<footer class="py-16 px-6 border-t border-muted/10">
-  <div class="max-w-7xl mx-auto">
-    <div class="grid md:grid-cols-3 gap-8 mb-8">
-      <div>
-        <h3 class="font-display font-bold text-ink mb-3">{brand.name}</h3>
-        <p class="text-muted text-sm leading-relaxed">
-          {brand.tagline}
-        </p>
-      </div>
-
-      <div>
-        <h3 class="font-display font-bold text-ink mb-3">Enlaces</h3>
-        <ul class="space-y-2 text-sm text-muted">
-          <li><a href="#hero" class="hover:text-secondary transition-colors">Inicio</a></li>
-          <li><a href="#carta" class="hover:text-secondary transition-colors">La carta</a></li>
-          <li><a href="#reservas" class="hover:text-secondary transition-colors">Reservas</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h3 class="font-display font-bold text-ink mb-3">Contacto</h3>
-        <ul class="space-y-2 text-sm text-muted">
-          <li>{siteConfig.location.address}</li>
-          <li>{siteConfig.location.city}, {siteConfig.location.country}</li>
-          <li>
-            <a href={`tel:${siteConfig.location.phone}`} class="hover:text-secondary transition-colors">
-              {siteConfig.location.phone}
-            </a>
-          </li>
-          <li>
-            <a href={`mailto:${siteConfig.location.email}`} class="hover:text-secondary transition-colors">
-              {siteConfig.location.email}
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="border-t border-muted/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted">
-      <p>{content.footerText.replace('2026', String(currentYear))}</p>
-      <p>
-        Fotos: <a href="https://commons.wikimedia.org" target="_blank" rel="noopener" class="hover:text-secondary transition-colors">Wikimedia Commons</a> (CC BY 2.0, CC BY-SA 3.0/4.0)
-      </p>
-    </div>
+<footer class="bg-ink text-ground/60 border-t border-ground/10 px-5 sm:px-8 py-8">
+  <div class="mx-auto max-w-[1400px] flex flex-col sm:flex-row justify-between gap-3 text-sm">
+    <p>{content.footerText}</p>
+    <p>Las fuentes y licencias de cada imagen figuran en sus pies de foto.</p>
   </div>
 </footer>

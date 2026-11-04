@@ -1,30 +1,92 @@
 ---
 // src/components/Gallery.astro
+// Canonical archive gallery for the active page: one supporting photograph,
+// shown deliberately and balanced against a heading/credit column. The image is
+// bound to siteConfig.images.gallery (never hard-coded). Attribution comes from
+// credits.json; alt + caption state plainly that this is archive photography,
+// not Marea's own dish/venue. Nothing is hidden pending an animation.
 import { siteConfig } from '../config/site';
+import creditsData from '../../public/images/credits.json';
 
-const { images, brand } = siteConfig;
+const { images } = siteConfig;
+
+const credits = creditsData as unknown as Array<Record<string, string | null>>;
+const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
+
+const gallery = images.gallery.map((src) => {
+  const c = (creditByFile[src] ?? null) as Record<string, string | null> | null;
+  return {
+    src,
+    width: c?.width ?? null,
+    height: c?.height ?? null,
+    alt: `Imagen de archivo: ${c?.title ?? src.split('/').pop()}. No muestra el local ni los platos de Marea.`,
+    credit: c
+      ? {
+          title: c.title,
+          creator: c.creator,
+          license: c.license,
+          licenseUrl: c.licenseUrl,
+          page: c.page,
+          via: c.via,
+        }
+      : null,
+  };
+});
 ---
 
-<section class="py-24 px-6 bg-ground/50" id="galeria">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="font-display text-4xl md:text-5xl font-bold text-ink mb-4 text-center" data-reveal>
-      Galería
-    </h2>
-    <p class="text-muted text-center mb-12">
-      Un vistazo a {brand.name}
-    </p>
+<section id="galeria" data-motion="section" class="bg-ground-alt px-5 sm:px-8 py-20 md:py-28">
+  <div class="mx-auto max-w-[1400px]">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16 items-start">
+      <div class="lg:col-span-5 max-w-[52ch]">
+        <h2 class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
+          Archivo fotográfico
+        </h2>
+        <p class="mt-4 text-lg text-ink/80">
+          Imágenes de archivo del entorno valenciano y mediterráneo. No muestran el local ni los platos de Marea.
+        </p>
+      </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" data-reveal>
-      {images.gallery.map((img, i) => (
-        <div class={`overflow-hidden rounded-xl ${i === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
-          <img
-            src={img}
-            alt={`Foto ${i + 1} de ${brand.name}`}
-            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500 aspect-square"
-            loading="lazy"
-          />
-        </div>
-      ))}
+      <div class="lg:col-span-7">
+        {gallery.map((g) => (
+          <figure class="m-0">
+            <div class="overflow-hidden bg-ink/5 aspect-[2/3] max-w-sm">
+              <img
+                src={g.src}
+                alt={g.alt}
+                width={g.width ?? 1920}
+                height={g.height ?? 2880}
+                loading="lazy"
+                class="gallery-img h-full w-full object-cover object-center"
+              />
+            </div>
+            <figcaption class="mt-3 text-sm leading-relaxed text-ink/70 max-w-sm">
+              <span class="text-ink font-medium">{g.credit?.title ?? 'Imagen de archivo'}</span>. Foto:{' '}
+              <span class="font-medium">{g.credit?.creator}</span>{g.credit?.license ? `, ${g.credit.license}` : ''}, vía {g.credit?.via}.{' '}
+              {g.credit?.page && (
+                <a
+                  href={g.credit.page}
+                  target="_blank"
+                  rel="noopener"
+                  class="gallery-credit-link underline underline-offset-2"
+                >
+                  fuente
+                </a>
+              )}
+              {g.credit?.page && g.credit?.licenseUrl && ' · '}
+              {g.credit?.licenseUrl && (
+                <a
+                  href={g.credit.licenseUrl}
+                  target="_blank"
+                  rel="noopener"
+                  class="gallery-credit-link underline underline-offset-2"
+                >
+                  licencia
+                </a>
+              )}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
     </div>
   </div>
 </section>
