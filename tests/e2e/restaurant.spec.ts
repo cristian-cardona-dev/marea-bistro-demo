@@ -71,8 +71,11 @@ test('v0_menu_link_reaches_menu_section', async ({ page }) => {
     const lc = await lis.count();
     expect(lc).toBeGreaterThan(0);
     for (let k = 0; k < lc; k += 1) {
+      await expect(lis.nth(k)).toHaveClass(/market-item/);
       await expect(lis.nth(k).locator('.market-row')).toHaveCount(1);
       await expect(lis.nth(k).locator('.market-note')).toHaveCount(1);
+      // .market-note is the adjacent sibling immediately after .market-row.
+      await expect(lis.nth(k).locator('.market-row + .market-note')).toHaveCount(1);
     }
   }
 });
@@ -145,37 +148,75 @@ test('v0_demo_disclosure_precedes_sample_claims', async ({ page }) => {
 test('v0_hero_credit_is_legible', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const credit = page.getByText(/Imagen de archivo: Mercado Central, Valencia/);
+
+  // Hero credit is the current Pexels illustrative photo, attributed truthfully
+  // as archive material — never Marea's own venue or dish.
+  const credit = page.locator('#hero-caption');
   await expect(credit).toBeVisible();
-  const color = await credit.evaluate((el) => getComputedStyle(el).color);
-  expect(color).toBe('rgb(248, 245, 240)');
-  const bandHandle = await credit.evaluateHandle((el) => el.closest('[data-hero-credit-band]'));
-  const bg = await bandHandle.evaluate((el: any) => el ? getComputedStyle(el).backgroundColor : '');
-  expect(bg).toBe('rgb(10, 22, 40)');
-  const blur = await bandHandle.evaluate((el: any) => el ? getComputedStyle(el).backdropFilter : '');
-  expect(blur === 'none' || blur === '').toBe(true);
-
-  // Hero credit carries a clickable source-page link and a license link.
-  const heroCreditBlock = page.locator('[data-hero-credit]').first();
-  await expect(heroCreditBlock).toBeVisible();
-  await expect(heroCreditBlock.getByRole('link', { name: /fuente/i })).toHaveAttribute(
-    'href',
-    /wikimedia\.org/,
-  );
-  await expect(heroCreditBlock.getByRole('link', { name: /licencia/i })).toHaveAttribute(
-    'href',
-    /creativecommons\.org/,
+  await expect(credit).toContainText(/Fotografía ilustrativa de archivo/);
+  await expect(credit).toContainText(/Seafood paella with lobster/);
+  await expect(credit).not.toContainText(
+    /Mercado Central|Wikimedia|Creative Commons|Diego Delso/,
   );
 
-  // Every gallery caption carries a clickable source-page link and a license link.
+  // Creator plus the source-page and license links point at the Pexels provenance.
+  await expect(page.locator('#hero-scene-creator')).toHaveText('Marcelo Verfe');
+  await expect(page.locator('#hero-scene-link-page')).toHaveAttribute(
+    'href',
+    'https://www.pexels.com/photo/seafood-paella-with-lobster-16743486/',
+  );
+  await expect(page.locator('#hero-scene-link-license')).toHaveAttribute(
+    'href',
+    'https://www.pexels.com/license/',
+  );
+
+  // Legible and not hidden: opaque text on the plain ground surface (the former
+  // dark credit band is gone), and no glassmorphism blur.
+  const legibility = await credit.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    let surface = el.parentElement as HTMLElement | null;
+    let surfaceBg = 'rgba(0, 0, 0, 0)';
+    while (surface) {
+      const bg = getComputedStyle(surface).backgroundColor;
+      if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+        surfaceBg = bg;
+        break;
+      }
+      surface = surface.parentElement as HTMLElement | null;
+    }
+    return {
+      color: cs.color,
+      opacity: cs.opacity,
+      visibility: cs.visibility,
+      display: cs.display,
+      surfaceBg,
+      backdrop: cs.backdropFilter,
+    };
+  });
+  expect(legibility.opacity).toBe('1');
+  expect(legibility.visibility).toBe('visible');
+  expect(legibility.display).not.toBe('none');
+  expect(legibility.color).not.toBe('transparent');
+  expect(legibility.color).not.toBe(legibility.surfaceBg);
+  // The credit sits on the plain ground surface, not a dark band.
+  expect(legibility.surfaceBg).toBe('rgb(242, 243, 238)');
+  expect(legibility.backdrop === 'none' || legibility.backdrop === '').toBe(true);
+
+  // The former dark credit band attribute is no longer in the markup.
+  await expect(page.locator('[data-hero-credit-band]')).toHaveCount(0);
+
+  // The gallery keeps a single credited Pexels photo with source/license links.
   const galleryCaptions = page.locator('#galeria figcaption');
-  const captionCount = await galleryCaptions.count();
-  expect(captionCount).toBe(3);
-  for (let i = 0; i < captionCount; i += 1) {
-    const cap = galleryCaptions.nth(i);
-    await expect(cap.getByRole('link', { name: /fuente/i })).toHaveAttribute('href', /wikimedia\.org/);
-    await expect(cap.getByRole('link', { name: /licencia/i })).toHaveAttribute('href', /creativecommons\.org/);
-  }
+  await expect(galleryCaptions).toHaveCount(1);
+  await expect(
+    galleryCaptions.first().getByRole('link', { name: /fuente/i }),
+  ).toHaveAttribute(
+    'href',
+    'https://www.pexels.com/photo/gourmet-grilled-octopus-on-elegant-plate-39452706/',
+  );
+  await expect(
+    galleryCaptions.first().getByRole('link', { name: /licencia/i }),
+  ).toHaveAttribute('href', 'https://www.pexels.com/license/');
 });
 
 test('v0_reduced_motion_keeps_copy_visible', async ({ page }) => {
@@ -186,75 +227,84 @@ test('v0_reduced_motion_keeps_copy_visible', async ({ page }) => {
 });
 
 test('v0_story_hero_static_credits_gallery_mobile', async ({ page }) => {
+  const heroSrc = /marea-hero-seafood\.jpg$/;
+
   // --- Desktop: hero stays static while scrolling Carta/Galería/Reservas ---
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/');
 
   const heroImg = page.locator('#hero-img');
   await expect(heroImg).toBeVisible();
-  await expect(heroImg).toHaveAttribute('src', /gallery-market\.jpg/);
-  await expect(heroImg).toHaveAttribute('alt', /Mercado Central/);
+  await expect(heroImg).toHaveAttribute('src', heroSrc);
+  await expect(heroImg).toHaveAttribute('alt', /Fotografía ilustrativa de archivo/);
+  await expect(heroImg).toHaveAttribute('alt', /Seafood paella with lobster/);
+  await expect(heroImg).toHaveAttribute(
+    'alt',
+    /No representa el local ni los platos de Marea/
+  );
 
-  // Hero credit anchors match the still image (Diego Delso / Mercado Central).
+  // Hero credit anchors match the still image (Pexels: Marcelo Verfe).
   await expect(page.locator('#hero-scene-link-page')).toHaveAttribute(
     'href',
-    /wikimedia\.org/
+    'https://www.pexels.com/photo/seafood-paella-with-lobster-16743486/'
   );
   await expect(page.locator('#hero-scene-link-license')).toHaveAttribute(
     'href',
-    /creativecommons\.org/
+    'https://www.pexels.com/license/'
   );
-  await expect(page.locator('#hero-scene-creator')).toHaveText('Diego Delso');
-  await expect(page.locator('#hero-scene-archive')).toContainText(
-    'fotografía de archivo del mercado'
+  await expect(page.locator('#hero-scene-creator')).toHaveText('Marcelo Verfe');
+  await expect(page.locator('#hero-caption')).toContainText(
+    'Fotografía ilustrativa de archivo'
   );
 
-  // Scroll to Carta — hero image must not change.
+  // Scroll to Carta — the hero source must not change. The image may scale via
+  // transform, but its src stays the same URL.
   await page.locator('#carta').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
-  await expect(heroImg).toHaveAttribute('src', /gallery-market\.jpg/);
+  await expect(heroImg).toHaveAttribute('src', heroSrc);
 
-  // Scroll to Galería — hero image must not change.
+  // Scroll to Galería — the hero source must not change.
   await page.locator('#galeria').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
-  await expect(heroImg).toHaveAttribute('src', /gallery-market\.jpg/);
+  await expect(heroImg).toHaveAttribute('src', heroSrc);
 
-  // Scroll to Reservas — hero image must not change.
+  // Scroll to Reservas — the hero source must not change.
   await page.locator('#reservas').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
-  await expect(heroImg).toHaveAttribute('src', /gallery-market\.jpg/);
+  await expect(heroImg).toHaveAttribute('src', heroSrc);
 
-  // Gallery: three images in order with linked source/license.
+  // Gallery: a single credited Pexels photo with linked source/license.
   const galleryImgs = page.locator('#galeria img');
-  await expect(galleryImgs).toHaveCount(3);
-  await expect(galleryImgs.nth(0)).toHaveAttribute(
+  await expect(galleryImgs).toHaveCount(1);
+  await expect(galleryImgs.first()).toHaveAttribute(
     'src',
-    /mercado-central-exterior/
+    /marea-octopus-elegant\.jpg$/
   );
-  await expect(galleryImgs.nth(1)).toHaveAttribute('src', /albufera-gaianes/);
-  await expect(galleryImgs.nth(2)).toHaveAttribute(
-    'src',
-    /valencia-market-artichokes/
+  await expect(galleryImgs.first()).toHaveAttribute(
+    'alt',
+    /Imagen de archivo: Gourmet grilled octopus on elegant plate/
+  );
+  await expect(galleryImgs.first()).toHaveAttribute(
+    'alt',
+    /No muestra el local ni los platos de Marea/
   );
 
   const galleryCaptions = page.locator('#galeria figcaption');
-  await expect(galleryCaptions).toHaveCount(3);
-  for (let i = 0; i < 3; i += 1) {
-    await expect(
-      galleryCaptions.nth(i).getByRole('link', { name: /fuente/i })
-    ).toHaveAttribute('href', /wikimedia\.org/);
-    await expect(
-      galleryCaptions.nth(i).getByRole('link', { name: /licencia/i })
-    ).toHaveAttribute('href', /creativecommons\.org/);
-  }
+  await expect(galleryCaptions).toHaveCount(1);
+  await expect(
+    galleryCaptions.first().getByRole('link', { name: /fuente/i })
+  ).toHaveAttribute(
+    'href',
+    'https://www.pexels.com/photo/gourmet-grilled-octopus-on-elegant-plate-39452706/'
+  );
+  await expect(
+    galleryCaptions.first().getByRole('link', { name: /licencia/i })
+  ).toHaveAttribute('href', 'https://www.pexels.com/license/');
 
   // --- Mobile: hero stays static, first-fold demo note visible ---
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.locator('#hero-img')).toHaveAttribute(
-    'src',
-    /gallery-market\.jpg/
-  );
+  await expect(page.locator('#hero-img')).toHaveAttribute('src', heroSrc);
 
   const disclosure = page.locator('[data-demo-disclosure]').first();
   await expect(disclosure).toBeVisible();
@@ -268,17 +318,16 @@ test('v0_story_hero_static_credits_gallery_mobile', async ({ page }) => {
 
   await page.locator('#galeria').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
-  await expect(page.locator('#hero-img')).toHaveAttribute(
-    'src',
-    /gallery-market\.jpg/
-  );
+  await expect(page.locator('#hero-img')).toHaveAttribute('src', heroSrc);
 
-  // --- Reduced motion: hero image has no crossfade transition ---
+  // --- Reduced motion: hero image stays visible with no crossfade transition ---
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const transition = await page.locator('#hero-img').evaluate((el) =>
-    getComputedStyle(el).transition
+  const reducedHero = page.locator('#hero-img');
+  await expect(reducedHero).toBeVisible();
+  const transitionProperty = await reducedHero.evaluate(
+    (el) => getComputedStyle(el).transitionProperty
   );
-  expect(transition.includes('all') || transition.includes('opacity')).toBe(false);
+  expect(transitionProperty).toBe('none');
 });
