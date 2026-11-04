@@ -166,11 +166,6 @@ button:active {
 /* Utilities */
 /* ------------------------------------------------------------------ */
 
-.full-bleed {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-}
-
 .market-row {
   display: flex;
   align-items: baseline;
