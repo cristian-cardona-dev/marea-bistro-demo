@@ -219,13 +219,14 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
   },
 
   images: {
-    hero: "/images/gallery-market.jpg",
+    hero: "/images/marea-hero.jpg",
     gallery: [
-      "/images/mercado-central-exterior.jpg",
-      "/images/albufera-gaianes.jpg",
-      "/images/valencia-market-artichokes.jpg",
+      "/images/marea-paella.jpg",
+      "/images/marea-octopus.jpg",
+      "/images/marea-crema-catalana.jpg",
+      "/images/marea-valencia-produce.jpg",
     ],
-    ogImage: "/images/gallery-market.jpg",
+    ogImage: "/images/marea-hero.jpg",
   },
 
   seo: {
