@@ -1,23 +1,28 @@
 ---
 // src/components/SiteHeader.astro
-// Plain navigation: wordmark on row one, Carta/Reservas/Ubicación plus the
-// compact booking action on row two (mobile). Desktop keeps the single
-// justify-between row, unchanged.
-// Square-corner buttons, petrol ink on mineral paper ground.
+// Slim editorial masthead: wordmark on the left, section navigation plus the
+// booking action on the right. Sticky, plain ground surface. Sentence case
+// throughout. Every control keeps a 44px minimum hit area. No initial hidden states.
 import { siteConfig } from '../config/site';
 const { brand } = siteConfig;
 ---
-<nav id="main-nav" aria-label="Principal" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-5 py-4 sm:py-8 bg-ground">
-  <a href="#hero" class="font-display text-lg font-bold text-ink inline-block min-h-[44px]">{brand.name}</a>
-  <div class="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-5 text-base">
-    <a href="#carta" class="text-ink inline-block min-h-[44px]">Carta</a>
-    <a href="#reservas" class="text-ink inline-block min-h-[44px]">Reservas</a>
-    <a href="#ubicacion" class="text-ink inline-block min-h-[44px]">Ubicación</a>
+<nav
+  id="main-nav"
+  aria-label="Principal"
+  class="sticky top-0 z-40 bg-ground px-5 sm:px-8 py-3"
+>
+  <div class="mx-auto max-w-[1400px] flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-6">
     <a
-      href="#reservas"
-      class="btn-square"
+      href="#hero"
+      class="font-display text-xl sm:text-2xl font-bold text-ink inline-flex items-center min-h-[44px] leading-none tracking-tight"
     >
-      Reservar
+      {brand.name}
     </a>
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-base">
+      <a href="#carta" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">La carta</a>
+      <a href="#reservas" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Reservas</a>
+      <a href="#ubicacion" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Ubicación</a>
+      <a href="#reservas" class="btn-square">Reservar</a>
+    </div>
   </div>
 </nav>

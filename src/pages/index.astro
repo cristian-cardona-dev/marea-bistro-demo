@@ -1,17 +1,17 @@
 ---
 // src/pages/index.astro
-// Direction: page-is-the-object — the page reads like a printed market ledger
-// ("Cuaderno del mercado"). Light-first: mineral paper ground, petrol ink,
-// sea-glass accent. Desktop: archive photograph beside a reading column.
-// Mobile: photograph first, then the reading column. Every image is credited
-// as archive; no dish photo claims to be Marea's own; no chef/history/story
-// claims; no fake ratings or confirmations.
+// Composition: a vertical editorial sequence — full-bleed food hero →
+// asymmetric typographic menu → archive gallery (one supporting image, shown
+// deliberately and balanced) → dark booking close. Every image is credited as
+// archive; no dish photo claims to be Marea's own; no chef/history/story
+// claims; no fake ratings or confirmations. Nothing is hidden pending an
+// animation.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import Hero from '../components/Hero.astro';
 import Menu from '../components/Menu.astro';
 import { siteConfig } from '../config/site';
-const { hours, location, reservations } = siteConfig;
+const { hours, location, reservations, content } = siteConfig;
 
 const mailtoSubject = encodeURIComponent('Solicitud de reserva — Marea Bistro (demostración)');
 const mailtoBody = encodeURIComponent(
@@ -20,6 +20,7 @@ const mailtoBody = encodeURIComponent(
   'Esta página solo prepara el correo: no lo envía automáticamente ni confirma una reserva. Tú decides si enviar este mensaje.\n\n' +
   'Detalles por definir: fecha, hora y número de comensales.'
 );
+const mailtoHref = `mailto:${encodeURIComponent(reservations.emailFallback)}?subject=${mailtoSubject}&body=${mailtoBody}`;
 
 import creditsData from '../../public/images/credits.json';
 const credits = creditsData as unknown as Array<Record<string, string | null>>;
@@ -37,13 +38,13 @@ function creditFor(file: string) {
   };
 }
 
+// Archive gallery, in siteConfig order. Alt + caption state plainly that these
+// are archive photographs of the Mediterranean/Valencian context, not Marea.
 const gallery = siteConfig.images.gallery.map((src) => {
   const c = creditFor(src);
   return {
     src,
     alt: `Imagen de archivo: ${c?.title ?? src.split('/').pop()}. No muestra el local ni los platos de Marea.`,
-    w: 1920,
-    h: 1280,
     credit: c,
   };
 });
@@ -51,123 +52,108 @@ const gallery = siteConfig.images.gallery.map((src) => {
 <BaseLayout>
   <SiteHeader />
 
-  <div class="lg:grid lg:grid-cols-[48fr_52fr] lg:gap-8 lg:items-start">
-    <!-- Left: archive photograph (hero), sticky on desktop -->
+  <main>
     <Hero />
+    <Menu />
 
-    <!-- Right: reading column — the market ledger -->
-    <div class="bg-ground px-5 pt-6 md:pt-16 lg:pt-0 lg:sticky lg:top-5">
-      <section id="hero" class="pb-10 md:pb-24" data-reveal>
-        <h1 data-hero-heading class="font-display font-bold text-ink leading-[0.95] tracking-tighter" data-reveal>Marea</h1>
-        <hr data-hero-accent-line aria-hidden="true" class="taste-skill-ignore" />
-        <p data-hero-subhead class="text-ink mt-4 leading-relaxed" data-reveal>
-          Bistró mediterráneo · Valencia
-        </p>
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mt-8" data-reveal>
-          <a
-            href="#reservas"
-            class="btn-square"
-          >
-            Reservar mesa
-          </a>
-          <a
-            href="#carta"
-            class="btn-square-outline"
-          >
-            Ver la carta
-          </a>
+    <!-- Archive gallery — one supporting image, shown deliberately and balanced -->
+    <section id="galeria" data-motion="section" class="bg-ground-alt px-5 sm:px-8 py-20 md:py-28">
+      <div class="mx-auto max-w-[1400px]">
+        <div class="max-w-[52ch]">
+          <h2 class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
+            Archivo fotográfico
+          </h2>
+          <p class="mt-4 text-lg text-ink/80">
+            Imágenes de archivo del entorno valenciano y mediterráneo. No muestran el local ni los platos de Marea.
+          </p>
         </div>
-        <p data-demo-disclosure role="note" class="text-base text-ink mt-6 leading-relaxed" data-reveal>
-          <strong>Demostración:</strong> Marea es un restaurante ficticio. Los platos, precios, horarios y datos de contacto son contenido de ejemplo y no describen un negocio real.
-        </p>
-      </section>
 
-      <Menu />
-
-      <section id="galeria" class="px-5 pt-16 md:pt-20" data-reveal>
-        <h2 class="font-display text-3xl md:text-4xl font-bold text-ink mb-4" data-reveal>Galería de archivo</h2>
-        <p class="text-ink text-base mb-10" data-reveal>Imágenes de archivo del entorno valenciano; no muestran el local ni los platos de Marea.</p>
-        <!-- Bento asimétrico intencional: exterior a todo ancho en escritorio (lg:col-span-2, aspect-[4/3]);
-             Albufera + alcachofas apiladas en móvil y lado a lado en escritorio, segunda columna con offset deliberado (mt-8 lg:mt-8). -->
-        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8" data-reveal>
-          {gallery.map((g) => {
-            const isWide = g.src === '/images/mercado-central-exterior.jpg';
-            const isSecondColumn = g.src === '/images/valencia-market-artichokes.jpg';
-            return (
-              <figure tabindex={0} class={['group relative overflow-hidden rounded-md bg-ground', isWide ? 'lg:col-span-2' : '', isSecondColumn ? 'mt-8 lg:mt-8' : ''].filter(Boolean).join(' ')} data-reveal>
+        <div class="mt-12 flex flex-col gap-10">
+          {gallery.map((g) => (
+            <figure class="m-0">
+              <div class="overflow-hidden bg-ink/5 aspect-[16/9]">
                 <img
                   src={g.src}
                   alt={g.alt}
-                  width={g.w}
-                  height={g.h}
+                  width="1920"
+                  height="1280"
                   loading="lazy"
-                  class={['gallery-img block w-full object-cover object-center group-hover:scale-[1.03]', isWide ? 'aspect-[4/3]' : ''].filter(Boolean).join(' ')}
+                  class="gallery-img h-full w-full object-cover object-center"
                 />
-                <figcaption class="gallery-figcaption absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-ink/90 to-transparent text-ground text-sm leading-relaxed opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-visible:opacity-100 group-focus-visible:pointer-events-auto taste-skill-ignore:gradient" style="transition: opacity var(--duration-base) var(--ease-standard)">
-                  <p class="text-sm leading-relaxed">
-                    {g.credit?.title}. Foto:{' '}
-                    <span class="font-semibold">{g.credit?.creator}</span>,
-                    {g.credit?.license}, vía {g.credit?.via}.
-                  </p>
-                  <p class="mt-1">
-                    <a
-                      href={g.credit?.page ?? '#'}
-                      target="_blank"
-                      rel="noopener"
-                      class="gallery-credit-link underline underline-offset-2"
-                      style="color: inherit; text-underline-offset: 2px"
-                    >
-                      fuente
-                    </a>{' · '}
-                    <a
-                      href={g.credit?.licenseUrl ?? '#'}
-                      target="_blank"
-                      rel="noopener"
-                      class="gallery-credit-link underline underline-offset-2"
-                      style="color: inherit; text-underline-offset: 2px"
-                    >
-                      licencia
-                    </a>.
-                  </p>
-                </figcaption>
-              </figure>
-            );
-          })}
+              </div>
+              <figcaption class="mt-3 text-sm leading-relaxed text-ink/70">
+                <span class="text-ink font-medium">{g.credit?.title ?? 'Imagen de archivo'}</span>. Foto:{' '}
+                <span class="font-medium">{g.credit?.creator}</span>{g.credit?.license ? `, ${g.credit.license}` : ''}, vía {g.credit?.via}.{' '}
+                {g.credit?.page && (
+                  <a
+                    href={g.credit.page}
+                    target="_blank"
+                    rel="noopener"
+                    class="gallery-credit-link underline underline-offset-2"
+                  >
+                    fuente
+                  </a>
+                )}
+                {g.credit?.page && g.credit?.licenseUrl && ' · '}
+                {g.credit?.licenseUrl && (
+                  <a
+                    href={g.credit.licenseUrl}
+                    target="_blank"
+                    rel="noopener"
+                    class="gallery-credit-link underline underline-offset-2"
+                  >
+                    licencia
+                  </a>
+                )}
+              </figcaption>
+            </figure>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="reservas" class="px-5 pt-16 md:pt-20 pb-16" data-reveal>
-        <div class="max-w-[46ch]">
-          <h2 class="font-display text-3xl md:text-4xl font-bold text-ink mb-6" data-reveal>Reservas</h2>
-          <p class="text-ink text-base mb-4" data-reveal>
+    <!-- Booking close — dark cinematic panel -->
+    <section id="reservas" data-motion="section" class="bg-ink text-ground px-5 sm:px-8 py-20 md:py-28">
+      <div class="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-6">
+          <h2 class="font-display font-bold text-ground leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
+            Reservas
+          </h2>
+          <p class="mt-4 text-lg text-ground/85 max-w-[40ch]">
             Mesa para {reservations.minParty} a {reservations.maxParty} personas. Reserva con hasta {reservations.advanceDays} días de antelación.
           </p>
-          <p id="ubicacion" class="text-ink text-base mb-10" data-reveal>
+          <p id="ubicacion" class="mt-4 text-ground/85">
             {location.address}, {location.city}. Tel. {location.phone}.
           </p>
-
-          <h3 class="font-display text-xl font-bold text-ink mb-4" data-reveal>Horario</h3>
-          <ul class="text-ink text-base space-y-2" data-reveal>
-            {hours.map((h) => (
-              <li class="flex justify-between" data-reveal>
-                <span>{h.day}</span>
-                <span>{h.closed ? 'Cerrado' : `${h.open}${h.open2 ? ` / ${h.open2}` : ''} – ${h.close}${h.close2 ? ` / ${h.close2}` : ''}`}</span>
-              </li>
-            ))}
-          </ul>
-
-          <a
-            href={`mailto:${encodeURIComponent(reservations.emailFallback)}?subject=${mailtoSubject}&body=${mailtoBody}`}
-            class="btn-square mt-10 block text-center w-fit"
-            data-reveal
-          >
+          <a href={mailtoHref} class="btn-square mt-8">
             Solicitar reserva
           </a>
-          <p class="text-sm text-ink mt-8" data-reveal>
+          <p class="mt-6 text-sm text-ground/60">
             Datos de ejemplo (Marea es un restaurante ficticio de demostración).
           </p>
         </div>
-      </section>
+
+        <div class="lg:col-span-5 lg:col-start-8">
+          <h3 class="font-display font-bold text-ground text-2xl">Horario</h3>
+          <ul class="mt-4 list-none p-0 m-0 divide-y divide-ground/15">
+            {hours.map((h) => (
+              <li class="flex justify-between gap-6 py-3 text-ground/90">
+                <span>{h.day}</span>
+                <span class="text-ground/70 tabular-nums text-right">
+                  {h.closed ? 'Cerrado' : `${h.open}${h.open2 ? ` / ${h.open2}` : ''} – ${h.close}${h.close2 ? ` / ${h.close2}` : ''}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-ink text-ground/60 border-t border-ground/10 px-5 sm:px-8 py-8">
+    <div class="mx-auto max-w-[1400px] flex flex-col sm:flex-row justify-between gap-3 text-sm">
+      <p>{content.footerText}</p>
+      <p>Imágenes ilustrativas de archivo (Pexels). No representan el local ni los platos de Marea.</p>
     </div>
-  </div>
+  </footer>
 </BaseLayout>

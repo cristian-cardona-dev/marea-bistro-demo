@@ -1,151 +1,97 @@
 ---
 // src/components/Hero.astro
-// Hero stage: Mercado Central interior archive photograph with a scroll-linked
-// caption band (desktop only). Progressive enhancement: the band is fully
-// visible without JS; JS only applies opacity/translateY tied to scrollY.
+// Full-bleed editorial hero: the photograph is the stage, the wordmark,
+// descriptor and primary action sit over it on a functional legibility scrim.
+// The image is bound to siteConfig.images.hero (never a hard-coded filename).
+// Attribution comes from credits.json; alt and caption stay generic and truthful
+// (illustrative archive photography, not Marea's venue or dishes).
+// No script hides anything, and nothing starts at opacity 0.
 import { siteConfig } from '../config/site';
 import creditsData from '../../public/images/credits.json';
 
-const { images } = siteConfig;
+const { images, brand } = siteConfig;
 
 const credits = creditsData as unknown as Array<Record<string, string | null>>;
 const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
 
-function creditFor(file: string) {
-  const c = creditByFile[file];
-  if (!c) return null;
-  return {
-    title: c.title,
-    creator: c.creator,
-    license: c.license,
-    licenseUrl: c.licenseUrl,
-    page: c.page,
-    via: c.via,
-  };
-}
+const heroFile = images.hero;
+const heroCredit = (creditByFile[heroFile] ?? null) as Record<string, string | null> | null;
 
-const heroFile = images.hero; // /images/gallery-market.jpg
-const heroCredit = creditFor(heroFile);
+const creditTitle = heroCredit?.title ?? '';
+const creditCreator = heroCredit?.creator ?? '';
+const creditLicense = heroCredit?.license ?? '';
+const creditPage = heroCredit?.page ?? null;
+const creditLicenseUrl = heroCredit?.licenseUrl ?? null;
+
+// Generic, honest description regardless of which archive file the config points at.
+const archiveAlt = creditTitle
+  ? `Fotografía ilustrativa de archivo: ${creditTitle}. No representa el local ni los platos de Marea.`
+  : 'Fotografía ilustrativa de archivo. No representa el local ni los platos de Marea.';
 ---
-<figure
-  id="hero-stage"
-  class="relative h-[32svh] lg:h-[calc(100svh-3rem)] lg:sticky lg:top-12 lg:self-start w-full overflow-hidden bg-ground/50"
->
-  <img
-    id="hero-img"
-    src={heroFile}
-    alt="Imagen de archivo: Mercado Central de Valencia, interior del mercado. No es el local de Marea."
-    class="w-full h-full object-cover object-center"
-    width="1920"
-    height="1240"
-    loading="eager"
-    fetchpriority="high"
-  />
+<section id="hero" data-motion="section" class="relative bg-ink text-ground">
+  <figure data-motion="hero" class="relative m-0">
+    <img
+      id="hero-img"
+      src={heroFile}
+      alt={archiveAlt}
+      width="1920"
+      height="1280"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class="block w-full h-[52svh] min-h-[320px] lg:h-[74svh] lg:min-h-[520px] object-cover object-center"
+    />
 
-  <figcaption
-    id="hero-caption"
-    data-hero-credit
-    data-hero-credit-band
-    data-hero-scroll-band
-    class="absolute inset-x-0 bottom-0 px-5 pt-3 pb-4"
-  >
-    <div class="text-sm leading-relaxed">
-      <p
-        id="hero-scene-context"
-        data-hero-band-line
-        style="--band-stagger: 0ms"
-      >
-        Imagen de archivo: Mercado Central, Valencia. Interior del mercado.
-      </p>
-      <p
-        id="hero-scene-credit"
-        data-hero-band-line
-        style="--band-stagger: 80ms"
-      >
-        <span id="hero-scene-title">{heroCredit?.title ?? ''}</span>. Foto:{' '}
-        <span id="hero-scene-creator">{heroCredit?.creator ?? ''}</span>,
-        <span id="hero-scene-license">{heroCredit?.license ?? ''}</span>, vía{' '}
-        <span id="hero-scene-via">{heroCredit?.via ?? ''}</span>.
-        {heroCredit?.page ? (
+    <!-- Functional legibility scrim behind the overlaid wordmark (not decorative). -->
+    <div
+      class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/92 via-ink/45 to-transparent taste-skill-ignore:gradient"
+      aria-hidden="true"
+    ></div>
+
+    <figcaption class="absolute inset-x-0 bottom-0">
+      <div class="mx-auto max-w-[1400px] px-5 sm:px-8 pb-8 sm:pb-10">
+        <p class="text-ground/90 text-base sm:text-lg">{brand.tagline}</p>
+        <h1
+          data-hero-heading
+          class="font-display font-bold text-ground leading-[0.9] tracking-tight mt-1 text-[clamp(3.5rem,13vw,9rem)]"
+        >
+          {brand.name}
+        </h1>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 mt-6">
+          <a href="#reservas" class="btn-square">Reservar mesa</a>
           <a
-            id="hero-scene-link-page"
-            href={heroCredit.page}
-            target="_blank"
-            rel="noopener"
-            class="underline"
-            style="color: inherit; text-underline-offset: 2px"
+            href="#carta"
+            class="inline-flex items-center min-h-[44px] text-ground font-semibold underline underline-offset-4 decoration-ground/50 hover:decoration-ground"
           >
+            Ver la carta
+          </a>
+        </div>
+      </div>
+    </figcaption>
+  </figure>
+
+  <!-- Honest archive attribution + demo disclosure on a plain, legible surface. -->
+  <div class="bg-ground text-ink">
+    <div class="mx-auto max-w-[1400px] px-5 sm:px-8 py-4 flex flex-col gap-2">
+      <p id="hero-caption" data-hero-credit class="text-xs sm:text-sm text-ink/60">
+        Fotografía ilustrativa de archivo{creditTitle ? `: ${creditTitle}` : ''}.{' '}
+        {creditCreator && <>{' '}Foto: <span id="hero-scene-creator">{creditCreator}</span>{creditLicense ? `, ${creditLicense}` : ''}.</>}
+        {(creditPage || creditLicenseUrl) && ' '}
+        {creditPage && (
+          <a id="hero-scene-link-page" href={creditPage} target="_blank" rel="noopener" class="underline underline-offset-2">
             fuente
           </a>
-        ) : (
-          <span id="hero-scene-link-page">fuente</span>
-        )}{' · '}
-        {heroCredit?.licenseUrl ? (
-          <a
-            id="hero-scene-link-license"
-            href={heroCredit.licenseUrl}
-            target="_blank"
-            rel="noopener"
-            class="underline"
-            style="color: inherit; text-underline-offset: 2px"
-          >
+        )}
+        {creditPage && creditLicenseUrl && ' · '}
+        {creditLicenseUrl && (
+          <a id="hero-scene-link-license" href={creditLicenseUrl} target="_blank" rel="noopener" class="underline underline-offset-2">
             licencia
           </a>
-        ) : (
-          <span id="hero-scene-link-license">licencia</span>
-        )}.
+        )}
       </p>
-      <p
-        id="hero-scene-archive"
-        data-hero-band-line
-        style="--band-stagger: 160ms"
-      >
-        No es el local de Marea: es una fotografía de archivo del mercado.
+      <p data-demo-disclosure role="note" class="text-sm sm:text-base text-ink leading-relaxed">
+        <strong>Demostración:</strong> Marea es un restaurante ficticio. Los platos, precios, horarios y datos de contacto son contenido de ejemplo y no describen un negocio real.
       </p>
     </div>
-  </figcaption>
-</figure>
-
-<script>
-  (function () {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const desktop = window.matchMedia('(min-width: 1024px)').matches;
-    const band = document.querySelector<HTMLElement>('[data-hero-scroll-band]');
-    if (!band || reduceMotion || !desktop) return;
-
-    const lines = Array.from(band.querySelectorAll<HTMLElement>('[data-hero-band-line]'));
-
-    // Progressive enhancement: JS can run, so hide the band and reveal it
-    // scroll-linked (0-100vh -> opacity/translateY). Without JS the band stays
-    // static and fully visible (no rule hides it).
-    band.style.opacity = '0';
-    band.style.transform = 'translateY(16px)';
-    band.style.transition = 'none'; // driven by scroll
-
-    lines.forEach((line, i) => {
-      line.style.opacity = '0';
-      line.style.transform = 'translateY(12px)';
-      line.style.transition = 'opacity 400ms ease, transform 400ms ease';
-      line.style.transitionDelay = (i * 80) + 'ms';
-    });
-
-    function update() {
-      const progress = Math.min(
-        Math.max(window.scrollY / Math.max(window.innerHeight, 1), 0),
-        1
-      );
-      band!.style.opacity = String(progress);
-      band!.style.transform =
-        'translateY(' + 16 * (1 - progress) + 'px)';
-      if (progress > 0) {
-        lines.forEach((line) => {
-          line.style.opacity = '1';
-          line.style.transform = 'none';
-        });
-      }
-    }
-
-    window.addEventListener('scroll', update, { passive: true });
-    update();
-  })();
-</script>
+  </div>
+</section>

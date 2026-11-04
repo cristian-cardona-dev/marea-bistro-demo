@@ -1,44 +1,60 @@
 ---
 // src/components/Menu.astro
-// The typographic market ledger: category headings in the display face,
-// items with tabular prices, a one-line note under each. No cards, no grids,
-// no hairlines, no pill filters. Text-led unless a photo exactly matches the dish.
+// Editorial typographic menu: an asymmetric two-column composition on desktop
+// (sticky intro column + a chaptered list). The config exposes no per-dish
+// image, so the menu is deliberately type-led rather than faking dish
+// photography. Every <ul>'s direct child is an <li> wrapping exactly one
+// .market-row (name + price) and one .market-note. No initial hidden states.
+// No numbered markers, no dotted price leaders: spacing and type hierarchy only.
 import { siteConfig } from '../config/site';
 const { menu } = siteConfig;
 ---
-<section id="carta" data-sample-claim class="px-5 py-10 md:py-16">
-  <div class="max-w-[46ch] mx-auto">
-    <h2 class="text-4xl md:text-5xl font-display text-ink font-bold leading-[0.95] mb-6" data-reveal>La carta</h2>
-    <p class="text-lg text-ink mb-8" data-reveal>Del mar a la mesa, plato a plato.</p>
-    <p class="text-base text-ink mb-12" data-reveal>
-      Platos y precios de ejemplo; Marea es un restaurante ficticio de demostración.
-    </p>
+<section
+  id="carta"
+  data-sample-claim
+  data-motion="section"
+  class="bg-ground px-5 sm:px-8 py-20 md:py-28"
+>
+  <div class="mx-auto max-w-[1400px] grid gap-14 lg:grid-cols-12 lg:gap-16">
+    <header class="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+      <h2 class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.75rem,6vw,4.5rem)]">
+        La carta
+      </h2>
+      <p class="mt-5 text-lg text-ink/80 max-w-[34ch]">
+        Del mar a la mesa, plato a plato. Arroces de mar, pescado a la brasa y vinos del Mediterráneo.
+      </p>
+      <p class="mt-6 text-sm text-ink/60 max-w-[42ch]">
+        Platos y precios de ejemplo; Marea es un restaurante ficticio de demostración.
+      </p>
+    </header>
 
-    {menu.categories.map((category) => (
-      <div class="mb-14" data-reveal>
-        <h3 class="market-category tracking-wide" data-reveal>
-          {category.name}
-        </h3>
-        {category.items.length > 0 ? (
-          <ul class="market-list">
-            {category.items.map((item) => (
-              <li class="market-item" data-reveal>
-                <div class="market-row">
-                  <span class="dish-name">{item.name}</span>
-                  <span class="dish-price">
-                    {item.price}{menu.currency}
-                  </span>
-                </div>
-                <p class="market-note text-ink-soft" data-reveal>{item.description}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div class="market-empty" data-reveal>
-            No disponible esta temporada.
-          </div>
-        )}
-      </div>
-    ))}
+    <div class="lg:col-span-8 flex flex-col gap-16 md:gap-20">
+      {menu.categories.map((category) => (
+        <section data-motion="section" aria-labelledby={`cat-${category.id}`}>
+          <h3
+            id={`cat-${category.id}`}
+            class="font-display font-bold text-ink text-[clamp(1.5rem,3vw,2.25rem)] mb-6"
+          >
+            {category.name}
+          </h3>
+
+          {category.items.length > 0 ? (
+            <ul class="mt-2 list-none p-0 m-0">
+              {category.items.map((item) => (
+                <li class="market-item py-5 first:pt-0" data-motion="dish">
+                  <div class="market-row items-baseline gap-4">
+                    <h4 class="dish-name text-lg md:text-xl">{item.name}</h4>
+                    <span class="dish-price whitespace-nowrap">{item.price}{menu.currency}</span>
+                  </div>
+                  <p class="market-note text-ink-soft">{item.description}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="market-empty mt-6">No disponible esta temporada.</p>
+          )}
+        </section>
+      ))}
+    </div>
   </div>
 </section>
