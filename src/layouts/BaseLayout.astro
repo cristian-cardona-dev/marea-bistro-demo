@@ -2,7 +2,6 @@
 // src/layouts/BaseLayout.astro
 import '../styles/global.css';
 import { siteConfig } from '../config/site';
-import mareaMotion from '../scripts/marea-motion.ts';
 
 const { seo, theme, brand, images } = siteConfig;
 const siteUrl = (seo.siteUrl || '').trim();
@@ -91,6 +90,6 @@ const { title = seo.title, description = seo.description } = Astro.props;
          only; it never hides content and defers to
          prefers-reduced-motion. Loaded as a module so its `motion` import
          resolves through the Astro/Vite pipeline. -->
-    <script src={mareaMotion} type="module"></script>
+    <script src="../scripts/marea-motion.ts"></script>
   </body>
 </html>
