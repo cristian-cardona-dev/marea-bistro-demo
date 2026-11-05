@@ -220,10 +220,6 @@ button:active {
   opacity: 0.95;
 }
 
-.btn-square:active {
-  transform: translateY(0);
-}
-
 .btn-square-outline {
   display: inline-flex;
   align-items: center;
@@ -244,10 +240,6 @@ button:active {
 .btn-square-outline:hover {
   transform: translateY(-1px);
   opacity: 0.95;
-}
-
-.btn-square-outline:active {
-  transform: translateY(0);
 }
 
 /* ------------------------------------------------------------------ */
@@ -465,4 +457,110 @@ nav.scrolled {
   box-shadow: var(--shadow-1); /* taste-skill-ignore:shadow intentional CTA press feedback */
 }
 
+/* ------------------------------------------------------------------ */
+/* Visual elevation — additive refinements (no token churn, no tested */
+/* surface/color changes).                                            */
+/* ------------------------------------------------------------------ */
+
+/* Hero frame — hairline editorial border around the photograph stage.
+   Static outline only; never hides the image or its credit. */
+figure[data-motion="hero"] {
+  outline: 1px solid oklch(0 0 0 / 0.10);
+  outline-offset: -1px;
+}
+
+/* Gallery — restrained image lift on hover (transform+opacity only). */
+.gallery-img:hover {
+  transform: scale(1.02);
+}
+
+/* Booking close — soft top separation from the gallery. */
+#reservas {
+  border-top: 1px solid oklch(0 0 0 / 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/* Refined nav link rhythm — accent + tasteful underline on hover/focus. */
+/* ------------------------------------------------------------------ */
+
+nav a {
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+nav a:hover,
+nav a:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu row rhythm — subtle surface tint on hover, accent price emphasis. */
+/* ------------------------------------------------------------------ */
+
+.market-item {
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+
+.market-item:hover {
+  background-color: var(--color-ground-alt);
+}
+
+.market-row:hover .dish-name {
+  color: var(--color-accent);
+}
+
+.market-row:hover .dish-price {
+  color: var(--oklch-accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Gallery frame + credit frame — restrained border, accent on hover. */
+/* ------------------------------------------------------------------ */
+
+#galeria figure {
+  border: 1px solid oklch(0 0 0 / 0.06);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--duration-base) var(--ease-standard);
+}
+
+#galeria figure:hover {
+  border-color: var(--color-accent);
+}
+
+#galeria figcaption {
+  border-top: 1px solid oklch(0 0 0 / 0.06);
+  padding-top: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* CTA depth — subtle default shadow, press feedback already defined. */
+/* ------------------------------------------------------------------ */
+
+.btn-square {
+  box-shadow: var(--shadow-1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion — disable movement/transitions on hover/active      */
+/* targets only; static frames, borders, colors and focus outlines    */
+/* stay intact.                                                       */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  a:hover,
+  button:hover,
+  .btn-square:hover,
+  .btn-square-outline:hover,
+  .gallery-img:hover,
+  .market-item:hover,
+  .btn-square:active,
+  .btn-square-outline:active {
+    transform: none !important;
+    transition: none !important;
+  }
+}
 

@@ -13,7 +13,7 @@
 // Connected from src/layouts/BaseLayout.astro as an Astro processed script.
 // Uses the existing `motion` dependency (^14.9.0); no new dependencies.
 
-import { animate, transform } from 'motion';
+import { animate, inView, transform } from 'motion';
 
 const HERO_SELECTOR = '[data-motion="hero"]';
 const INTERACTION_SELECTORS =
@@ -32,6 +32,12 @@ let heroFrame = 0;
 let heroPending = false;
 let reduced = false;
 let reduceMedia: MediaQueryList | null = null;
+
+/* Reveal lifecycle tracking for live prefers-reduced-motion toggling. */
+let revealStops: (() => void)[] = [];
+let revealAnimations: ReturnType<typeof animate>[] = [];
+/* Press-feedback lifecycle tracking for live reduce toggling. */
+let pressCleanups: (() => void)[] = [];
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -88,18 +94,54 @@ function stopHero(): void {
   }
 }
 
+function restoreVisible(targets: HTMLElement[]): void {
+  targets.forEach((el) => {
+    el.style.opacity = '1';
+    el.style.transform = 'none';
+  });
+}
+
+function stopReveals(): void {
+  revealStops.forEach((stop) => stop());
+  revealStops = [];
+  revealAnimations.forEach((a) => a.stop());
+  revealAnimations = [];
+}
+
 function onReduceChange(): void {
   const next = reduceMedia?.matches ?? false;
   if (next === reduced) return;
   reduced = next;
-  reduced ? stopHero() : startHero();
+  if (reduced) {
+    stopHero();
+    stopReveals();
+    /* Detach press feedback and stop any active press animation. */
+    pressCleanups.forEach((cleanup) => cleanup());
+    pressCleanups = [];
+    /* Leave every reveal target visible; never hide on reduce. */
+    restoreVisible(
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          `${REVEAL_SELECTORS}, ${HERO_TEXT_SELECTORS}`
+        )
+      )
+    );
+  } else {
+    /* Restore hero parallax and press feedback. Do not re-hide or replay
+       completed reveal content when reduced motion is turned off. */
+    startHero();
+    attachPressFeedback();
+  }
 }
 
 function attachPressFeedback(): void {
   if (reduced) return;
   try {
+    /* Idempotent: detach any previously attached press listeners first. */
+    pressCleanups.forEach((cleanup) => cleanup());
+    pressCleanups = [];
     document.querySelectorAll<HTMLElement>(INTERACTION_SELECTORS).forEach((el) => {
-      let active: Animation | null = null;
+      let active: ReturnType<typeof animate> | null = null;
       let pressed = false;
       const release = (): void => {
         if (!pressed) return;
@@ -110,17 +152,124 @@ function attachPressFeedback(): void {
         }
         active = animate(el, { scale: [PRESS_SCALE_ACTIVE, 1] }, { duration: 160 });
       };
-      el.addEventListener('pointerdown', () => {
+      const onPointerDown = (): void => {
         pressed = true;
         if (active) active.stop();
         active = animate(el, { scale: [1, PRESS_SCALE_ACTIVE] }, { duration: 100 });
-      });
+      };
+      el.addEventListener('pointerdown', onPointerDown);
       el.addEventListener('pointerup', release);
       el.addEventListener('pointercancel', release);
       el.addEventListener('pointerleave', release);
+      pressCleanups.push(() => {
+        el.removeEventListener('pointerdown', onPointerDown);
+        el.removeEventListener('pointerup', release);
+        el.removeEventListener('pointercancel', release);
+        el.removeEventListener('pointerleave', release);
+        if (active) {
+          active.stop();
+          active = null;
+        }
+      });
     });
   } catch {
     // Press feedback is ornamental; never let it break the page.
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero text choreography — one-shot, IntersectionObserver-backed.    */
+/* Baseline HTML stays visible (opacity 1). JS applies the hidden       */
+/* initial state only after a confirmed capability check; on failure   */
+/* content is restored to fully visible. Never opacity-0 in CSS.       */
+/* ------------------------------------------------------------------ */
+
+const HERO_TEXT_SELECTORS =
+  '[data-hero-heading], .btn-square, a[href="#carta"]';
+
+function choreographHeroText(): void {
+  if (reduced) return;
+  const stage = document.querySelector<HTMLElement>(HERO_SELECTOR);
+  if (!stage || typeof IntersectionObserver === 'undefined') return;
+  try {
+    const targets = Array.from(
+      stage.querySelectorAll<HTMLElement>(HERO_TEXT_SELECTORS)
+    );
+    if (!targets.length) return;
+    // Baseline stays fully visible. Each target is animated only when its
+    // inView callback fires (brief visible-to-hidden snap at trigger, never
+    // permanently hidden if the observer never fires).
+    targets.forEach((el, i) => {
+      const delayMs = Math.min(i * 70, 300); /* cap to --stagger-max */
+      const stop = inView(el, () => {
+        const a = animate(el, { opacity: [0, 1], y: [10, 0] }, {
+          duration: 300,
+          ease: 'easeOut',
+          delay: delayMs,
+        });
+        revealAnimations.push(a);
+        a.then(
+          () => { revealAnimations = revealAnimations.filter((x) => x !== a); },
+          () => { revealAnimations = revealAnimations.filter((x) => x !== a); }
+        );
+        stop(); // one-shot
+      }, { margin: '-12% 0 0 0' });
+      revealStops.push(stop);
+    });
+  } catch {
+    // Restore visible on any setup failure.
+    stage
+      .querySelectorAll<HTMLElement>(HERO_TEXT_SELECTORS)
+      .forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* One-shot section/item reveals — IntersectionObserver-backed,       */
+/* transform+opacity only, trigger once. Baseline stays visible.       */
+/* ------------------------------------------------------------------ */
+
+const REVEAL_SELECTORS = '.market-item, #galeria figure';
+
+function revealSections(): void {
+  if (reduced) return;
+  if (typeof IntersectionObserver === 'undefined') return;
+  try {
+    const targets = Array.from(
+      document.querySelectorAll<HTMLElement>(REVEAL_SELECTORS)
+    );
+    if (!targets.length) return;
+    // Baseline stays fully visible. Each target is animated only when its
+    // inView callback fires (brief visible-to-hidden snap at trigger, never
+    // permanently hidden if the observer never fires). Delays capped so no
+    // row waits more than --stagger-max (300ms).
+    targets.forEach((el, i) => {
+      const delayMs = Math.min(i * 55, 300); /* cap to --stagger-max */
+      const stop = inView(el, () => {
+        const a = animate(el, { opacity: [0, 1], y: [14, 0] }, {
+          duration: 350,
+          ease: 'easeOut',
+          delay: delayMs,
+        });
+        revealAnimations.push(a);
+        a.then(
+          () => { revealAnimations = revealAnimations.filter((x) => x !== a); },
+          () => { revealAnimations = revealAnimations.filter((x) => x !== a); }
+        );
+        stop(); // one-shot
+      }, { margin: '-10% 0 0 0' });
+      revealStops.push(stop);
+    });
+  } catch {
+    document
+      .querySelectorAll<HTMLElement>(REVEAL_SELECTORS)
+      .forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
   }
 }
 
@@ -139,6 +288,8 @@ function init(): void {
       startHero();
     }
     attachPressFeedback();
+    choreographHeroText();
+    revealSections();
   } catch {
     // Motion is progressive enhancement. Any failure leaves the page
     // exactly as HTML/CSS rendered it — fully visible.
