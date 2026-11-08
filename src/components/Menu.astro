@@ -59,7 +59,8 @@ function buildSrcset(credit: Record<string, string | null> | null): string {
   const parts: string[] = [];
   for (const [key, variant] of Object.entries(credit.localVariants)) {
     const w = variant.width;
-    parts.push(`/images/${variant.file} ${w}w`);
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+    parts.push(`${base}/images/${variant.file} ${w}w`);
   }
   return parts.join(', ');
 }
@@ -136,7 +137,7 @@ const ingredientsSizes = '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, 1
             <figure class="mt-12 -mx-5 sm:-mx-8 mx-auto max-w-[1400px]" data-motion="section">
               <div class="overflow-hidden rounded-lg bg-ink/5 aspect-[3/2] lg:aspect-[4/3]">
                 <img
-                  src="/images/fresh-ingredients-slate.jpg"
+                  src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/images/fresh-ingredients-slate.jpg`}
                   srcset={ingredientsSrcset}
                   sizes={ingredientsSizes}
                   alt={ingredientsAlt}
