@@ -1,72 +1,205 @@
 ---
 // src/components/Gallery.astro
-// Canonical archive gallery for the active page: one supporting photograph,
-// shown deliberately and balanced against a heading/credit column. The image is
-// bound to siteConfig.images.gallery (never hard-coded). Attribution comes from
-// credits.json; alt + caption state plainly that this is archive photography,
-// not Marea's own dish/venue. Nothing is hidden pending an animation.
-import { siteConfig } from '../config/site';
+// Asymmetric light archive gallery — five images: three user-supplied
+// (rocky cove, wine/table setting, citrus/olives) and two Pexels-credited
+// archive photographs (gourmet grilled octopus, Italian market stall);
+// composed as an offset two-column collage.
+// Marea is fictional: neither photograph is presented as the venue,
+// dishes, the staff, the suppliers or the history of Marea.
+// Attribution: Pexels credits for marea-octopus-elegant.jpg and
+// mediterranean-market-stall.jpg are preserved from public/images/credits.json;
+// user-supplied images have User-supplied credit records.
+// Motion hooks retained: data-motion="section" on the section and the
+// #galeria figure reveal selector used by src/scripts/marea-motion.ts, plus
+// the global .gallery-img / .gallery-credit-link classes.
+// The section styles live in src/styles/sections-story-gallery.css, imported
+// once from src/pages/index.astro.
+import { Image } from 'astro:assets';
 import creditsData from '../../public/images/credits.json';
-
-const { images } = siteConfig;
+import octopusPhoto from '../assets/user-supplied/gallery-cala.png';
+import marketPhoto from '../assets/user-supplied/gallery-mesa-vino.png';
+import mareaOctopus from '../assets/gallery/marea-octopus-elegant.jpg';
+import marketStall from '../assets/gallery/mediterranean-market-stall.jpg';
+import citricos from '../assets/user-supplied/gallery-citricos-olivas.png';
 
 const credits = creditsData as unknown as Array<Record<string, string | null>>;
 const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
 
-const gallery = images.gallery.map((src) => {
-  const c = (creditByFile[src] ?? null) as Record<string, string | null> | null;
-  return {
-    src,
-    width: c?.width ?? null,
-    height: c?.height ?? null,
-    alt: `Imagen de archivo: ${c?.title ?? src.split('/').pop()}. No muestra el local ni los platos de Marea.`,
-    credit: c
-      ? {
-          title: c.title,
-          creator: c.creator,
-          license: c.license,
-          licenseUrl: c.licenseUrl,
-          page: c.page,
-          via: c.via,
-        }
-      : null,
-  };
-});
+const octopusRecord = (creditByFile['/images/marea-octopus-elegant.jpg'] ?? null) as Record<
+  string,
+  string | null
+> | null;
+
+const octopusCredit = {
+  title: octopusRecord?.title ?? 'Gourmet grilled octopus on elegant plate',
+  creator: octopusRecord?.creator ?? null,
+  license: octopusRecord?.license ?? 'Pexels License',
+  licenseUrl: octopusRecord?.licenseUrl ?? 'https://www.pexels.com/license/',
+  page: octopusRecord?.page ?? 'https://www.pexels.com/photo/gourmet-grilled-octopus-on-elegant-plate-39452706/',
+  via: octopusRecord?.via ?? 'Pexels',
+};
+
+// Provenance: src/assets/asset-manifest.md → gallery/ — Pexels, Paula Conde
+// Sanchez, Pexels License, record pexels:39139756 (already present in
+// public/images/credits.json with its canonical source page).
+const marketRecord = (creditByFile['/images/mediterranean-market-stall.jpg'] ?? null) as Record<
+  string,
+  string | null
+> | null;
+
+const marketCredit = {
+  title: marketRecord?.title ?? 'Vibrant Italian Market Stall with Fresh Produce',
+  creator: marketRecord?.creator ?? null,
+  license: marketRecord?.license ?? 'Pexels License',
+  licenseUrl: marketRecord?.licenseUrl ?? 'https://www.pexels.com/license/',
+  page:
+    marketRecord?.page ??
+    'https://www.pexels.com/photo/vibrant-italian-market-stall-with-fresh-produce-39139756/',
+  via: marketRecord?.via ?? 'Pexels',
+};
+
+const gallery = [
+  {
+    id: 'pulpo',
+    src: octopusPhoto,
+    alt: 'Acantilado rocoso. No muestra el local ni los platos de Marea.',
+    widths: [420, 640, 900, 1280],
+    sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 58vw, 44vw',
+    credit: {
+      title: 'Acantilado rocoso',
+      creator: null,
+      license: null,
+      licenseUrl: null,
+      page: null,
+      via: null,
+    },
+  },
+  {
+    id: 'mercado',
+    src: marketPhoto,
+    alt: 'Mesa con vino y elementos de decoración. No muestra el local, los platos ni los proveedores de Marea.',
+    widths: [320, 480, 640, 840],
+    sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 34vw, 24vw',
+    credit: {
+      title: 'Mesa con vino',
+      creator: null,
+      license: null,
+      licenseUrl: null,
+      page: null,
+      via: null,
+    },
+  },
+  {
+    id: 'citricos',
+    src: citricos,
+    alt: 'Frutas y cítricos frescos en un plato de cerámica. No muestra el local ni los platos de Marea.',
+    widths: [420, 640, 900, 1200],
+    sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 36vw',
+    credit: {
+      title: 'Citrus and olives',
+      creator: null,
+      license: null,
+      licenseUrl: null,
+      page: null,
+      via: null,
+    },
+  },
+  {
+    id: 'pulpo-elegant',
+    src: mareaOctopus,
+    alt: 'Grilled octopus on elegant plate. Contexto ilustrativo, no representa el local ni los platos de Marea.',
+    widths: [420, 640, 900, 1280],
+    sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 58vw, 44vw',
+    credit: {
+      title: 'Gourmet grilled octopus on elegant plate',
+      creator: 'Deane Bayas',
+      license: 'Pexels License',
+      licenseUrl: 'https://www.pexels.com/license/',
+      page: 'https://www.pexels.com/photo/gourmet-grilled-octopus-on-elegant-plate-39452706/',
+      via: 'Pexels',
+    },
+  },
+  {
+    id: 'mercado-stall',
+    src: marketStall,
+    alt: 'Puesto de mercado italiano con fruta y verdura fresca. Contexto ilustrativo, no representa el local.',
+    widths: [320, 480, 640, 840],
+    sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 34vw, 24vw',
+    credit: {
+      title: 'Vibrant Italian Market Stall with Fresh Produce',
+      creator: 'Paula Conde Sanchez',
+      license: 'Pexels License',
+      licenseUrl: 'https://www.pexels.com/license/',
+      page: 'https://www.pexels.com/photo/vibrant-italian-market-stall-with-fresh-produce-39139756/',
+      via: 'Pexels',
+    },
+  },
+];
 ---
 
-<section id="galeria" data-motion="section" class="bg-ground-alt px-5 sm:px-8 py-20 md:py-28">
-  <div class="mx-auto max-w-[1400px]">
-    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16 items-start">
-      <div class="lg:col-span-5 max-w-[52ch]">
-        <h2 class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
-          Archivo fotográfico
-        </h2>
-        <p class="mt-4 text-lg text-ink/80">
-          Imágenes de archivo del entorno valenciano y mediterráneo. No muestran el local ni los platos de Marea.
-        </p>
-      </div>
+<section
+  id="galeria"
+  data-motion="section"
+  class="marea-gallery bg-ground-alt px-5 sm:px-8 py-20 md:py-28"
+  aria-label="Galería"
+>
+  <div class="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-12 lg:gap-16 items-start">
+    <header class="lg:col-span-4 max-w-[42ch] lg:sticky lg:top-24 lg:self-start">
+      <p class="marea-kicker">Archivo</p>
+      <h2 class="mt-3 font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
+        Archivo fotográfico
+      </h2>
+      <p class="mt-4 text-lg text-ink/80">
+        Cinco fotografías de archivo e ilustrativas: acantilado rocoso, mesa con vino, frutos cítricos y olivas, pulpo gourmet en plato elegante, y puesto de mercado italiano con productos frescos. Luz y textura de contexto, no un registro del local.
+      </p>
+      <p class="mt-4 text-sm text-ink/70">
+        No muestran el local, los platos, el equipo ni los proveedores de Marea. Marea es un
+        restaurante ficticio de demostración.
+      </p>
+    </header>
 
-      <div class="lg:col-span-7">
-        {gallery.map((g) => (
-          <figure class="m-0 mx-auto w-full max-w-[36rem]">
-            <div class="overflow-hidden bg-ink/5 aspect-[2/3]">
-              <img
-                src={g.src}
-                alt={g.alt}
-                width={g.width ?? 1920}
-                height={g.height ?? 2880}
+    <!-- Width-constrained parent (min-width:0) so the mobile track scrolls inside
+         itself and never widens the document. On desktop the same track becomes the
+         asymmetric collage grid (see sections-story-gallery.css). -->
+    <div class="lg:col-span-8 min-w-0">
+      <div class="marea-gallery__viewport min-w-0">
+        <div
+          class="marea-gallery__collage"
+          role="region"
+          aria-label="Galería de archivo en carrusel horizontal"
+          tabindex="0"
+        >
+          {gallery.map((item, index) => (
+          <figure
+            class={[
+              'marea-gallery__figure',
+              index % 3 === 0 && 'marea-gallery__figure--lead',
+              index % 3 === 1 && 'marea-gallery__figure--offset',
+            ].filter(Boolean).join(' ')}
+            class:list={[
+              'marea-gallery__figure',
+            ]}
+          >
+            <div class="marea-gallery__frame">
+              <Image
+                src={item.src}
+                alt={item.alt}
+                widths={item.widths}
+                sizes={item.sizes}
                 loading="lazy"
-                class="gallery-img h-full w-full object-cover object-center"
+                decoding="async"
+                class="gallery-img marea-gallery__img"
               />
             </div>
-            <figcaption class="mt-3 text-sm leading-relaxed text-ink/70">
-              {g.credit ? (
+            <figcaption class="marea-gallery__caption">
+              <span class="marea-gallery__title">{item.credit.title}</span>
+              {item.credit.creator || item.credit.via ? (
                 <>
-                  <span class="text-ink font-medium">{g.credit.title ?? 'Imagen de archivo'}</span>. Foto:{' '}
-                  <span class="font-medium">{g.credit.creator}</span>{g.credit.license ? `, ${g.credit.license}` : ''}, vía {g.credit.via}.{' '}
-                  {g.credit.page && (
+                  <span class="font-medium">Foto: {item.credit.creator}</span>
+                  {item.credit.license ? `, ${item.credit.license}` : ''}, vía {item.credit.via}{' '}
+                  {item.credit.page && (
                     <a
-                      href={g.credit.page}
+                      href={item.credit.page}
                       target="_blank"
                       rel="noopener"
                       class="gallery-credit-link underline underline-offset-2"
@@ -74,10 +207,10 @@ const gallery = images.gallery.map((src) => {
                       fuente
                     </a>
                   )}
-                  {g.credit.page && g.credit.licenseUrl && ' · '}
-                  {g.credit.licenseUrl && (
+                  {item.credit.page && item.credit.licenseUrl && ' · '}
+                  {item.credit.licenseUrl && (
                     <a
-                      href={g.credit.licenseUrl}
+                      href={item.credit.licenseUrl}
                       target="_blank"
                       rel="noopener"
                       class="gallery-credit-link underline underline-offset-2"
@@ -87,12 +220,67 @@ const gallery = images.gallery.map((src) => {
                   )}
                 </>
               ) : (
-                <span>Imagen ilustrativa de archivo. No muestra el local ni los platos de Marea.</span>
+                <span>Imagen suministrada para esta demostración</span>
               )}
+              <span class="marea-gallery__note">
+                Imagen de archivo: no representa el local, los platos, el equipo ni los proveedores de
+                Marea.
+              </span>
             </figcaption>
           </figure>
         ))}
       </div>
     </div>
   </div>
+  </div>
 </section>
+
+<script>
+  // The gallery track is only a keyboard-focusable named region while it can
+  // actually scroll (mobile snap track). On desktop the same element is a
+  // static collage grid, so the region role, tab stop and label are removed —
+  // no false tab stop, no scroll region with nowhere to scroll.
+  (() => {
+    const track = document.querySelector<HTMLElement>('.marea-gallery__collage');
+    if (!track) return;
+    const LABEL = 'Galería de archivo en carrusel horizontal';
+
+    const syncRegion = (): void => {
+      let scrollable = false;
+      try {
+        const overflowX = getComputedStyle(track).overflowX;
+        scrollable =
+          (overflowX === 'auto' || overflowX === 'scroll') &&
+          track.scrollWidth > track.clientWidth + 1;
+      } catch {
+        scrollable = false;
+      }
+      if (scrollable) {
+        track.setAttribute('role', 'region');
+        track.setAttribute('tabindex', '0');
+        track.setAttribute('aria-label', LABEL);
+      } else {
+        track.removeAttribute('role');
+        track.removeAttribute('tabindex');
+        track.removeAttribute('aria-label');
+      }
+    };
+
+    let pending = false;
+    const schedule = (): void => {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(() => {
+        pending = false;
+        syncRegion();
+      });
+    };
+
+    syncRegion();
+    window.addEventListener('resize', schedule, { passive: true });
+    window.addEventListener('load', schedule);
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(schedule).observe(track);
+    }
+  })();
+</script>

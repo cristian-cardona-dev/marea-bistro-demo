@@ -417,5 +417,150 @@
     ],
     "saved": "2026-11-04T18:12:16.027Z",
     "use": "gallery - sharp grilled octopus on elegant plate (illustrative dish photo; not Marea dish)"
+  },
+  {
+    "file": "/images/mediterranean-sea-view.jpg",
+    "media": "image",
+    "ref": "pexels:32727471",
+    "title": "Tranquil Mediterranean Sea View with Clear Blue Skies",
+    "creator": "Vincent Rivaud",
+    "creatorUrl": "https://www.pexels.com/@vincent-rivaud",
+    "date": "2025-06-26",
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/tranquil-mediterranean-sea-view-with-clear-blue-skies-32727471/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/32727471/pexels-photo-32727471.jpeg",
+    "width": 1600,
+    "height": 2400,
+    "bytes": 603900,
+    "credit": "\"Tranquil Mediterranean Sea View with Clear Blue Skies\" by Vincent Rivaud, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea venue."
+    ],
+    "saved": "2026-11-05T10:00:00.000Z",
+    "use": "interlude - Mediterranean coastal atmosphere (archive context; not Marea venue)",
+    "localVariants": {
+      "800w": { "file": "mediterranean-sea-view-800w.jpg", "width": 800, "height": 1200, "bytes": 151400, "format": "jpeg" },
+      "1600w": { "file": "mediterranean-sea-view-1600w.jpg", "width": 1600, "height": 2400, "bytes": 603900, "format": "jpeg" }
+    }
+  },
+  {
+    "file": "/images/grilled-octopus-clean.jpg",
+    "media": "image",
+    "ref": "pexels:39022480",
+    "title": "Grilled Octopus Dish with Arugula on Ceramic Plate",
+    "creator": "Deane Bayas",
+    "creatorUrl": "https://www.pexels.com/@deane-bayas-2150536599/",
+    "date": "2025-02-17",
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/grilled-octopus-dish-with-arugula-on-ceramic-plate-39022480/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/39022480/pexels-photo-39022480.jpeg",
+    "width": 1600,
+    "height": 2400,
+    "bytes": 534300,
+    "credit": "\"Grilled Octopus Dish with Arugula on Ceramic Plate\" by Deane Bayas, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea dish."
+    ],
+    "saved": "2026-11-05T14:00:00.000Z",
+    "use": "menu/interlude - clean grilled octopus on ceramic plate (illustrative dish photo; not Marea dish)",
+    "localVariants": {
+      "800w": { "file": "grilled-octopus-clean-800w.jpg", "width": 800, "height": 1200, "bytes": 163400, "format": "jpeg" },
+      "1600w": { "file": "grilled-octopus-clean-1600w.jpg", "width": 1600, "height": 2400, "bytes": 534300, "format": "jpeg" }
+    }
+  },
+  {
+    "file": "/images/table-ceramics-linen.jpg",
+    "media": "image",
+    "ref": "pexels:6739706",
+    "title": "White Crockery on Table Top",
+    "creator": "cottonbro studio",
+    "creatorUrl": "https://www.pexels.com/@cottonbro-studio",
+    "date": "2020-09-23",
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/white-crockery-on-table-top-6739706/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/6739706/pexels-photo-6739706.jpeg",
+    "width": 1600,
+    "height": 2400,
+    "bytes": 125600,
+    "credit": "\"White Crockery on Table Top\" by cottonbro studio, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea venue."
+    ],
+    "saved": "2026-11-05T10:00:00.000Z",
+    "use": "interlude - table setting with ceramics and linen (archive context; not Marea venue)",
+    "localVariants": {
+      "800w": { "file": "table-ceramics-linen-800w.jpg", "width": 800, "height": 1200, "bytes": 40073, "format": "jpeg" },
+      "1600w": { "file": "table-ceramics-linen-1600w.jpg", "width": 1600, "height": 2400, "bytes": 125600, "format": "jpeg" }
+    }
+  },
+  {
+    "file": "/images/mediterranean-market-stall.jpg",
+    "media": "image",
+    "ref": "pexels:39139756",
+    "title": "Vibrant Italian Market Stall with Fresh Produce",
+    "creator": "Paula Conde Sanchez",
+    "creatorUrl": "https://www.pexels.com/@paula-conde-sanchez",
+    "date": "2026-08-22",
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/vibrant-italian-market-stall-with-fresh-produce-39139756/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/39139756/pexels-photo-39139756.jpeg",
+    "width": 1600,
+    "height": 2134,
+    "bytes": 708800,
+    "credit": "\"Vibrant Italian Market Stall with Fresh Produce\" by Paula Conde Sanchez, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea venue."
+    ],
+    "saved": "2026-11-05T14:00:00.000Z",
+    "use": "menu/interlude - Italian market stall with fresh produce under canopy (archive context; not Marea venue)",
+    "localVariants": {
+      "800w": { "file": "mediterranean-market-stall-800w.jpg", "width": 800, "height": 1067, "bytes": 192200, "format": "jpeg" },
+      "1600w": { "file": "mediterranean-market-stall-1600w.jpg", "width": 1600, "height": 2134, "bytes": 708800, "format": "jpeg" }
+    }
+  },
+  {
+    "file": "/images/fresh-ingredients-slate.jpg",
+    "media": "image",
+    "ref": "pexels:32356156",
+    "title": "Fresh Mediterranean Ingredients on Slate",
+    "creator": "Gundula Vogel",
+    "creatorUrl": "https://www.pexels.com/@gundula-vogel",
+    "date": "2025-06-01",
+    "license": "Pexels License",
+    "licenseCode": "pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "creditRequired": false,
+    "page": "https://www.pexels.com/photo/fresh-mediterranean-ingredients-on-slate-32356156/",
+    "via": "Pexels",
+    "image": "https://images.pexels.com/photos/32356156/pexels-photo-32356156.jpeg",
+    "width": 1600,
+    "height": 1067,
+    "bytes": 162800,
+    "credit": "\"Fresh Mediterranean Ingredients on Slate\" by Gundula Vogel, via Pexels",
+    "notes": [
+      "Pexels License: free to use including commercial; attribution not required (appreciated). Cannot resell/distribute raw image standalone. Used as illustrative demo photography, not Marea dish."
+    ],
+    "saved": "2026-11-05T10:00:00.000Z",
+    "use": "menu - fresh ingredients detail (illustrative photo; not Marea dish)",
+    "localVariants": {
+      "800w": { "file": "fresh-ingredients-slate-800w.jpg", "width": 800, "height": 533, "bytes": 57580, "format": "jpeg" },
+      "1600w": { "file": "fresh-ingredients-slate-1600w.jpg", "width": 1600, "height": 1067, "bytes": 162800, "format": "jpeg" }
+    }
   }
 ]

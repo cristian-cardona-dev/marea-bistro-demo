@@ -1,0 +1,215 @@
+/* src/styles/sections-story-gallery.css
+ *
+ * Local styles owned by the Marea V2 Story (About.astro) and Gallery.astro
+ * sections. Imported exactly once, from src/pages/index.astro — no global
+ * tokens, no other sections, no motion script changes.
+ *
+ * Rules are prefixed `marea-` to stay out of the global cascade; the gallery
+ * keeps the existing global hooks (#galeria figure, .gallery-img,
+ * .gallery-credit-link) untouched.
+ */
+
+/* --- Shared eyebrow --------------------------------------------------- */
+
+.marea-kicker {
+  font-size: var(--step-0);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oklch-muted);
+}
+
+/* --- Story (About) ---------------------------------------------------- */
+
+.marea-story__frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background-color: oklch(0 0 0 / 0.04);
+  border: 1px solid oklch(0 0 0 / 0.06);
+  border-radius: var(--radius-md);
+}
+
+.marea-story__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: 50% 50%;
+  transition: transform var(--duration-slow) var(--ease-out-expo);
+}
+
+/* Restrained lift, same scale as the global .gallery-img hover. */
+.marea-story__frame:hover .marea-story__img {
+  transform: scale(1.02);
+}
+
+/* --- Gallery collage -------------------------------------------------- */
+
+/* Width-constrained parent: it can never push past the section column, so the
+   mobile track scrolls inside itself instead of widening the document. */
+.marea-gallery__viewport {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.marea-gallery__frame {
+  position: relative;
+  overflow: hidden;
+  background-color: oklch(0 0 0 / 0.04);
+}
+
+/* Mobile (<lg): a real horizontal scroll-snap track with a next-item peek.
+   The track owns the scroll; the document never scrolls horizontally. */
+.marea-gallery__collage {
+  display: flex;
+  align-items: start;
+  gap: 1rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.marea-gallery__figure {
+  flex: 0 0 auto;
+  /* Full-bleed-ish card with the next item peeking in: 86% + gap keeps the
+     next-image edge visible so the track reads as scrollable. */
+  width: 86%;
+  max-width: 34rem;
+  scroll-snap-align: start;
+}
+
+/* Desktop (>=lg): genuinely multi-column asymmetric mixed-ratio collage on a
+   12-column grid. No horizontal scroll, no page overflow. */
+@media (min-width: 1024px) {
+  .marea-gallery__collage {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+    overflow: visible;
+    scroll-snap-type: none;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .marea-gallery__figure {
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    flex: initial;
+  }
+
+  /* Offset collage: column spans, mixed ratios, one nudged start position. */
+  .marea-gallery__figure:nth-child(1) {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+
+  .marea-gallery__figure:nth-child(2) {
+    grid-column: 7 / span 6;
+    grid-row: 1;
+    margin-top: 2.75rem;
+  }
+
+  .marea-gallery__figure:nth-child(3) {
+    grid-column: 1 / span 4;
+    grid-row: 2;
+  }
+
+  .marea-gallery__figure:nth-child(4) {
+    grid-column: 6 / span 4;
+    grid-row: 2;
+    margin-top: 2.75rem;
+  }
+
+  .marea-gallery__figure:nth-child(5) {
+    grid-column: 11 / span 2;
+    grid-row: 2;
+  }
+
+  /* Mixed-ratio frames — the asymmetry of the desktop collage. */
+  .marea-gallery__figure:nth-child(1) .marea-gallery__frame {
+    aspect-ratio: 2 / 3;
+  }
+
+  .marea-gallery__figure:nth-child(2) .marea-gallery__frame {
+    aspect-ratio: 3 / 4;
+  }
+
+  .marea-gallery__figure:nth-child(3) .marea-gallery__frame {
+    aspect-ratio: 4 / 5;
+  }
+
+  .marea-gallery__figure:nth-child(4) .marea-gallery__frame {
+    aspect-ratio: 1 / 1;
+  }
+
+  .marea-gallery__figure:nth-child(5) .marea-gallery__frame {
+    aspect-ratio: 3 / 4;
+  }
+}
+
+/* Fallback frame ratios below lg (mobile card keeps a 3/4 editorial crop). */
+.marea-gallery__figure .marea-gallery__frame {
+  aspect-ratio: 3 / 4;
+}
+
+.marea-gallery__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* --- Captions + credit links ------------------------------------------ */
+
+.marea-story__caption,
+.marea-gallery__caption {
+  color: var(--oklch-muted);
+  font-size: var(--step-0);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.marea-story__title,
+.marea-gallery__title {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.marea-story__note,
+.marea-gallery__note {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--oklch-muted);
+}
+
+/* Story credit links (the gallery keeps the global .gallery-credit-link). */
+.marea-credit-link {
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.marea-credit-link:hover,
+.marea-credit-link:focus-visible {
+  color: var(--color-accent);
+}
+
+/* --- Reduced motion: these sections stay static ------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .marea-story__img,
+  .marea-credit-link {
+    transition: none !important;
+  }
+
+  .marea-story__frame:hover .marea-story__img,
+  .marea-story__img:hover {
+    transform: none !important;
+  }
+}

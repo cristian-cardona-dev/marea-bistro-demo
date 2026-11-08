@@ -1,21 +1,395 @@
 ---
 // src/components/About.astro
+// Story — a truthful three-beat visual sequence (coast → table → sample
+// dish) that sits between the hero and the menu. The three frames are
+// local images imported from src/assets (astro:assets, build-time
+// optimised):
+//   • coast  → src/assets/hero/mediterranean-sea-view.jpg
+//              ("Tranquil Mediterranean Sea View with Clear Blue Skies",
+//              Vincent Rivaud, Pexels License — canonical record in
+//              public/images/credits.json, credited verbatim below with
+//              clickable fuente/licencia links)
+//   • table  → src/assets/user-supplied/gallery-mesa-vino.png
+//              (a closer detail of that table: wine and decoration objects)
+//   • sample → src/assets/dishes/paella-de-marisco.png
+// Marea is fictional: no frame is presented as the venue, the tableware, the
+// dishes, the staff, the suppliers or the history of Marea. Every frame is
+// labelled as archive/illustrative imagery and the sample dish is labelled
+// as an illustrative example; the demo disclosure comes from
+// siteConfig.content.aboutText. Beats whose canonical record lives in
+// credits.json are credited with their exact title, creator, licence and
+// clickable source/licence links; no author or licence is invented for the
+// user-supplied or AI-generated demo files.
+// Every frame takes the aspect ratio of the asset it holds, read from Astro's
+// own ImageMetadata (width/height) — the image files are never opened — so a
+// frame always matches its source: nothing is cropped and no empty band is
+// left inside it.
+// Motion hooks: data-motion="section" (press feedback in
+// src/scripts/marea-motion.ts) plus the pre-existing data-reveal attributes.
+// The section styles live in src/styles/sections-story-gallery.css, imported
+// once from src/pages/index.astro; the three-beat stage adds its own
+// component-local <style> below, so no shared stylesheet is touched.
+import { Image } from 'astro:assets';
 import { siteConfig } from '../config/site';
+import coastPhoto from '../assets/hero/mediterranean-sea-view.jpg';
+import tablePhoto from '../assets/user-supplied/gallery-mesa-vino.png';
+import sampleDishPhoto from '../assets/dishes/paella-de-marisco.png';
 
 const { brand, content } = siteConfig;
+
+// The stage column is about 46% of the 1400px frame on wide screens and the
+// full padded width below it.
+const storySizes = '(min-width: 1024px) 46vw, 92vw';
+
+// One entry per story beat. `src` is the Astro ImageMetadata of the imported
+// asset (the type of the imports above), so the frame ratio below stays
+// dynamic. `creditLinks` is only used by beats whose canonical record lives
+// in public/images/credits.json; beats with no author or licence
+// (user-supplied / AI-generated demo files) simply render no link.
+type StoryBeat = {
+  id: string;
+  heading: string;
+  body: string;
+  src: typeof coastPhoto;
+  alt: string;
+  widths: number[];
+  loading: 'eager' | 'lazy';
+  title: string;
+  credit: string;
+  note: string;
+  creditLinks?: Array<{ label: string; href: string }>;
+};
+
+const beats: StoryBeat[] = [
+  {
+    id: 'costa',
+    heading: 'La costa',
+    body: 'El primer tiempo se detiene en la costa: una vista tranquila del mar Mediterráneo bajo cielos despejados. Es una fotografía de archivo con licencia Pexels, acreditada con su fuente y su licencia; no representa la ubicación ni el entorno de Marea.',
+    src: coastPhoto,
+    alt: 'Vista tranquila del mar Mediterráneo bajo cielos despejados. Fotografía de archivo: no representa la ubicación ni el entorno de Marea.',
+    widths: [400, 600, 800, 1200, 1600],
+    loading: 'eager',
+    // Exact canonical record: public/images/credits.json → /images/mediterranean-sea-view.jpg
+    title: 'Tranquil Mediterranean Sea View with Clear Blue Skies',
+    credit: 'Foto: Vincent Rivaud, Pexels License, vía Pexels.',
+    creditLinks: [
+      {
+        label: 'fuente',
+        href: 'https://www.pexels.com/photo/tranquil-mediterranean-sea-view-with-clear-blue-skies-32727471/',
+      },
+      { label: 'licencia', href: 'https://www.pexels.com/license/' },
+    ],
+    note: 'Fotografía de archivo: no representa la ubicación ni el entorno de Marea.',
+  },
+  {
+    id: 'mesa',
+    heading: 'La mesa',
+    body: 'El segundo tiempo se acerca a esa mesa: una copa de vino y los objetos de decoración vistos de cerca sobre la superficie. También es una imagen de archivo: no muestra el local, la vajilla ni los platos de Marea.',
+    src: tablePhoto,
+    alt: 'Detalle cercano de una mesa: una copa de vino y objetos de decoración sobre la superficie. Imagen de archivo: no muestra el local, la vajilla ni los platos de Marea.',
+    widths: [320, 480, 640, 840],
+    loading: 'lazy' as const,
+    title: 'Detalle de mesa con vino',
+    credit: 'Imagen aportada para esta demostración.',
+    note: 'Imagen de archivo: no representa el local, la vajilla ni los platos de Marea.',
+  },
+  {
+    id: 'carta',
+    heading: 'La carta de ejemplo',
+    body: 'El tercer tiempo muestra un plato de muestra: una paella de marisco en paellera. La fotografía es ilustrativa y de ejemplo, no describe un plato real de Marea ni sus ingredientes reales.',
+    src: sampleDishPhoto,
+    alt: 'Paella de marisco en paellera, con gambas, mejillones, almejas, calamar y limón. Fotografía ilustrativa de ejemplo: no representa un plato real de Marea.',
+    widths: [320, 480, 640],
+    loading: 'lazy' as const,
+    title: 'Ejemplo de carta',
+    credit: 'Fotografía ilustrativa de ejemplo, generada por IA y aportada para esta demostración.',
+    note: 'Ejemplo ilustrativo: no representa un plato real de Marea, sus ingredientes ni su procedencia.',
+  },
+].map((beat) => ({
+  ...beat,
+  // Astro's ImageMetadata already carries the real pixel size of every
+  // asset, so the frame ratio is read from the import itself and no image
+  // file is opened. A single number is width ÷ height (2 means 2/1).
+  ratio: beat.src.width / beat.src.height,
+}));
 ---
 
-<section class="py-24 px-6 bg-groundAlt/50" id="sobre-nosotros">
-  <div class="max-w-5xl mx-auto">
-    <div class="grid md:grid-cols-2 gap-12 items-center">
-      <div data-reveal>
-        <h2 class="font-display text-4xl md:text-5xl font-bold text-ink mb-6">
-          Sobre {brand.name}
+<section
+  id="sobre-nosotros"
+  data-motion="section"
+  class="marea-story bg-ground px-5 sm:px-8 py-20 md:py-28"
+>
+  <div class="mx-auto max-w-[1400px]">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-x-16 lg:gap-y-12">
+      <div class="lg:col-span-5 max-w-[46ch]" data-reveal>
+        <p class="marea-kicker">Sobre {brand.name}</p>
+        <h2 class="mt-3 font-display font-bold text-ink leading-[0.95] text-[clamp(2.25rem,5vw,3.5rem)]">
+          La mesa en pausa
         </h2>
-        <p class="text-ink leading-relaxed mb-6">
+        <p class="mt-5 text-lg text-ink/80">
+          Una secuencia en tres tiempos —la vista de la costa, el detalle de la mesa y un ejemplo de carta— montada con una fotografía de archivo acreditada, una imagen de archivo y una fotografía ilustrativa de esta demostración.
+        </p>
+        <p class="mt-6 text-sm text-ink/70" data-demo-disclosure role="note">
           {content.aboutText}
         </p>
       </div>
+
+      <div class="lg:col-span-6 lg:col-start-7" data-reveal>
+        <p class="text-sm text-ink/70">
+          Las tres imágenes son composición ilustrativa del sitio. No muestran la vajilla, el local, los platos, el equipo ni los
+          proveedores de Marea.
+        </p>
+      </div>
+    </div>
+
+    <!-- Three-beat story. Base layout is one stacked sequence (frame + text
+         per beat); the script upgrades it on wide screens to a sticky stage
+         whose frames crossfade. -->
+    <div
+      class="marea-story-seq mt-16 lg:mt-24"
+      data-marea-story
+      style={`--beat-count: ${beats.length};`}
+    >
+      {beats.map((beat, index) => (
+        <div class="marea-story-seq__item" style={`--beat-row: ${index + 1};`}>
+          <figure class="marea-story-seq__figure" data-marea-frame>
+            <div class="marea-story-seq__frame" style={`--beat-ratio: ${beat.ratio};`}>
+              <Image
+                src={beat.src}
+                alt={beat.alt}
+                widths={beat.widths}
+                sizes={storySizes}
+                loading={beat.loading}
+                decoding="async"
+                class="marea-story-seq__img"
+              />
+            </div>
+            <figcaption class="marea-story__caption">
+              <span class="marea-story__title">{beat.title}</span>. {beat.credit}
+              {beat.creditLinks && beat.creditLinks.length > 0 && (
+                <>
+                  {' '}
+                  {beat.creditLinks.map((link, i) => (
+                    <>
+                      {i > 0 && ' · '}
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener"
+                        class="marea-credit-link underline underline-offset-2"
+                      >
+                        {link.label}
+                      </a>
+                    </>
+                  ))}
+                </>
+              )}
+              <span class="marea-story__note">
+                {beat.note}
+              </span>
+            </figcaption>
+          </figure>
+
+          <div class="marea-story-seq__copy" data-marea-beat>
+            <h3 class="font-display font-bold text-ink text-[clamp(1.5rem,2.6vw,2.25rem)] leading-tight">
+              {beat.heading}
+            </h3>
+            <p class="mt-3 text-ink/80">
+              {beat.body}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 </section>
+
+<style>
+  /* --- Story: three-beat sequence (component-local) --------------------
+     Base: one stacked sequence — frame, caption and text per beat — so the
+     whole story is visible on narrow screens, without JavaScript and under
+     reduced motion. The enhanced rules further down turn the frames into
+     one sticky stage that crossfades between beats on wide screens only. */
+
+  .marea-story-seq {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .marea-story-seq__item {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .marea-story-seq__figure {
+    margin: 0;
+  }
+
+  /* The frame takes the ratio of the asset it holds (--beat-ratio, set from
+     Astro's ImageMetadata), so the picture fills the frame exactly: the
+     source is never cropped and no empty band is left inside the frame. The
+     flat ground tone behind it is only the placeholder shown while the file
+     loads. */
+  .marea-story-seq__frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--beat-ratio);
+    border-radius: var(--radius-md);
+    background-color: color-mix(in oklab, var(--color-ink) 7%, var(--color-ground));
+  }
+
+  /* The picture keeps its own ratio (height follows the width) and is never
+     cropped: with the frame ratio taken from the same ImageMetadata it fills
+     the frame exactly, and if the ratio were ever missing the frame would
+     simply take the height of the picture instead of clipping it. */
+  .marea-story-seq__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  @media (min-width: 1024px) {
+    .marea-story-seq {
+      gap: 5rem;
+    }
+
+    .marea-story-seq__item {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 4rem;
+      align-items: center;
+    }
+
+    .marea-story-seq__copy {
+      grid-column: 1 / span 5;
+    }
+
+    .marea-story-seq__figure {
+      grid-column: 7 / span 6;
+    }
+  }
+
+  /* --- Enhanced stage (wide screens, motion allowed) -------------------
+     The three frames share one sticky grid cell and crossfade as each beat
+     reaches the reading line. The class is only set by the script after it
+     has confirmed a wide viewport and that motion is allowed, so the
+     stacked sequence above is always the fallback. */
+
+  @media (min-width: 1024px) {
+    .marea-story[data-maria-enhanced] .marea-story-seq {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0;
+      column-gap: 4rem;
+    }
+
+    .marea-story[data-maria-enhanced] .marea-story-seq__item {
+      display: contents;
+    }
+
+    .marea-story[data-maria-enhanced] .marea-story-seq__copy {
+      grid-column: 1 / span 5;
+      grid-row: var(--beat-row);
+      /* One beat per roughly one viewport of scroll, so each frame has
+         room to land before the next crossfade starts. */
+      min-height: 62vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-block: 2rem;
+    }
+
+    .marea-story[data-maria-enhanced] .marea-story-seq__figure {
+      grid-column: 7 / span 6;
+      grid-row: 1 / span var(--beat-count);
+      align-self: start;
+      position: sticky;
+      top: 5.5rem;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 260ms var(--ease-standard);
+    }
+
+    /* The stage is sticky, so every frame also has to fit the viewport: it may
+       shrink in width — its ratio never changes — which keeps the tallest
+       beat on screen without cropping it or letterboxing it. */
+    .marea-story[data-maria-enhanced] .marea-story-seq__frame {
+      width: min(100%, calc((100vh - 12rem) * var(--beat-ratio)));
+      width: min(100%, calc((100dvh - 12rem) * var(--beat-ratio)));
+      margin-inline: auto;
+    }
+
+    .marea-story[data-maria-enhanced] .marea-story-seq__figure[data-active] {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  // Story stage: on wide screens the three frames of the sequence share one
+  // sticky cell and crossfade as each beat reaches the reading line. The
+  // enhancement is additive and reversible — without it (narrow viewport,
+  // reduced motion, or JavaScript disabled) the section stays a normal
+  // stacked sequence with every frame, caption and paragraph visible.
+  (() => {
+    const section = document.querySelector<HTMLElement>('[data-marea-story]');
+    if (!section) return;
+
+    const beats = Array.from(section.querySelectorAll<HTMLElement>('[data-marea-beat]'));
+    const frames = Array.from(section.querySelectorAll<HTMLElement>('[data-marea-frame]'));
+    if (beats.length < 2 || beats.length !== frames.length) return;
+
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let active = -1;
+    let pending = 0;
+
+    const setActive = (index: number): void => {
+      if (index === active) return;
+      active = index;
+      frames.forEach((frame, i) => {
+        if (i === index) frame.setAttribute('data-active', 'true');
+        else frame.removeAttribute('data-active');
+      });
+    };
+
+    // The beat whose text is currently crossing the reading line owns the
+    // stage. Purely read-only: the page scroll is never intercepted.
+    const update = (): void => {
+      pending = 0;
+      if (!section.hasAttribute('data-maria-enhanced')) return;
+      const line = window.innerHeight * 0.5;
+      let index = 0;
+      for (let i = 0; i < beats.length; i += 1) {
+        const rect = beats[i].getBoundingClientRect();
+        if (rect.top + rect.height / 2 <= line) index = i;
+      }
+      setActive(index);
+    };
+
+    const schedule = (): void => {
+      if (pending) return;
+      pending = window.requestAnimationFrame(update);
+    };
+
+    const sync = (): void => {
+      if (desktop.matches && !reduceMotion.matches) {
+        section.setAttribute('data-maria-enhanced', 'true');
+        update();
+      } else {
+        section.removeAttribute('data-maria-enhanced');
+        frames.forEach((frame) => frame.removeAttribute('data-active'));
+        active = -1;
+      }
+    };
+
+    sync();
+    desktop.addEventListener('change', sync);
+    reduceMotion.addEventListener('change', sync);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    window.addEventListener('load', schedule);
+    document.addEventListener('astro:page-load', sync);
+  })();
+</script>

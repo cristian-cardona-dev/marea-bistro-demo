@@ -219,11 +219,15 @@ export const siteConfig: SiteConfig = SiteConfigSchema.parse({
   },
 
   images: {
-    hero: "/images/marea-hero-seafood.jpg",
+    hero: "/images/mediterranean-sea-view.jpg",
     gallery: [
+      "/images/mediterranean-sea-view.jpg",
+      "/images/grilled-octopus-clean.jpg",
+      "/images/table-ceramics-linen.jpg",
+      "/images/mediterranean-market-stall.jpg",
       "/images/marea-octopus-elegant.jpg",
     ],
-    ogImage: "/images/marea-hero-seafood.jpg",
+    ogImage: "/images/mediterranean-sea-view.jpg",
   },
 
   seo: {

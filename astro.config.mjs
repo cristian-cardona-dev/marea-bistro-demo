@@ -7,6 +7,9 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://cristian-cardona-dev.github.io',
+  base: '/marea-bistro-demo/',
+
   vite: {
     plugins: [tailwindcss()]
   },

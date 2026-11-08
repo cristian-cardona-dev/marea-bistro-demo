@@ -1,73 +1,71 @@
 ---
 // src/pages/index.astro
-// Composition: a vertical editorial sequence — full-bleed food hero →
-// asymmetric typographic menu → archive gallery (one supporting image, shown
-// deliberately and balanced) → dark booking close. Every image is credited as
-// archive; no dish photo claims to be Marea's own; no chef/history/story
-// claims; no fake ratings or confirmations. Nothing is hidden pending an
-// animation.
+// Composition: sea Hero → Menu (featured dishes + carta) → About/story →
+// light asymmetric Gallery → teal demo reservation panel → Location/hours/map
+// → Footer. Every image is credited as archive; no dish photo claims to be
+// Marea's own; no chef/history/story claims; no fake ratings or confirmations.
+// Nothing is hidden pending an animation.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import Hero from '../components/Hero.astro';
 import Menu from '../components/Menu.astro';
+import About from '../components/About.astro';
 import Gallery from '../components/Gallery.astro';
+import ReservationForm from '../components/ReservationForm.tsx';
+import Location from '../components/Location.astro';
 import Footer from '../components/Footer.astro';
 import { siteConfig } from '../config/site';
-const { hours, location, reservations } = siteConfig;
-
-const mailtoSubject = encodeURIComponent('Solicitud de reserva — Marea Bistro (demostración)');
-const mailtoBody = encodeURIComponent(
-  'Hola, me gustaría solicitar una reserva en Marea Bistro.\n\n' +
-  'Aviso de demostración: este sitio es una plantilla de ejemplo. Marea es un restaurante ficticio. ' +
-  'Esta página solo prepara el correo: no lo envía automáticamente ni confirma una reserva. Tú decides si enviar este mensaje.\n\n' +
-  'Detalles por definir: fecha, hora y número de comensales.'
-);
-const mailtoHref = `mailto:${encodeURIComponent(reservations.emailFallback)}?subject=${mailtoSubject}&body=${mailtoBody}`;
+// Single import site for the Story (About) + Gallery section styles.
+import '../styles/sections-story-gallery.css';
+const { reservations } = siteConfig;
 ---
 <BaseLayout>
   <SiteHeader />
 
   <main>
     <Hero />
+    <About />
     <Menu />
     <Gallery />
 
-    <!-- Booking close — dark cinematic panel -->
-    <section id="reservas" data-motion="section" class="bg-ink text-ground px-5 sm:px-8 py-20 md:py-28">
+    <!-- Light editorial demo reservation close: copy + disclosure in one
+         column, the demo form in the other (desktop), stacked on mobile.
+         No availability claim, no booking confirmation. -->
+    <section
+      id="reservas"
+      data-motion="section"
+      class="bg-ground text-ink px-5 sm:px-8 py-20 md:py-28"
+    >
       <div class="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div class="lg:col-span-6">
-          <h2 class="font-display font-bold text-ground leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
+        <div class="lg:col-span-5 md:col-span-6">
+          <h2
+            class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]"
+          >
             Reservas
           </h2>
-          <p class="mt-4 text-lg text-ground/85 max-w-[40ch]">
+          <p class="mt-4 text-lg text-muted max-w-[40ch]">
             Mesa para {reservations.minParty} a {reservations.maxParty} personas. Reserva con hasta {reservations.advanceDays} días de antelación.
           </p>
-          <p id="ubicacion" class="mt-4 text-ground/85">
-            {location.address}, {location.city}. Tel. {location.phone}.
+          <p class="mt-4 text-sm text-muted max-w-[42ch]">
+            * Marea es un restaurante ficticio. Los datos de contacto y horarios son de ejemplo.
           </p>
-          <a href={mailtoHref} class="btn-square mt-8">
-            Solicitar reserva
-          </a>
-          <p class="mt-6 text-sm text-ground/60">
-            Datos de ejemplo (Marea es un restaurante ficticio de demostración).
+          <p class="mt-4 text-sm text-muted max-w-[42ch]" data-demo-disclosure role="note">
+            Demostración: el formulario solo prepara una solicitud en tu navegador. No se envía ningún dato, no se confirma ninguna reserva y no garantiza disponibilidad.
           </p>
         </div>
-
-        <div class="lg:col-span-5 lg:col-start-8">
-          <h3 class="font-display font-bold text-ground text-2xl">Horario</h3>
-          <ul class="mt-4 list-none p-0 m-0 divide-y divide-ground/15">
-            {hours.map((h) => (
-              <li class="flex justify-between gap-6 py-3 text-ground/90">
-                <span>{h.day}</span>
-                <span class="text-ground/70 tabular-nums text-right">
-                  {h.closed ? 'Cerrado' : `${h.open}${h.open2 ? ` / ${h.open2}` : ''} – ${h.close}${h.close2 ? ` / ${h.close2}` : ''}`}
-                </span>
-              </li>
-            ))}
-          </ul>
+        <div class="lg:col-span-7 md:col-span-6">
+          <ReservationForm
+            minParty={reservations.minParty}
+            maxParty={reservations.maxParty}
+            whatsappFallback={reservations.whatsappFallback}
+            emailFallback={reservations.emailFallback}
+            whatsappUrl={siteConfig.social.whatsapp}
+          />
         </div>
       </div>
     </section>
+
+    <Location />
   </main>
 
   <Footer />

@@ -7,6 +7,9 @@
 // (illustrative archive photography, not Marea's venue or dishes).
 // No script hides anything, and nothing starts at opacity 0.
 import { siteConfig } from '../config/site';
+import { getImage } from 'astro:assets';
+import heroDesktop from '../assets/user-supplied/hero-desktop-original.png';
+import heroMobile from '../assets/user-supplied/hero-mobile-original.png';
 import creditsData from '../../public/images/credits.json';
 
 const { images, brand } = siteConfig;
@@ -14,27 +17,55 @@ const { images, brand } = siteConfig;
 const credits = creditsData as unknown as Array<Record<string, string | null>>;
 const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
 
-const heroFile = images.hero;
-const heroCredit = (creditByFile[heroFile] ?? null) as Record<string, string | null> | null;
+const heroFile = heroDesktop;
+const heroWidth = 2560;
+const heroHeight = 1280;
+// User-supplied hero composites; no Pexels credit known or inventoried.
+const archiveAlt = 'Fotografía ilustrativa para Marea (composites de usuario). No representa el local ni los platos de Marea.';
 
-const creditTitle = heroCredit?.title ?? '';
-const creditCreator = heroCredit?.creator ?? '';
-const creditLicense = heroCredit?.license ?? '';
-const creditPage = heroCredit?.page ?? null;
-const creditLicenseUrl = heroCredit?.licenseUrl ?? null;
+// Full-bleed stage: every candidate is one viewport wide, mobile and desktop.
+// getImage() is Astro's own local-image pipeline (same astro:assets pattern the
+// rest of the site uses), so the art-directed <source> elements carry real
+// multi-width candidates. The result is read defensively (string or per-format
+// map) and falls back to the original single candidate, so the honest 100vw
+// metadata holds either way.
+const heroWidths = [640, 828, 1080, 1440, 1920, 2560];
+const heroSizes = '100vw';
 
-const heroWidth = Number(heroCredit?.width ?? 1920) || 1920;
-const heroHeight = Number(heroCredit?.height ?? 1280) || 1280;
-// Generic, honest description regardless of which archive file the config points at.
-const archiveAlt = creditTitle
-  ? `Fotografía ilustrativa de archivo: ${creditTitle}. No representa el local ni los platos de Marea.`
-  : 'Fotografía ilustrativa de archivo. No representa el local ni los platos de Marea.';
+type GeneratedSrcset = string | Record<string, string | undefined> | false | null | undefined;
+
+function readSrcset(value: GeneratedSrcset): string | null {
+  if (!value) return null;
+  if (typeof value === 'string') return value.trim() || null;
+  const first = Object.values(value).find((entry) => typeof entry === 'string' && entry.length > 0);
+  return typeof first === 'string' ? first : null;
+}
+
+async function heroSrcset(image: typeof heroDesktop, fallback: string): Promise<string> {
+  try {
+    const generated = await getImage({ src: image, widths: heroWidths, sizes: heroSizes });
+    const built = readSrcset(generated?.srcset);
+    if (built) return built;
+    if (typeof generated?.src === 'string' && generated.src.length > 0) return generated.src;
+  } catch {
+    // Keep the original candidate rather than breaking the hero.
+  }
+  return fallback;
+}
+
+const heroDesktopSrcset = await heroSrcset(heroDesktop, heroDesktop.src);
+const heroMobileSrcset = await heroSrcset(heroMobile, heroMobile.src);
 ---
 <section id="hero" data-motion="section" class="relative bg-ink text-ground">
   <figure data-motion="hero" class="relative m-0 overflow-hidden">
-    <img
+    <picture>
+  <source media="(min-width: 640px)" srcset={heroDesktopSrcset} type="image/png" />
+  <source media="(max-width: 639px)" srcset={heroMobileSrcset} type="image/png" />
+  <img
       id="hero-img"
-      src={heroFile}
+      src={heroDesktop.src}
+      srcset={heroDesktopSrcset}
+      sizes={heroSizes}
       alt={archiveAlt}
       width={heroWidth}
       height={heroHeight}
@@ -42,7 +73,16 @@ const archiveAlt = creditTitle
       fetchpriority="high"
       decoding="async"
       class="block w-full h-[52svh] min-h-[320px] lg:h-[74svh] lg:min-h-[520px] object-cover object-center"
-    />
+  />
+</picture>
+
+    <!-- Subtle scroll cue: appears at bottom, fades on scroll via CSS scroll-driven animation -->
+    <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-ground/70 pointer-events-none" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </svg>
+      <span class="text-[11px] tracking-widest uppercase">Desliza</span>
+    </div>
 
     <!-- Functional legibility scrim behind the overlaid wordmark (not decorative). -->
     <div
@@ -76,20 +116,7 @@ const archiveAlt = creditTitle
   <div class="bg-ground text-ink">
     <div class="mx-auto max-w-[1400px] px-5 sm:px-8 py-4 flex flex-col gap-2">
       <p id="hero-caption" data-hero-credit class="text-xs sm:text-sm text-ink/70">
-        Fotografía ilustrativa de archivo{creditTitle ? `: ${creditTitle}` : ''}.{' '}
-        {creditCreator && <>{' '}Foto: <span id="hero-scene-creator">{creditCreator}</span>{creditLicense ? `, ${creditLicense}` : ''}.</>}
-        {(creditPage || creditLicenseUrl) && ' '}
-        {creditPage && (
-          <a id="hero-scene-link-page" href={creditPage} target="_blank" rel="noopener" class="underline underline-offset-2">
-            fuente
-          </a>
-        )}
-        {creditPage && creditLicenseUrl && ' · '}
-        {creditLicenseUrl && (
-          <a id="hero-scene-link-license" href={creditLicenseUrl} target="_blank" rel="noopener" class="underline underline-offset-2">
-            licencia
-          </a>
-        )}
+        Imagen suministrada para esta demostración.
       </p>
       <p data-demo-disclosure role="note" class="text-sm sm:text-base text-ink leading-relaxed">
         <strong>Demostración:</strong> Marea es un restaurante ficticio. Los platos, precios, horarios y datos de contacto son contenido de ejemplo y no describen un negocio real.

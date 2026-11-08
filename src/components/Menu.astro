@@ -1,39 +1,116 @@
 ---
 // src/components/Menu.astro
-// Editorial typographic menu: an asymmetric two-column composition on desktop
-// (sticky intro column + a chaptered list). The config exposes no per-dish
-// image, so the menu is deliberately type-led rather than faking dish
-// photography. Every <ul>'s direct child is an <li> wrapping exactly one
-// .market-row (name + price) and one .market-note. No initial hidden states.
-// No numbered markers, no dotted price leaders: spacing and type hierarchy only.
+// Editorial typographic menu with integrated photography interludes: asymmetric
+// two-column composition on desktop (sticky intro column + chaptered list).
+// Photography interludes punctuate categories with relevant Mediterranean imagery.
+// Every <ul>'s direct child is an <li> wrapping exactly one .market-row
+// (name + price) and one .market-note. No initial hidden states.
 import { siteConfig } from '../config/site';
-const { menu } = siteConfig;
+import creditsData from '../../public/images/credits.json';
+import DishSelector from './DishSelector.tsx';
+import paellaImg from '../assets/dishes/paella-de-marisco.png';
+import lubinaImg from '../assets/dishes/lubina-a-la-brasa.png';
+import pulpoImg from '../assets/dishes/ensalada-de-pulpo.png';
+import cremaImg from '../assets/dishes/crema-catalana.png';
+
+const { menu, images } = siteConfig;
+
+// Featured interactive dishes (illustrative AI-generated photography, horizontal native aspect kept).
+// Matches siteConfig menu items by name/description/price; the config menu object is unchanged.
+const featuredDishes = [
+  {
+    name: 'Paella de marisco',
+    description: 'Arroz bomba, gamba, mejillón, sepia, azafrán (mín. 2 pers.)',
+    price: 22,
+    image: paellaImg.src,
+  },
+  {
+    name: 'Lubina a la brasa',
+    description: 'Lubina salvaje, verduras de temporada, salsa de limón',
+    price: 24,
+    image: lubinaImg.src,
+  },
+  {
+    name: 'Ensalada de pulpo',
+    description: 'Pulpo a la gallega, patata confitada, pimentón, aceite',
+    price: 14,
+    image: pulpoImg.src,
+  },
+  {
+    name: 'Crema catalana',
+    description: 'Clásica, con azúcar quemado',
+    price: 7,
+    image: cremaImg.src,
+  },
+];
+
+const credits = creditsData as unknown as Array<Record<string, string | null>>;
+const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
+
+const ingredientsCredit = creditByFile['/images/fresh-ingredients-slate.jpg'] ?? null;
+const ingredientsAlt = ingredientsCredit
+  ? `Imagen de archivo: ${ingredientsCredit.title}. No muestra el local ni los platos de Marea.`
+  : 'Imagen ilustrativa de archivo. No muestra el local ni los platos de Marea.';
+const ingredientsWidth = Number(ingredientsCredit?.width ?? 7008) || 7008;
+const ingredientsHeight = Number(ingredientsCredit?.height ?? 4672) || 4672;
+
+function buildSrcset(credit: Record<string, string | null> | null): string {
+  if (!credit?.localVariants) return '';
+  const parts: string[] = [];
+  for (const [key, variant] of Object.entries(credit.localVariants)) {
+    const w = variant.width;
+    parts.push(`/images/${variant.file} ${w}w`);
+  }
+  return parts.join(', ');
+}
+
+const ingredientsSrcset = buildSrcset(ingredientsCredit);
+const ingredientsSizes = '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, 100vw';
 ---
+
 <section
   id="carta"
   data-sample-claim
   data-motion="section"
-  class="bg-ground px-5 sm:px-8 py-20 md:py-28"
+  class="bg-secondary px-5 sm:px-8 py-20 md:py-28"
 >
   <div class="mx-auto max-w-[1400px] grid gap-14 lg:grid-cols-12 lg:gap-16">
     <header class="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
-      <h2 class="font-display font-bold text-ink leading-[0.95] text-[clamp(2.75rem,6vw,4.5rem)]">
+      <h2 class="font-display font-bold text-ground leading-[0.95] text-[clamp(2.75rem,6vw,4.5rem)]">
         La carta
       </h2>
-      <p class="mt-5 text-lg text-ink/80 max-w-[34ch]">
+      <p class="mt-5 text-lg text-ground max-w-[34ch]">
         Del mar a la mesa, plato a plato. Arroces de mar, pescado a la brasa y vinos del Mediterráneo.
       </p>
-      <p class="mt-6 text-sm text-ink/70 max-w-[42ch]">
+      <p class="mt-6 text-sm text-ground max-w-[42ch]">
         Platos y precios de ejemplo; Marea es un restaurante ficticio de demostración.
       </p>
     </header>
 
     <div class="lg:col-span-8 flex flex-col gap-16 md:gap-20">
-      {menu.categories.map((category) => (
+      {/* Interactive featured dishes selector */}
+      <section
+        data-motion="section"
+        aria-labelledby="featured-dishes-heading"
+        class="featured-dishes"
+      >
+        <h3
+          id="featured-dishes-heading"
+          class="font-display font-bold text-ground text-[clamp(1.5rem,3vw,2.25rem)] mb-6"
+        >
+          Platos destacados
+        </h3>
+        <p class="text-sm text-ground mb-6 max-w-[42ch]">
+          Fotografías ilustrativas generadas por IA para platos de ejemplo. Marea es un restaurante ficticio de demostración.
+        </p>
+        <DishSelector client:visible dishes={featuredDishes} />
+      </section>
+
+      {menu.categories.map((category, catIndex) => (
         <section data-motion="section" aria-labelledby={`cat-${category.id}`}>
           <h3
             id={`cat-${category.id}`}
-            class="font-display font-bold text-ink text-[clamp(1.5rem,3vw,2.25rem)] mb-6"
+            class="font-display font-bold text-ground text-[clamp(1.5rem,3vw,2.25rem)] mb-6"
           >
             {category.name}
           </h3>
@@ -46,12 +123,61 @@ const { menu } = siteConfig;
                     <h4 class="dish-name text-lg md:text-xl">{item.name}</h4>
                     <span class="dish-price whitespace-nowrap">{item.price}{menu.currency}</span>
                   </div>
-                  <p class="market-note text-ink-soft">{item.description}</p>
+                  <p class="market-note text-ground">{item.description}</p>
                 </li>
               ))}
             </ul>
           ) : (
             <p class="market-empty mt-6">No disponible esta temporada.</p>
+          )}
+
+          {/* Photographic interlude after Entrantes only (first category) */}
+          {catIndex === 0 && catIndex < menu.categories.length - 1 && (
+            <figure class="mt-12 -mx-5 sm:-mx-8 mx-auto max-w-[1400px]" data-motion="section">
+              <div class="overflow-hidden rounded-lg bg-ink/5 aspect-[3/2] lg:aspect-[4/3]">
+                <img
+                  src="/images/fresh-ingredients-slate.jpg"
+                  srcset={ingredientsSrcset}
+                  sizes={ingredientsSizes}
+                  alt={ingredientsAlt}
+                  width={ingredientsWidth}
+                  height={ingredientsHeight}
+                  loading="lazy"
+                  class="gallery-img h-full w-full object-cover object-center"
+                />
+              </div>
+              <figcaption class="mt-3 text-sm leading-relaxed text-ground max-w-[30ch]">
+                {ingredientsCredit ? (
+                  <>
+                    <span class="text-ground font-medium">{ingredientsCredit.title}</span>. Foto:{' '}
+                    <span class="font-medium">{ingredientsCredit.creator}</span>{ingredientsCredit.license ? `, ${ingredientsCredit.license}` : ''}, vía {ingredientsCredit.via}.{' '}
+                    {ingredientsCredit.page && (
+                      <a
+                        href={ingredientsCredit.page}
+                        target="_blank"
+                        rel="noopener"
+                        class="gallery-credit-link underline underline-offset-2"
+                      >
+                        fuente
+                      </a>
+                    )}
+                    {ingredientsCredit.page && ingredientsCredit.licenseUrl && ' · '}
+                    {ingredientsCredit.licenseUrl && (
+                      <a
+                        href={ingredientsCredit.licenseUrl}
+                        target="_blank"
+                        rel="noopener"
+                        class="gallery-credit-link underline underline-offset-2"
+                      >
+                        licencia
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <span>Imagen ilustrativa de archivo. No muestra el local ni los platos de Marea.</span>
+                )}
+              </figcaption>
+            </figure>
           )}
         </section>
       ))}

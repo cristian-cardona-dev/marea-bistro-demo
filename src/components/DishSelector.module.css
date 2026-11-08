@@ -1,0 +1,22 @@
+/* Component-local crossfade for selected dish content. */
+.crossfade {
+  opacity: 1;
+  animation: dishCrossfade 180ms ease-out;
+}
+
+@keyframes dishCrossfade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crossfade {
+    animation: none;
+  }
+}

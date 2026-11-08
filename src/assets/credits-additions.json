@@ -1,0 +1,102 @@
+[
+  {
+    "file": "src/assets/dishes/paella-de-marisco.png",
+    "media": "image",
+    "title": "Paella de marisco",
+    "subject": "Seafood paella — paellera with prawns, mussels, clams, calamari, lemon",
+    "sourceType": "AI-generated; user-provided",
+    "source": "user-provided image generation",
+    "creator": null,
+    "creatorUrl": null,
+    "date": null,
+    "license": null,
+    "licenseCode": null,
+    "licenseUrl": null,
+    "creditRequired": false,
+    "page": null,
+    "via": null,
+    "image": null,
+    "format": "png",
+    "orientation": "horizontal",
+    "notes": [
+      "AI-generated photograph for fictional restaurant Marea. No third-party photographer, source page, or license. No brand logos or text in the image. Labeled illustrative; Marea is fictional. Kept at native generated resolution and horizontal aspect; not cropped to portrait."
+    ],
+    "use": "menu dish card — paella de marisco",
+    "saved": "2026-11-05"
+  },
+  {
+    "file": "src/assets/dishes/lubina-a-la-brasa.png",
+    "media": "image",
+    "title": "Lubina a la brasa",
+    "subject": "Whole grilled sea bass with lemon and grilled vegetables",
+    "sourceType": "AI-generated; user-provided",
+    "source": "user-provided image generation",
+    "creator": null,
+    "creatorUrl": null,
+    "date": null,
+    "license": null,
+    "licenseCode": null,
+    "licenseUrl": null,
+    "creditRequired": false,
+    "page": null,
+    "via": null,
+    "image": null,
+    "format": "png",
+    "orientation": "horizontal",
+    "notes": [
+      "AI-generated photograph for fictional restaurant Marea. No third-party photographer, source page, or license. No brand logos or text in the image. Labeled illustrative; Marea is fictional. Kept at native generated resolution and horizontal aspect; not cropped to portrait."
+    ],
+    "use": "menu dish card — lubina a la brasa",
+    "saved": "2026-11-05"
+  },
+  {
+    "file": "src/assets/dishes/ensalada-de-pulpo.png",
+    "media": "image",
+    "title": "Ensalada de pulpo",
+    "subject": "Grilled octopus salad with potatoes, pimentón, parsley",
+    "sourceType": "AI-generated; user-provided",
+    "source": "user-provided image generation",
+    "creator": null,
+    "creatorUrl": null,
+    "date": null,
+    "license": null,
+    "licenseCode": null,
+    "licenseUrl": null,
+    "creditRequired": false,
+    "page": null,
+    "via": null,
+    "image": null,
+    "format": "png",
+    "orientation": "horizontal",
+    "notes": [
+      "AI-generated photograph for fictional restaurant Marea. No third-party photographer, source page, or license. No brand logos or text in the image. Labeled illustrative; Marea is fictional. Kept at native generated resolution and horizontal aspect; not cropped to portrait."
+    ],
+    "use": "menu dish card — ensalada de pulpo",
+    "saved": "2026-11-05"
+  },
+  {
+    "file": "src/assets/dishes/crema-catalana.png",
+    "media": "image",
+    "title": "Crema catalana",
+    "subject": "Caramelized crema catalana in earthenware ramekin",
+    "sourceType": "AI-generated; user-provided",
+    "source": "user-provided image generation",
+    "creator": null,
+    "creatorUrl": null,
+    "date": null,
+    "license": null,
+    "licenseCode": null,
+    "licenseUrl": null,
+    "creditRequired": false,
+    "page": null,
+    "via": null,
+    "image": null,
+    "format": "png",
+    "orientation": "horizontal",
+    "notes": [
+      "AI-generated photograph for fictional restaurant Marea. No third-party photographer, source page, or license. No brand logos or text in the image. Labeled illustrative; Marea is fictional. Kept at native generated resolution and horizontal aspect; not cropped to portrait."
+    ],
+    "use": "menu dish card — crema catalana",
+    "saved": "2026-11-05"
+  }
+]

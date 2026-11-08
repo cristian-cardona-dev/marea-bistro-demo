@@ -137,9 +137,8 @@ body {
 /* ------------------------------------------------------------------ */
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 3px solid currentColor;
   outline-offset: 2px;
-  box-shadow: var(--shadow-focus); /* taste-skill-ignore:shadow mandatory focus-visible affordance */
 }
 
 ::selection {
@@ -328,13 +327,13 @@ button:active {
 
 .market-row .dish-name {
   font-family: var(--font-display);
-  color: var(--color-ink);
+  color: var(--color-ground);
   font-weight: 500; /* font-medium */
 }
 
 .market-row .dish-price {
   font-variant-numeric: tabular-nums;
-  color: var(--oklch-accent);
+  color: var(--color-ground);
   font-weight: 600;
 }
 
@@ -345,7 +344,7 @@ button:active {
 
 /* Notas: texto suave, pretty wrap, leading relajado, mt-1.5. */
 .market-note {
-  color: var(--oklch-muted);
+  color: var(--color-ground);
   text-wrap: pretty;
   line-height: 1.5; /* leading-relaxed */
   font-size: var(--step-0); /* text-sm */
@@ -356,7 +355,7 @@ button:active {
 .market-empty {
   border-top: 1px dashed var(--color-ground-alt); /* taste-skill-ignore:hairline intentional empty state divider */
   padding-top: 1rem;
-  color: var(--oklch-muted);
+  color: var(--color-ground);
   font-size: var(--step-0);
 }
 
@@ -496,7 +495,35 @@ nav a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ */
-/* Menu row rhythm — subtle surface tint on hover, accent price emphasis. */
+/* Section rail — one deterministic current state. The JS sets
+   aria-current="location" on exactly one visible rail link and removes it
+   from the rest; no placeholder aria-current values are written in markup. */
+/* ------------------------------------------------------------------ */
+
+#main-nav [data-marea-rail] a {
+  color: var(--color-ink);
+  border-color: oklch(0 0 0 / 0.5);
+}
+
+#main-nav [data-marea-rail] a:hover {
+  color: var(--color-ink);
+}
+
+#main-nav [data-marea-rail] a[aria-current="location"] {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+}
+
+#main-nav [data-marea-rail] a:focus-visible {
+  color: var(--color-accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu row rhythm — hover tints the row light, so the whole row (dish,  */
+/* price and note) switches to dark ink to stay ≥4.5:1. Text contrast is  */
+/* never left light-on-light. Focus indicators use the full accent token  */
+/* (≥3:1 on every Marea surface), never a half-opacity ring.              */
 /* ------------------------------------------------------------------ */
 
 .market-item {
@@ -507,12 +534,21 @@ nav a:focus-visible {
   background-color: var(--color-ground-alt);
 }
 
-.market-row:hover .dish-name {
-  color: var(--color-accent);
+.market-item:hover .dish-name,
+.market-item:hover .dish-price,
+.market-item:hover .market-note {
+  color: var(--color-ink);
 }
 
-.market-row:hover .dish-price {
-  color: var(--oklch-accent);
+/* Focus parity with hover for keyboard users. */
+.market-item:focus-within {
+  background-color: var(--color-ground-alt);
+}
+
+.market-item:focus-within .dish-name,
+.market-item:focus-within .dish-price,
+.market-item:focus-within .market-note {
+  color: var(--color-ink);
 }
 
 /* ------------------------------------------------------------------ */
@@ -545,22 +581,699 @@ nav a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ */
-/* Reduced motion — disable movement/transitions on hover/active      */
-/* targets only; static frames, borders, colors and focus outlines    */
-/* stay intact.                                                       */
+/* Pass 1 — Visual foundation                                         */
+/* Editorial refinements layered on top of Phase 1–5 tokens.          */
+/* Uses existing palette/fonts only; no new content or sections.      */
 /* ------------------------------------------------------------------ */
 
-@media (prefers-reduced-motion: reduce) {
+/* --- Hero: editorial wordmark framing ----------------------------- */
+[data-hero-heading]::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 1px;
+  background: var(--color-accent);
+  margin-bottom: 0.75rem;
+  opacity: 0.7;
+}
+
+/* --- Hero: layered sea-light over the archive image ---------------- */
+figure[data-motion="hero"] {
+  isolation: isolate;
+}
+
+figure[data-motion="hero"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      460px circle at var(--hero-spot-x, 58%) var(--hero-spot-y, 24%),
+      color-mix(in oklab, var(--color-ground) 17%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(128deg, color-mix(in oklab, var(--color-accent) 9%, transparent), transparent 48%);
+  opacity: 0.58;
+  mix-blend-mode: soft-light;
+}
+
+figure[data-motion="hero"] figcaption {
+  z-index: 2;
+}
+
+[data-motion="hero"] img {
+  filter: saturate(1.06) contrast(1.025);
+}
+
+/* The long menu field carries a faint coastal-light wash, not a new hue. */
+#carta {
+  background-image: radial-gradient(
+    ellipse 58% 30% at 96% 18%,
+    color-mix(in oklab, var(--color-accent) 5%, transparent),
+    transparent 78%
+  );
+}
+
+/* --- Nav: scrolled state refinement ------------------------------- */
+nav.scrolled {
+  border-bottom: 1px solid oklch(0 0 0 / 0.06);
+}
+
+/* --- Menu: category heading accents ------------------------------- */
+#carta h3 {
+  position: relative;
+  padding-bottom: 0.5rem;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+#carta h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 32px;
+  height: 1px;
+  background: var(--color-accent);
+  transform: scaleX(0.72);
+  transform-origin: left center;
+  transition: transform var(--duration-base) var(--ease-out-expo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #carta h3:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Market row: tighter baseline alignment + price emphasis */
+.market-row {
+  gap: 1.25rem;
+}
+
+.market-row .dish-price {
+  margin-left: auto;
+}
+
+/* --- Gallery: figure + caption refinement ------------------------- */
+#galeria figure {
+  box-shadow: var(--shadow-1);
+}
+
+#galeria figcaption {
+  border-top-color: oklch(0 0 0 / 0.04);
+}
+
+/* --- Reservas: panel + hours refinement --------------------------- */
+/* Light editorial close. The ambient wash stays a soft accent tint on the
+   light surface: multiply keeps it darkening (never a dark scrim), and the
+   label/link contrast targets the light ground. */
+#reservas {
+  position: relative;
+  overflow: hidden;
+}
+
+#reservas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  height: auto;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 66% 72% at 94% 0%,
+    color-mix(in oklab, var(--color-accent) 12%, transparent),
+    transparent 72%
+  );
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+}
+
+#reservas > div {
+  position: relative;
+  z-index: 1;
+}
+
+#reservas ul[class] li {
+  border-bottom-color: oklch(0 0 0 / 0.08);
+}
+
+/* --- Footer: top accent line -------------------------------------- */
+footer {
+  position: relative;
+  overflow: hidden;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 110% at 10% 0%,
+    color-mix(in oklab, var(--color-accent) 10%, transparent),
+    transparent 72%
+  );
+  opacity: 0.55;
+}
+
+footer > div {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Archive photograph: framed print, responsive crop stays intact -- */
+#galeria figure {
+  background: color-mix(in oklab, var(--color-ground-alt) 72%, var(--color-ground));
+}
+
+#galeria figcaption {
+  background: color-mix(in oklab, var(--color-ground-alt) 62%, var(--color-ground));
+  padding: 0.8rem 1rem 0.9rem;
+  margin-top: 0;
+}
+
+.gallery-img {
+  filter: saturate(1.04) contrast(1.02);
+  transition:
+    transform 700ms var(--ease-out-expo),
+    filter 400ms var(--ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gallery-img:hover {
+    transform: scale(1.045);
+    filter: saturate(1.1) contrast(1.04);
+  }
+
+  .market-row:hover .dish-price {
+    transform: translateY(-1px);
+  }
+
+  .btn-square:hover,
+  .btn-square-outline:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+}
+
+/* --- Navigation underline draws from its leading edge ---------------- */
+nav a:not(.btn-square) {
+  position: relative;
+  text-decoration: none;
+}
+
+nav a:not(.btn-square)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-base) var(--ease-out-expo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  nav a:not(.btn-square):hover::after,
+  nav a:not(.btn-square):focus-visible::after {
+    transform: scaleX(1);
+  }
+}
+
+/* --- CTA: deliberate lift, soft highlight, quick return ---------------- */
+@media (hover: hover) and (pointer: fine) {
+  .btn-square:hover,
+  .btn-square-outline:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+}
+
+.btn-square,
+.btn-square-outline {
+  transition:
+    transform var(--duration-fast) var(--ease-out-expo),
+    opacity var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+/* ------------------------------------------------------------------ */
+/* Pass 4 — Tide light: one atmospheric signature across the page.     */
+/* ------------------------------------------------------------------ */
+
+/* Quiet ambient light gathers behind the booking close, not behind copy.
+   Pass 4 keeps the light editorial surface (ground → ground-alt wash); the
+   dark ink gradient that used to sit here inverted the label/link contrast. */
+#reservas {
+  background-image:
+    radial-gradient(
+      ellipse 66% 72% at 94% 0%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      132deg,
+      var(--color-ground),
+      color-mix(in oklab, var(--color-ground-alt) 70%, var(--color-ground))
+    );
+}
+
+.market-row .dish-price {
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-out-expo);
+}
+
+.btn-square,
+.btn-square-outline {
+  transition:
+    transform var(--duration-fast) var(--ease-out-expo),
+    opacity var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
+}
+
+@media (hover: none) {
   a:hover,
   button:hover,
-  .btn-square:hover,
-  .btn-square-outline:hover,
-  .gallery-img:hover,
-  .market-item:hover,
-  .btn-square:active,
-  .btn-square-outline:active {
+  .gallery-img:hover {
+    transform: none;
+  }
+
+  nav a:hover:not(:focus-visible) {
+    text-decoration: none;
+  }
+
+  .market-item:hover {
+    background-color: transparent;
+  }
+
+  .market-row:hover .dish-name {
+    color: var(--color-ground);
+  }
+
+  #galeria figure:hover {
+    border-color: oklch(0 0 0 / 0.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  figure[data-motion="hero"]::after {
+    opacity: 0.32;
+    background:
+      radial-gradient(ellipse at 58% 24%, color-mix(in oklab, var(--color-ground) 12%, transparent), transparent 70%),
+      linear-gradient(128deg, color-mix(in oklab, var(--color-accent) 7%, transparent), transparent 48%);
+  }
+
+  #carta h3::after,
+  nav a:not(.btn-square)::after {
+    transition: none !important;
+  }
+
+  .gallery-img {
+    filter: saturate(1.04) contrast(1.02);
+    transition: none !important;
+  }
+
+  .market-row .dish-price {
     transform: none !important;
     transition: none !important;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Scroll-Driven Animations — Cinematic Mediterranean Tide Story      */
+/* ------------------------------------------------------------------ */
+/* Native CSS scroll/view timelines with progressive enhancement.     */
+/* Uses @supports for feature detection; motion.ts provides fallbacks. */
+/* Only transform/opacity animated for compositor-thread.             */
+
+@supports ((animation-timeline: scroll()) and (animation-range: 0% 100%) and (view-timeline: --test block) and (timeline-scope: --test)) {
+  /* Make named timelines available to descendants */
+  :root {
+    timeline-scope: --hero-parallax, --hero-reveal, --section-reveal, --gallery-reveal, --reservas-reveal, --footer-reveal, --reservas-bridge;
+  }
+
+  /* ---------- Hero: scroll-bound parallax zoom + object-position drift ---------- */
+  @media (min-width: 1024px) {
+  [data-motion="hero"] {
+    view-timeline: --hero-parallax block;
+  }
+
+  [data-motion="hero"] img {
+    animation: hero-parallax linear;
+    animation-timeline: --hero-parallax;
+    animation-range: entry 0% cover 85%;
+    will-change: transform;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes hero-parallax {
+    from {
+      transform: scale(1) translateY(0);
+      object-position: 50% 50%;
+    }
+    to {
+      transform: scale(1.04) translateY(-8px);
+      object-position: 50% 50%;
+    }
+  }
+  }
+
+  /* Hero entrance: staggered reveal of text/CTA on scroll into view */
+  [data-motion="hero"] {
+    view-timeline: --hero-reveal block;
+  }
+
+  [data-motion="hero"] figcaption > div > p:first-child,
+  [data-hero-heading],
+  [data-motion="hero"] .btn-square,
+  [data-motion="hero"] a[href="#carta"] {
+    animation: hero-text-reveal linear both;
+    animation-timeline: --hero-reveal;
+    animation-range: entry 15% entry 55%;
+    opacity: 0;
+    transform: translateY(30px);
+    will-change: opacity, transform;
+  }
+
+  [data-motion="hero"] figcaption > div > p:first-child { animation-delay: 0ms; }
+  [data-hero-heading] { animation-delay: 120ms; }
+  [data-motion="hero"] .btn-square { animation-delay: 240ms; }
+  [data-motion="hero"] a[href="#carta"] { animation-delay: 360ms; }
+
+  @keyframes hero-text-reveal {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scroll cue indicator - fades out as scrolling begins */
+  .scroll-cue {
+    view-timeline: --hero-parallax block;
+    animation: scroll-cue-fade linear both;
+    animation-timeline: --hero-parallax;
+    animation-range: entry 0% entry 25%;
+    will-change: opacity;
+  }
+
+  @keyframes scroll-cue-fade {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* ---------- Section reveals: each section animates on view entry ---------- */
+  #carta,
+  #galeria,
+  #reservas,
+  footer {
+    view-timeline: --section-reveal block;
+  }
+
+  #carta { animation-timeline: --section-reveal; animation-range: entry 10% cover 35%; }
+  #galeria { animation-timeline: --section-reveal; animation-range: entry 10% cover 35%; }
+  #reservas { animation-timeline: --section-reveal; animation-range: entry 10% cover 40%; }
+  footer { animation-timeline: --section-reveal; animation-range: entry 10% cover 50%; }
+
+  #carta,
+  #galeria,
+  #reservas,
+  footer {
+    animation: section-reveal linear both;
+    will-change: opacity, transform;
+  }
+
+  @keyframes section-reveal {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Menu: category heading + item staggered choreography ---------- */
+  #carta h3 {
+    view-timeline: --section-reveal block;
+    animation: menu-category-reveal linear both;
+    animation-timeline: --section-reveal;
+    animation-range: entry 15% cover 40%;
+    opacity: 0;
+    transform: translateY(24px);
+    will-change: opacity, transform;
+  }
+
+  @keyframes menu-category-reveal {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .market-item {
+    view-timeline: --section-reveal block;
+    animation: menu-item-reveal linear both;
+    animation-timeline: --section-reveal;
+    animation-range: entry 25% cover 55%;
+    opacity: 0;
+    transform: translateY(20px);
+    will-change: opacity, transform;
+  }
+
+  .market-item:nth-child(1) { animation-range: entry 25% cover 45%; }
+  .market-item:nth-child(2) { animation-range: entry 30% cover 50%; }
+  .market-item:nth-child(3) { animation-range: entry 35% cover 55%; }
+  .market-item:nth-child(4) { animation-range: entry 40% cover 60%; }
+  .market-item:nth-child(5) { animation-range: entry 45% cover 65%; }
+  .market-item:nth-child(6) { animation-range: entry 50% cover 70%; }
+  .market-item:nth-child(7) { animation-range: entry 55% cover 75%; }
+  .market-item:nth-child(8) { animation-range: entry 60% cover 80%; }
+
+  @keyframes menu-item-reveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Gallery: asymmetric reveal + scroll-linked image treatment ---------- */
+  #galeria {
+    position: relative;
+    view-timeline: --gallery-reveal block;
+  }
+
+  #galeria figure {
+    animation: gallery-figure-reveal linear both;
+    animation-timeline: --gallery-reveal;
+    animation-range: entry 10% cover 50%;
+    opacity: 0;
+    transform: translateY(32px) scale(0.98);
+    will-change: opacity, transform;
+  }
+
+  #galeria figure:nth-child(1) { animation-range: entry 10% cover 45%; }
+  #galeria figure:nth-child(2) { animation-range: entry 20% cover 55%; }
+  #galeria figure:nth-child(3) { animation-range: entry 30% cover 65%; }
+  #galeria figure:nth-child(4) { animation-range: entry 40% cover 75%; }
+  #galeria figure:nth-child(5) { animation-range: entry 50% cover 85%; }
+  #galeria figure:nth-child(6) { animation-range: entry 60% cover 95%; }
+
+  @keyframes gallery-figure-reveal {
+    from { opacity: 0; transform: translateY(32px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Gallery images: subtle scroll-linked scale/position within each figure */
+  #galeria .gallery-img {
+    view-timeline: --gallery-reveal block;
+    animation: gallery-img-drift linear;
+    animation-timeline: --gallery-reveal;
+    animation-range: entry 0% cover 100%;
+    will-change: transform;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes gallery-img-drift {
+    from { transform: scale(1) translateY(0); object-position: 50% 50%; }
+    to { transform: scale(1.04) translateY(-8px); object-position: 50% 50%; }
+  }
+
+  /* Gallery captions reveal after image */
+  #galeria figcaption {
+    animation: gallery-caption-reveal linear both;
+    animation-timeline: --gallery-reveal;
+    animation-range: entry 35% cover 70%;
+    opacity: 0;
+    transform: translateY(16px);
+    will-change: opacity, transform;
+  }
+
+  @keyframes gallery-caption-reveal {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- Section-to-Reservas color/atmosphere bridge ---------- */
+  /* Subtle teal wash intensifies as gallery exits and reservas enters */
+  #galeria::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(
+      180deg,
+      transparent 60%,
+      color-mix(in oklab, var(--color-accent) 8%, transparent) 100%
+    );
+    opacity: 0;
+    animation: reservas-bridge-wash linear both;
+    animation-timeline: --reservas-bridge;
+    animation-range: exit 0% exit 100%;
+    will-change: opacity;
+  }
+
+  @keyframes reservas-bridge-wash {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ---------- Reservas: deep teal closing scene reveal ---------- */
+  #reservas > div {
+    view-timeline: --reservas-reveal block;
+    animation: reservas-panel-reveal linear both;
+    animation-timeline: --reservas-reveal;
+    animation-range: entry 15% cover 50%;
+    opacity: 0;
+    transform: translateY(32px);
+    will-change: opacity, transform;
+  }
+
+  #reservas h2,
+  #reservas > div > div:first-child > p:not([id="ubicacion"]),
+  #reservas .btn-square {
+    view-timeline: --reservas-reveal block;
+    animation: reservas-content-reveal linear both;
+    animation-timeline: --reservas-reveal;
+    animation-range: entry 25% cover 60%;
+    opacity: 0;
+    transform: translateY(20px);
+    will-change: opacity, transform;
+  }
+
+  #reservas h2 { animation-delay: 0ms; }
+  #reservas > div > div:first-child > p:not([id="ubicacion"]) { animation-delay: 120ms; }
+  #reservas .btn-square { animation-delay: 240ms; }
+
+  @keyframes reservas-panel-reveal {
+    from { opacity: 0; transform: translateY(32px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes reservas-content-reveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hours list items stagger */
+  #reservas li {
+    view-timeline: --reservas-reveal block;
+    animation: reservas-hours-reveal linear both;
+    animation-timeline: --reservas-reveal;
+    animation-range: entry 35% cover 75%;
+    opacity: 0;
+    transform: translateX(-20px);
+    will-change: opacity, transform;
+  }
+
+  #reservas li:nth-child(1) { animation-range: entry 35% cover 65%; }
+  #reservas li:nth-child(2) { animation-range: entry 40% cover 70%; }
+  #reservas li:nth-child(3) { animation-range: entry 45% cover 75%; }
+  #reservas li:nth-child(4) { animation-range: entry 50% cover 80%; }
+
+  @keyframes reservas-hours-reveal {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ---------- Footer: gentle close ---------- */
+  footer > div {
+    view-timeline: --footer-reveal block;
+    animation: footer-reveal linear both;
+    animation-timeline: --footer-reveal;
+    animation-range: entry 10% cover 60%;
+    opacity: 0;
+    transform: translateY(24px);
+    will-change: opacity, transform;
+  }
+
+  @keyframes footer-reveal {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ---------- Reduced motion: disable all scroll-driven animations ---------- */
+@media (prefers-reduced-motion: reduce) {
+  @supports ((animation-timeline: scroll()) and (animation-range: 0% 100%)) {
+    [data-motion="hero"] img,
+    [data-motion="hero"] figcaption > div > p:first-child,
+    [data-hero-heading],
+    [data-motion="hero"] .btn-square,
+    [data-motion="hero"] a[href="#carta"],
+    .scroll-cue,
+    #carta,
+    #galeria,
+    #reservas,
+    footer,
+    #carta h3,
+    .market-item,
+    #galeria figure,
+    #galeria .gallery-img,
+    #galeria figcaption,
+    #reservas > div,
+    #reservas h2,
+    #reservas > div > div:first-child > p,
+    #reservas .btn-square,
+    #reservas li,
+    footer > div,
+    #galeria::after {
+      animation: none !important;
+      animation-timeline: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      clip-path: none !important;
+      will-change: auto !important;
+    }
+  }
+}
+
+/* ---------- Fallback for browsers without scroll-driven animations ---------- */
+/* The motion.ts IntersectionObserver-based fallbacks handle this case.
+   Here we ensure base visibility. */
+@supports not ((animation-timeline: scroll()) and (animation-range: 0% 100%) and (view-timeline: --test block) and (timeline-scope: --test)) {
+  [data-motion="hero"] img,
+  [data-motion="hero"] figcaption > div > p:first-child,
+  [data-hero-heading],
+  [data-motion="hero"] .btn-square,
+  [data-motion="hero"] a[href="#carta"],
+  #carta,
+  #galeria,
+  #reservas,
+  footer,
+  #carta h3,
+  .market-item,
+  #galeria figure,
+  #galeria .gallery-img,
+  #galeria figcaption,
+  #reservas > div,
+  #reservas h2,
+  #reservas > div > div:first-child > p,
+  #reservas .btn-square,
+  #reservas li,
+  footer > div {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  #galeria::after {
+    display: none;
+  }
+}
+
+
 
