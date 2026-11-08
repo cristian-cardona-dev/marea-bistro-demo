@@ -19,7 +19,7 @@ const { brand } = siteConfig;
     >
       {brand.name}
     </a>
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-base xl:hidden">
+    <div data-marea-compact class="flex flex-wrap items-center gap-x-5 gap-y-1 text-base xl:hidden">
       <a href="#sobre-nosotros" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Sobre nosotros</a>
       <a href="#carta" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">La carta</a>
       <a href="#galeria" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Galería</a>
@@ -54,6 +54,7 @@ const { brand } = siteConfig;
   (() => {
     const rail = document.querySelector('#main-nav [data-marea-rail]');
     const nav = document.getElementById('main-nav');
+    const compactContainer = document.querySelector('#main-nav [data-marea-compact]');
     if (!rail || !nav) return;
 
     const pairs = Array.from(rail.querySelectorAll('a[data-target]')).map((link) => {
@@ -63,8 +64,13 @@ const { brand } = siteConfig;
     const observable = pairs.filter((pair) => pair.section);
     if (!observable.length) return;
 
+    const compactLinks = compactContainer
+      ? Array.from(compactContainer.querySelectorAll('a'))
+      : [];
+
     const clearCurrent = () => {
       pairs.forEach((pair) => pair.link.removeAttribute('aria-current'));
+      compactLinks.forEach((link) => link.removeAttribute('aria-current'));
     };
 
     // Responsive visibility: real layout, not a class-name literal.
@@ -77,6 +83,15 @@ const { brand } = siteConfig;
       return rect.top < window.innerHeight && rect.bottom > 0;
     };
 
+    const isCompactVisible = () => {
+      if (!compactContainer) return false;
+      const style = window.getComputedStyle(compactContainer);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      const rect = compactContainer.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return false;
+      return true;
+    };
+
     // Deterministic: the last section whose top has passed the rail line.
     const update = () => {
       const line = 140; // sticky rail height + scroll padding
@@ -85,17 +100,27 @@ const { brand } = siteConfig;
         if (pair.section.getBoundingClientRect().top - line <= 0) current = pair;
       }
       if (!current) current = observable[0];
-      // Chapter state applies on every viewport width (compact links never
-      // receive a fake aria-current). Only #carta is treated as a dark chapter.
+      // Chapter state applies on every viewport width. Only #carta is treated as
+      // a dark chapter.
       const isDark = !!(current && current.id === 'carta');
       nav.setAttribute('data-chapter', isDark ? 'dark' : 'light');
-      // aria-current is exposed only while the desktop rail is actually visible.
-      if (!isRailVisible()) {
+      // aria-current is exposed on whichever link group is actually visible:
+      // the desktop rail or the compact (mobile) links.
+      if (!isRailVisible() && !isCompactVisible()) {
         clearCurrent();
         return;
       }
       clearCurrent();
-      if (current) current.link.setAttribute('aria-current', 'location');
+      if (!current) return;
+      if (isRailVisible()) {
+        const railPair = pairs.find((pair) => pair.id === current.id);
+        if (railPair) railPair.link.setAttribute('aria-current', 'location');
+      } else if (isCompactVisible()) {
+        const compactLink = compactLinks.find(
+          (link) => (link.getAttribute('href') || '').replace(/^#/, '') === current.id
+        );
+        if (compactLink) compactLink.setAttribute('aria-current', 'location');
+      }
     };
 
     let frame = 0;

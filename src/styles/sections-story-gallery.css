@@ -18,32 +18,6 @@
   color: var(--oklch-muted);
 }
 
-/* --- Story (About) ---------------------------------------------------- */
-
-.marea-story__frame {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-  background-color: oklch(0 0 0 / 0.04);
-  border: 1px solid oklch(0 0 0 / 0.06);
-  border-radius: var(--radius-md);
-}
-
-.marea-story__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transform-origin: 50% 50%;
-  transition: transform var(--duration-slow) var(--ease-out-expo);
-}
-
-/* Restrained lift, same scale as the global .gallery-img hover. */
-.marea-story__frame:hover .marea-story__img {
-  transform: scale(1.02);
-}
-
 /* --- Gallery collage -------------------------------------------------- */
 
 /* Width-constrained parent: it can never push past the section column, so the
@@ -77,9 +51,9 @@
 
 .marea-gallery__figure {
   flex: 0 0 auto;
-  /* Full-bleed-ish card with the next item peeking in: 86% + gap keeps the
-     next-image edge visible so the track reads as scrollable. */
-  width: 86%;
+  /* Card width leaves the next item peeking in (~1.4 neighbors): 65% + gap
+     keeps the next-image edge visible so the track reads as scrollable. */
+  width: 65%;
   max-width: 34rem;
   scroll-snap-align: start;
 }
@@ -203,13 +177,7 @@
 /* --- Reduced motion: these sections stay static ------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
-  .marea-story__img,
   .marea-credit-link {
     transition: none !important;
-  }
-
-  .marea-story__frame:hover .marea-story__img,
-  .marea-story__img:hover {
-    transform: none !important;
   }
 }

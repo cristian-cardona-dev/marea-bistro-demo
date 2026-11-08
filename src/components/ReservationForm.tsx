@@ -30,6 +30,7 @@ export default function ReservationForm({
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const successHeadingRef = useRef<HTMLHeadingElement>(null);
+  const submitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Prepared-success is announced: the panel is a polite live region and
   // focus moves to its heading (safe focus transfer), so keyboard and screen
@@ -38,6 +39,16 @@ export default function ReservationForm({
   useEffect(() => {
     if (status === 'success') successHeadingRef.current?.focus();
   }, [status]);
+
+  // Clear any pending submit timeout on unmount to avoid setState-after-unmount.
+  useEffect(() => {
+    return () => {
+      if (submitTimeoutRef.current) {
+        clearTimeout(submitTimeoutRef.current);
+        submitTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -61,7 +72,8 @@ export default function ReservationForm({
     setStatus('submitting');
     // Demo: never actually submits. After a short pause, shows a
     // prepared-request message (never "confirmed", never "email sent").
-    setTimeout(() => {
+    submitTimeoutRef.current = setTimeout(() => {
+      submitTimeoutRef.current = null;
       setStatus('success');
     }, 800);
   };

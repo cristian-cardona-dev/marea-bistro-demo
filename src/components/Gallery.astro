@@ -15,52 +15,15 @@
 // The section styles live in src/styles/sections-story-gallery.css, imported
 // once from src/pages/index.astro.
 import { Image } from 'astro:assets';
-import creditsData from '../../public/images/credits.json';
 import octopusPhoto from '../assets/user-supplied/gallery-cala.png';
 import marketPhoto from '../assets/user-supplied/gallery-mesa-vino.png';
 import mareaOctopus from '../assets/gallery/marea-octopus-elegant.jpg';
 import marketStall from '../assets/gallery/mediterranean-market-stall.jpg';
 import citricos from '../assets/user-supplied/gallery-citricos-olivas.png';
 
-const credits = creditsData as unknown as Array<Record<string, string | null>>;
-const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
-
-const octopusRecord = (creditByFile['/images/marea-octopus-elegant.jpg'] ?? null) as Record<
-  string,
-  string | null
-> | null;
-
-const octopusCredit = {
-  title: octopusRecord?.title ?? 'Gourmet grilled octopus on elegant plate',
-  creator: octopusRecord?.creator ?? null,
-  license: octopusRecord?.license ?? 'Pexels License',
-  licenseUrl: octopusRecord?.licenseUrl ?? 'https://www.pexels.com/license/',
-  page: octopusRecord?.page ?? 'https://www.pexels.com/photo/gourmet-grilled-octopus-on-elegant-plate-39452706/',
-  via: octopusRecord?.via ?? 'Pexels',
-};
-
-// Provenance: src/assets/asset-manifest.md → gallery/ — Pexels, Paula Conde
-// Sanchez, Pexels License, record pexels:39139756 (already present in
-// public/images/credits.json with its canonical source page).
-const marketRecord = (creditByFile['/images/mediterranean-market-stall.jpg'] ?? null) as Record<
-  string,
-  string | null
-> | null;
-
-const marketCredit = {
-  title: marketRecord?.title ?? 'Vibrant Italian Market Stall with Fresh Produce',
-  creator: marketRecord?.creator ?? null,
-  license: marketRecord?.license ?? 'Pexels License',
-  licenseUrl: marketRecord?.licenseUrl ?? 'https://www.pexels.com/license/',
-  page:
-    marketRecord?.page ??
-    'https://www.pexels.com/photo/vibrant-italian-market-stall-with-fresh-produce-39139756/',
-  via: marketRecord?.via ?? 'Pexels',
-};
-
 const gallery = [
   {
-    id: 'pulpo',
+    id: 'cala',
     src: octopusPhoto,
     alt: 'Acantilado rocoso. No muestra el local ni los platos de Marea.',
     widths: [420, 640, 900, 1280],
@@ -96,7 +59,7 @@ const gallery = [
     widths: [420, 640, 900, 1200],
     sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 44vw, 36vw',
     credit: {
-      title: 'Citrus and olives',
+      title: 'Cítricos y olivas',
       creator: null,
       license: null,
       licenseUrl: null,
@@ -107,11 +70,11 @@ const gallery = [
   {
     id: 'pulpo-elegant',
     src: mareaOctopus,
-    alt: 'Grilled octopus on elegant plate. Contexto ilustrativo, no representa el local ni los platos de Marea.',
+    alt: 'Pulpo a la parrilla en plato elegante. Contexto ilustrativo, no representa el local ni los platos de Marea.',
     widths: [420, 640, 900, 1280],
     sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 58vw, 44vw',
     credit: {
-      title: 'Gourmet grilled octopus on elegant plate',
+      title: 'Pulpo a la parrilla en plato elegante',
       creator: 'Deane Bayas',
       license: 'Pexels License',
       licenseUrl: 'https://www.pexels.com/license/',
@@ -126,7 +89,7 @@ const gallery = [
     widths: [320, 480, 640, 840],
     sizes: '(max-width: 640px) 92vw, (max-width: 1024px) 34vw, 24vw',
     credit: {
-      title: 'Vibrant Italian Market Stall with Fresh Produce',
+      title: 'Puesto de mercado italiano con producto fresco',
       creator: 'Paula Conde Sanchez',
       license: 'Pexels License',
       licenseUrl: 'https://www.pexels.com/license/',
@@ -171,14 +134,7 @@ const gallery = [
         >
           {gallery.map((item, index) => (
           <figure
-            class={[
-              'marea-gallery__figure',
-              index % 3 === 0 && 'marea-gallery__figure--lead',
-              index % 3 === 1 && 'marea-gallery__figure--offset',
-            ].filter(Boolean).join(' ')}
-            class:list={[
-              'marea-gallery__figure',
-            ]}
+            class="marea-gallery__figure"
           >
             <div class="marea-gallery__frame">
               <Image

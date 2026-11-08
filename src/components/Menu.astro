@@ -119,12 +119,12 @@ const ingredientsSizes = '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, 1
           {category.items.length > 0 ? (
             <ul class="mt-2 list-none p-0 m-0">
               {category.items.map((item) => (
-                <li class="market-item py-5 first:pt-0" data-motion="dish">
+                <li class="market-item py-5 first:pt-0" data-motion="dish" tabindex="0">
                   <div class="market-row items-baseline gap-4">
                     <h4 class="dish-name text-lg md:text-xl">{item.name}</h4>
                     <span class="dish-price whitespace-nowrap">{item.price}{menu.currency}</span>
                   </div>
-                  <p class="market-note text-ground">{item.description}</p>
+                  <p class="market-note">{item.description}</p>
                 </li>
               ))}
             </ul>

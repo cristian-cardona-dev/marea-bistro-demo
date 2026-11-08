@@ -18,10 +18,13 @@ const credits = creditsData as unknown as Array<Record<string, string | null>>;
 const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
 
 const heroFile = heroDesktop;
-const heroWidth = 2560;
-const heroHeight = 1280;
-// User-supplied hero composites; no Pexels credit known or inventoried.
-const archiveAlt = 'Fotografía ilustrativa para Marea (composites de usuario). No representa el local ni los platos de Marea.';
+const heroWidth = heroDesktop.width;
+const heroHeight = heroDesktop.height;
+// User-supplied hero image: a Mediterranean terrace by the sea at dusk with a
+// table set; the mobile asset is a vertical crop of the same scene. Illustrative
+// archive-style photography, not Marea's real dining room or dishes.
+const archiveAlt =
+  'Terraza mediterránea frente al mar al atardecer, con mesa puesta. La versión móvil es un recorte vertical de la misma escena. Fotografía ilustrativa: no representa el local, la vajilla ni los platos de Marea.';
 
 // Full-bleed stage: every candidate is one viewport wide, mobile and desktop.
 // getImage() is Astro's own local-image pipeline (same astro:assets pattern the

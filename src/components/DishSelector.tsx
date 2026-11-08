@@ -25,6 +25,7 @@ export default function DishSelector({ dishes }: Props) {
     <div className="max-w-2xl mx-auto">
       {/* Dish selector buttons */}
       <div className="flex flex-wrap gap-2 justify-center mb-6">
+        {/* chip: unselected ink #18343A on ground #F2F3EE = 11.83:1 (measured 3.48:1); border ink@60% = 4.90:1 (>=3:1 UI); selected accent #1A6F70 on ground #F2F3EE = 5.30:1 */}
         {dishes.map((dish) => (
           <button
             key={dish.name}
@@ -32,7 +33,7 @@ export default function DishSelector({ dishes }: Props) {
             className={`min-h-[44px] min-w-[44px] px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
               selected?.name === dish.name
                 ? 'bg-accent text-ground shadow-lg scale-105 border border-ground'
-                : 'bg-ground text-ink hover:bg-ground-alt hover:text-ink border border-ground'
+                : 'bg-ground text-ink hover:bg-ground-alt hover:text-ink border border-ink/60'
             }`}
             aria-pressed={selected?.name === dish.name}
           >
@@ -58,8 +59,10 @@ export default function DishSelector({ dishes }: Props) {
                 <p className="font-display text-xl font-bold text-ink mb-2">
                   {selected.name}
                 </p>
-                <p className="text-muted text-sm mb-3">{selected.description}</p>
-                <p className="text-accent font-bold text-lg mb-4">
+                {/* description: ink #18343A on ground #F2F3EE = 11.83:1 (was muted 5.94:1 measured 2.54:1; raised to AA) */}
+                <p className="text-ink text-sm mb-3">{selected.description}</p>
+                {/* price: ink #18343A on ground #F2F3EE = 11.83:1 (was accent 5.30:1 measured 2.07:1; raised to AA) */}
+                <p className="text-ink font-bold text-lg mb-4">
                   {selected.price}€
                 </p>
 

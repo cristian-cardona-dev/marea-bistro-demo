@@ -530,24 +530,17 @@ nav a:focus-visible {
   transition: background-color var(--duration-base) var(--ease-standard);
 }
 
-.market-item:hover {
+/* Force dark ink on the tinted (light) hover/focus background for every
+   descendant (dish name, price, note and any price/meta child) so text is
+   never light-on-light. ground #F2F3EE bg -> ink #18343A = 11.83:1. */
+.market-item:hover,
+.market-item:focus-within {
   background-color: var(--color-ground-alt);
-}
-
-.market-item:hover .dish-name,
-.market-item:hover .dish-price,
-.market-item:hover .market-note {
   color: var(--color-ink);
 }
 
-/* Focus parity with hover for keyboard users. */
-.market-item:focus-within {
-  background-color: var(--color-ground-alt);
-}
-
-.market-item:focus-within .dish-name,
-.market-item:focus-within .dish-price,
-.market-item:focus-within .market-note {
+.market-item:hover *,
+.market-item:focus-within * {
   color: var(--color-ink);
 }
 
@@ -694,19 +687,18 @@ nav.scrolled {
   overflow: hidden;
 }
 
+/* Single wash (no mix-blend-mode): accent radial only, alpha in color-mix.
+   Body text (muted #4B615E) on ground #F2F3EE = 5.94:1 (>=4.5) after change. */
 #reservas::before {
   content: '';
   position: absolute;
   inset: 0;
-  height: auto;
   pointer-events: none;
   background: radial-gradient(
     ellipse 66% 72% at 94% 0%,
-    color-mix(in oklab, var(--color-accent) 12%, transparent),
+    color-mix(in oklab, var(--color-accent) 8%, transparent),
     transparent 72%
   );
-  opacity: 0.45;
-  mix-blend-mode: multiply;
 }
 
 #reservas > div {
@@ -827,18 +819,9 @@ nav a:not(.btn-square)::after {
 /* Quiet ambient light gathers behind the booking close, not behind copy.
    Pass 4 keeps the light editorial surface (ground → ground-alt wash); the
    dark ink gradient that used to sit here inverted the label/link contrast. */
+/* Consolidated: solid ground only; the single wash lives in ::before. */
 #reservas {
-  background-image:
-    radial-gradient(
-      ellipse 66% 72% at 94% 0%,
-      color-mix(in oklab, var(--color-accent) 12%, transparent),
-      transparent 72%
-    ),
-    linear-gradient(
-      132deg,
-      var(--color-ground),
-      color-mix(in oklab, var(--color-ground-alt) 70%, var(--color-ground))
-    );
+  background-image: none;
 }
 
 .market-row .dish-price {
