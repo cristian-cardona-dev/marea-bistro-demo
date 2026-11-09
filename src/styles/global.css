@@ -263,11 +263,14 @@ button:active {
 @media (prefers-reduced-motion: reduce) {
   [data-motion="hero"] img,
   [data-motion="hero"] .hero-overlay,
+  [data-motion="hero"] [data-hero-text],
+  [data-motion="hero"] [data-hero-scrim],
   [data-motion="section"],
   [data-motion="dish"] {
     transition: none !important;
     animation: none !important;
     transform: none !important;
+    opacity: 1 !important;
   }
 
   [data-motion="section"]:hover,
@@ -922,7 +925,7 @@ nav a:not(.btn-square)::after {
       object-position: 50% 50%;
     }
     to {
-      transform: scale(1.04) translateY(-8px);
+      transform: scale(1.08) translateY(-20px);
       object-position: 50% 50%;
     }
   }
@@ -941,8 +944,53 @@ nav a:not(.btn-square)::after {
       transform: scale(1) translateY(0);
     }
     to {
-      transform: scale(1.02) translateY(-16px);
+      transform: scale(1.04) translateY(-32px);
     }
+  }
+
+  /* ---------- Hero text parallax: text drifts up and fades ---------- */
+  [data-motion="hero"] [data-hero-text] {
+    animation: hero-text-parallax linear;
+    animation-timeline: --hero-parallax;
+    animation-range: entry 0% cover 85%;
+    will-change: transform, opacity;
+  }
+
+  @keyframes hero-text-parallax {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-12px);
+      opacity: 0.6;
+    }
+  }
+
+  /* ---------- Hero scrim: darkens on scroll ---------- */
+  [data-motion="hero"] [data-hero-scrim] {
+    animation: hero-scrim-fade linear;
+    animation-timeline: --hero-parallax;
+    animation-range: entry 0% cover 85%;
+    will-change: opacity;
+  }
+
+  @keyframes hero-scrim-fade {
+    from { opacity: 0.6; }
+    to { opacity: 0.9; }
+  }
+
+  /* ---------- Hero fade-out: dissolves into story ---------- */
+  [data-motion="hero"] {
+    animation: hero-fade-out linear;
+    animation-timeline: --hero-parallax;
+    animation-range: cover 85% cover 100%;
+    will-change: opacity;
+  }
+
+  @keyframes hero-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0.3; }
   }
   }
 
@@ -1079,7 +1127,7 @@ nav a:not(.btn-square)::after {
 
   @keyframes gallery-img-drift {
     from { transform: scale(1) translateY(0); object-position: 50% 50%; }
-    to { transform: scale(1.04) translateY(-8px); object-position: 50% 50%; }
+    to { transform: scale(1.06) translateY(-12px); object-position: 50% 50%; }
   }
 
   /* Gallery captions reveal after image */
