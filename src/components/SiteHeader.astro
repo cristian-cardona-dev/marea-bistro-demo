@@ -229,7 +229,7 @@ const { brand } = siteConfig;
     }
     /* Scrolled: solid surface. */
     #main-nav.scrolled[data-chapter="light"] {
-      background-color: color-mix(in oklab, var(--color-ground) 92%, transparent);
+      background-color: color-mix(in oklab, var(--color-ground) 78%, transparent);
       backdrop-filter: blur(12px);
       color: var(--color-ink);
     }
@@ -244,8 +244,11 @@ const { brand } = siteConfig;
       color: var(--color-accent);
       font-weight: 600;
     }
+    #main-nav.scrolled[data-chapter="light"] [data-marea-compact] > div {
+      background-color: color-mix(in oklab, var(--color-ground) 84%, transparent);
+    }
     #main-nav.scrolled[data-chapter="dark"] {
-      background-color: color-mix(in oklab, var(--color-secondary) 92%, transparent);
+      background-color: color-mix(in oklab, var(--color-secondary) 82%, transparent);
       backdrop-filter: blur(12px);
       color: var(--color-ground);
     }
@@ -254,7 +257,7 @@ const { brand } = siteConfig;
     }
     #main-nav.scrolled[data-chapter="dark"] [data-marea-compact] summary { color: var(--color-ground); }
     #main-nav.scrolled[data-chapter="dark"] [data-marea-compact] > div {
-      background-color: color-mix(in oklab, var(--color-secondary) 92%, transparent);
+      background-color: color-mix(in oklab, var(--color-secondary) 84%, transparent);
       border-color: color-mix(in oklab, var(--color-ground) 30%, transparent);
     }
     #main-nav.scrolled[data-chapter="dark"] a:hover,
