@@ -20,8 +20,7 @@
 
 /* --- Gallery collage -------------------------------------------------- */
 
-/* Width-constrained parent: it can never push past the section column, so the
-   mobile track scrolls inside itself instead of widening the document. */
+/* Width-constrained parent: the bento stays inside the section column. */
 .marea-gallery__viewport {
   min-width: 0;
   max-width: 100%;
@@ -33,104 +32,92 @@
   background-color: oklch(0 0 0 / 0.04);
 }
 
-/* Mobile (<lg): a real horizontal scroll-snap track with a next-item peek.
-   The track owns the scroll; the document never scrolls horizontally. */
+/* Phone: a purpose-composed two-column bento. Nothing is hidden behind a
+   horizontal track, and the lead photograph establishes the first frame. */
 .marea-gallery__collage {
-  display: flex;
-  align-items: start;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 0.75rem;
   min-width: 0;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
 }
 
 .marea-gallery__figure {
-  flex: 0 0 auto;
-  /* Card width leaves the next item peeking in (~1.4 neighbors): 65% + gap
-     keeps the next-image edge visible so the track reads as scrollable. */
-  width: 65%;
-  max-width: 34rem;
-  scroll-snap-align: start;
+  min-width: 0;
+  margin: 0;
 }
 
-/* Desktop (>=lg): genuinely multi-column asymmetric mixed-ratio collage on a
-   12-column grid. No horizontal scroll, no page overflow. */
+.marea-gallery__figure--lead { grid-column: 1 / -1; }
+.marea-gallery__figure--pair .marea-gallery__frame { aspect-ratio: 4 / 5; }
+.marea-gallery__figure--small .marea-gallery__frame { aspect-ratio: 1 / 1; }
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .marea-gallery__collage {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .marea-gallery__figure--lead {
+    grid-column: 1 / span 4;
+    grid-row: span 2;
+  }
+
+  .marea-gallery__figure--lead .marea-gallery__frame { aspect-ratio: 4 / 5; }
+  .marea-gallery__figure--pair { grid-column: 5 / span 2; }
+  .marea-gallery__figure--pair .marea-gallery__frame { aspect-ratio: 4 / 3; }
+  .marea-gallery__figure--small { grid-column: span 3; }
+}
+
+/* Desktop: a tall lead image, two supporting frames, then a grounded pair. */
 @media (min-width: 1024px) {
   .marea-gallery__collage {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: start;
-    overflow: visible;
-    scroll-snap-type: none;
-    -webkit-overflow-scrolling: auto;
   }
 
   .marea-gallery__figure {
     min-width: 0;
-    width: auto;
     max-width: none;
-    flex: initial;
   }
 
-  /* Offset collage: column spans, mixed ratios, one nudged start position. */
-  .marea-gallery__figure:nth-child(1) {
-    grid-column: 1 / span 5;
+  .marea-gallery__figure--lead {
+    grid-column: 1 / span 7;
+    grid-row: 1 / span 2;
+  }
+
+  .marea-gallery__figure--pair:nth-child(2) {
+    grid-column: 8 / span 5;
     grid-row: 1;
   }
 
-  .marea-gallery__figure:nth-child(2) {
+  .marea-gallery__figure--pair:nth-child(3) {
+    grid-column: 8 / span 5;
+    grid-row: 2;
+  }
+
+  .marea-gallery__figure--small:nth-child(4) {
+    grid-column: 1 / span 6;
+    grid-row: 3;
+  }
+
+  .marea-gallery__figure--small:nth-child(5) {
     grid-column: 7 / span 6;
-    grid-row: 1;
-    margin-top: 2.75rem;
+    grid-row: 3;
   }
 
-  .marea-gallery__figure:nth-child(3) {
-    grid-column: 1 / span 4;
-    grid-row: 2;
-  }
-
-  .marea-gallery__figure:nth-child(4) {
-    grid-column: 6 / span 4;
-    grid-row: 2;
-    margin-top: 2.75rem;
-  }
-
-  .marea-gallery__figure:nth-child(5) {
-    grid-column: 11 / span 2;
-    grid-row: 2;
-  }
-
-  /* Mixed-ratio frames — the asymmetry of the desktop collage. */
-  .marea-gallery__figure:nth-child(1) .marea-gallery__frame {
-    aspect-ratio: 2 / 3;
-  }
-
-  .marea-gallery__figure:nth-child(2) .marea-gallery__frame {
-    aspect-ratio: 3 / 4;
-  }
-
-  .marea-gallery__figure:nth-child(3) .marea-gallery__frame {
+  .marea-gallery__figure--lead .marea-gallery__frame {
     aspect-ratio: 4 / 5;
   }
 
-  .marea-gallery__figure:nth-child(4) .marea-gallery__frame {
-    aspect-ratio: 1 / 1;
+  .marea-gallery__figure--pair .marea-gallery__frame {
+    aspect-ratio: 4 / 3;
   }
 
-  .marea-gallery__figure:nth-child(5) .marea-gallery__frame {
-    aspect-ratio: 3 / 4;
+  .marea-gallery__figure--small .marea-gallery__frame {
+    aspect-ratio: 16 / 10;
   }
-}
-
-/* Fallback frame ratios below lg (mobile card keeps a 3/4 editorial crop). */
-.marea-gallery__figure .marea-gallery__frame {
-  aspect-ratio: 3 / 4;
 }
 
 .marea-gallery__img {

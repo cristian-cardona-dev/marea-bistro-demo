@@ -51,67 +51,68 @@ export default function DishSelector({ dishes }: Props) {
 
       {/* Selected dish detail */}
       {selected && (
-        <div className="bg-ground rounded-2xl p-6 border border-ink/15 transition-all duration-300">
-          <div className={styles.crossfade}>
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              {prevImage && (
-                <img
-                  key="prev"
-                  src={prevImage}
-                  alt=""
-                  style={{ opacity: entering ? 0 : 1, width: '100%', maxHeight: '320px', objectFit: 'contain', borderRadius: 'var(--radius-xl, 0.75rem)' }}
-                  aria-hidden="true"
-                />
-              )}
-              {selected.image && (
+        <div className="bg-ground-alt p-5 md:p-8 border border-ink/15">
+          <div className="grid items-center gap-6 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            {selected.image && (
+              <div className={styles.crossfade}>
+                {prevImage && (
+                  <img
+                    key="prev"
+                    src={prevImage}
+                    alt=""
+                    className={styles.layer}
+                    style={{ opacity: entering ? 0 : 1 }}
+                    aria-hidden="true"
+                  />
+                )}
                 <img
                   key="curr"
                   src={selected.image}
                   alt={selected.name}
-                  style={{ opacity: entering ? 1 : 0, width: '100%', maxHeight: '320px', objectFit: 'contain', borderRadius: 'var(--radius-xl, 0.75rem)' }}
+                  className={styles.layer}
+                  style={{ opacity: entering ? 1 : 0 }}
                   loading="lazy"
                 />
-              )}
-              <div className="flex-1 text-left relative z-10">
-                <p className="font-display text-xl font-bold text-ink mb-2">
-                  {selected.name}
-                </p>
-                {/* description: ink #18343A on ground #F2F3EE = 11.83:1 */}
-                <p className="text-ink text-sm mb-3">{selected.description}</p>
-                {/* price: ink #18343A on ground #F2F3EE = 11.83:1 */}
-                <p className="text-ink font-bold text-lg mb-4">
-                  {selected.price}€
-                </p>
-
-                {selected.ingredients && (
-                  <div className="mb-3">
-                    <p className="text-xs text-muted uppercase tracking-wider mb-1">
-                      Ingredientes
-                    </p>
-                    <p className="text-sm text-ink">
-                      {selected.ingredients.join(' · ')}
-                    </p>
-                  </div>
-                )}
-
-                {selected.story && (
-                  <div className="mb-3">
-                    <p className="text-xs text-muted uppercase tracking-wider mb-1">
-                      Historia
-                    </p>
-                    <p className="text-sm text-ink italic">{selected.story}</p>
-                  </div>
-                )}
-
-                {selected.pairing && (
-                  <div>
-                    <p className="text-xs text-muted uppercase tracking-wider mb-1">
-                      Maridaje sugerido
-                    </p>
-                    <p className="text-sm text-accent">{selected.pairing}</p>
-                  </div>
-                )}
               </div>
+            )}
+            <div className="min-w-0 text-left">
+              <p className="font-display text-xl font-bold text-ink mb-2">
+                {selected.name}
+              </p>
+              {/* description and price retain the high-contrast ink token on the ground-alt surface. */}
+              <p className="text-ink text-sm mb-3">{selected.description}</p>
+              <p className="text-ink font-bold text-lg mb-4">
+                {selected.price}€
+              </p>
+
+              {selected.ingredients && (
+                <div className="mb-3">
+                  <p className="text-xs text-muted uppercase tracking-wider mb-1">
+                    Ingredientes
+                  </p>
+                  <p className="text-sm text-ink">
+                    {selected.ingredients.join(' · ')}
+                  </p>
+                </div>
+              )}
+
+              {selected.story && (
+                <div className="mb-3">
+                  <p className="text-xs text-muted uppercase tracking-wider mb-1">
+                    Historia
+                  </p>
+                  <p className="text-sm text-ink italic">{selected.story}</p>
+                </div>
+              )}
+
+              {selected.pairing && (
+                <div>
+                  <p className="text-xs text-muted uppercase tracking-wider mb-1">
+                    Maridaje sugerido
+                  </p>
+                  <p className="text-sm text-accent">{selected.pairing}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

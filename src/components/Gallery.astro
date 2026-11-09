@@ -24,6 +24,7 @@ import citricos from '../assets/user-supplied/gallery-citricos-olivas.png';
 const gallery = [
   {
     id: 'cala',
+    layout: 'lead',
     src: octopusPhoto,
     alt: 'Acantilado rocoso. No muestra el local ni los platos de Marea.',
     widths: [420, 640, 900, 1280],
@@ -39,6 +40,7 @@ const gallery = [
   },
   {
     id: 'mercado',
+    layout: 'pair',
     src: marketPhoto,
     alt: 'Mesa con vino y elementos de decoración. No muestra el local, los platos ni los proveedores de Marea.',
     widths: [320, 480, 640, 840],
@@ -54,6 +56,7 @@ const gallery = [
   },
   {
     id: 'citricos',
+    layout: 'pair',
     src: citricos,
     alt: 'Frutas y cítricos frescos en un plato de cerámica. No muestra el local ni los platos de Marea.',
     widths: [420, 640, 900, 1200],
@@ -69,6 +72,7 @@ const gallery = [
   },
   {
     id: 'pulpo-elegant',
+    layout: 'small',
     src: mareaOctopus,
     alt: 'Pulpo a la parrilla en plato elegante. Contexto ilustrativo, no representa el local ni los platos de Marea.',
     widths: [420, 640, 900, 1280],
@@ -84,6 +88,7 @@ const gallery = [
   },
   {
     id: 'mercado-stall',
+    layout: 'small',
     src: marketStall,
     alt: 'Puesto de mercado italiano con fruta y verdura fresca. Contexto ilustrativo, no representa el local.',
     widths: [320, 480, 640, 840],
@@ -104,12 +109,12 @@ const gallery = [
   id="galeria"
   data-motion="section"
   class="marea-gallery bg-ground-alt px-5 sm:px-8 py-20 md:py-28"
-  aria-label="Galería"
+  aria-labelledby="gallery-heading"
 >
   <div class="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-12 lg:gap-16 items-start">
     <header class="lg:col-span-4 max-w-[42ch] lg:sticky lg:top-24 lg:self-start">
       <p class="marea-kicker">Archivo</p>
-      <h2 class="mt-3 font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
+      <h2 id="gallery-heading" class="mt-3 font-display font-bold text-ink leading-[0.95] text-[clamp(2.5rem,6vw,4.5rem)]">
         Archivo fotográfico
       </h2>
       <p class="mt-4 text-lg text-ink/80">
@@ -121,122 +126,64 @@ const gallery = [
       </p>
     </header>
 
-    <!-- Width-constrained parent (min-width:0) so the mobile track scrolls inside
-         itself and never widens the document. On desktop the same track becomes the
-         asymmetric collage grid (see sections-story-gallery.css). -->
+    <!-- A single responsive bento composition; every image remains in the
+         document flow so the phone layout does not hide content in a carousel. -->
     <div class="lg:col-span-8 min-w-0">
       <div class="marea-gallery__viewport min-w-0">
-        <div
-          class="marea-gallery__collage"
-          role="region"
-          aria-label="Galería de archivo en carrusel horizontal"
-          tabindex="0"
-        >
-          {gallery.map((item, index) => (
-          <figure
-            class="marea-gallery__figure"
-          >
-            <div class="marea-gallery__frame">
-              <Image
-                src={item.src}
-                alt={item.alt}
-                widths={item.widths}
-                sizes={item.sizes}
-                loading="lazy"
-                decoding="async"
-                class="gallery-img marea-gallery__img"
-              />
-            </div>
-            <figcaption class="marea-gallery__caption">
-              <span class="marea-gallery__title">{item.credit.title}</span>
-              {item.credit.creator || item.credit.via ? (
-                <>
-                  <span class="font-medium">Foto: {item.credit.creator}</span>
-                  {item.credit.license ? `, ${item.credit.license}` : ''}, vía {item.credit.via}{' '}
-                  {item.credit.page && (
-                    <a
-                      href={item.credit.page}
-                      target="_blank"
-                      rel="noopener"
-                      class="gallery-credit-link underline underline-offset-2"
-                    >
-                      fuente
-                    </a>
-                  )}
-                  {item.credit.page && item.credit.licenseUrl && ' · '}
-                  {item.credit.licenseUrl && (
-                    <a
-                      href={item.credit.licenseUrl}
-                      target="_blank"
-                      rel="noopener"
-                      class="gallery-credit-link underline underline-offset-2"
-                    >
-                      licencia
-                    </a>
-                  )}
-                </>
-              ) : (
-                <span>Imagen suministrada para esta demostración</span>
-              )}
-              <span class="marea-gallery__note">
-                Imagen de archivo: no representa el local, los platos, el equipo ni los proveedores de
-                Marea.
-              </span>
-            </figcaption>
-          </figure>
-        ))}
+        <div class="marea-gallery__collage">
+          {gallery.map((item) => (
+            <figure class={`marea-gallery__figure marea-gallery__figure--${item.layout}`}>
+              <div class="marea-gallery__frame">
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  widths={item.widths}
+                  sizes={item.sizes}
+                  loading="lazy"
+                  decoding="async"
+                  class="gallery-img marea-gallery__img"
+                />
+              </div>
+              <figcaption class="marea-gallery__caption">
+                <span class="marea-gallery__title">{item.credit.title}</span>
+                {item.credit.creator || item.credit.via ? (
+                  <>
+                    <span class="font-medium">Foto: {item.credit.creator}</span>
+                    {item.credit.license ? `, ${item.credit.license}` : ''}, vía {item.credit.via}{' '}
+                    {item.credit.page && (
+                      <a
+                        href={item.credit.page}
+                        target="_blank"
+                        rel="noopener"
+                        class="gallery-credit-link underline underline-offset-2"
+                      >
+                        fuente
+                      </a>
+                    )}
+                    {item.credit.page && item.credit.licenseUrl && ' · '}
+                    {item.credit.licenseUrl && (
+                      <a
+                        href={item.credit.licenseUrl}
+                        target="_blank"
+                        rel="noopener"
+                        class="gallery-credit-link underline underline-offset-2"
+                      >
+                        licencia
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <span>Imagen suministrada para esta demostración</span>
+                )}
+                <span class="marea-gallery__note">
+                  Imagen de archivo: no representa el local, los platos, el equipo ni los proveedores de
+                  Marea.
+                </span>
+              </figcaption>
+            </figure>
+          ))}
       </div>
     </div>
-  </div>
-  </div>
+      </div>
+    </div>
 </section>
-
-<script>
-  // The gallery track is only a keyboard-focusable named region while it can
-  // actually scroll (mobile snap track). On desktop the same element is a
-  // static collage grid, so the region role, tab stop and label are removed —
-  // no false tab stop, no scroll region with nowhere to scroll.
-  (() => {
-    const track = document.querySelector<HTMLElement>('.marea-gallery__collage');
-    if (!track) return;
-    const LABEL = 'Galería de archivo en carrusel horizontal';
-
-    const syncRegion = (): void => {
-      let scrollable = false;
-      try {
-        const overflowX = getComputedStyle(track).overflowX;
-        scrollable =
-          (overflowX === 'auto' || overflowX === 'scroll') &&
-          track.scrollWidth > track.clientWidth + 1;
-      } catch {
-        scrollable = false;
-      }
-      if (scrollable) {
-        track.setAttribute('role', 'region');
-        track.setAttribute('tabindex', '0');
-        track.setAttribute('aria-label', LABEL);
-      } else {
-        track.removeAttribute('role');
-        track.removeAttribute('tabindex');
-        track.removeAttribute('aria-label');
-      }
-    };
-
-    let pending = false;
-    const schedule = (): void => {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(() => {
-        pending = false;
-        syncRegion();
-      });
-    };
-
-    syncRegion();
-    window.addEventListener('resize', schedule, { passive: true });
-    window.addEventListener('load', schedule);
-    if ('ResizeObserver' in window) {
-      new ResizeObserver(schedule).observe(track);
-    }
-  })();
-</script>
