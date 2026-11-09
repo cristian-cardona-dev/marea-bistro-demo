@@ -56,8 +56,14 @@ function heroParallaxAllowed(): boolean {
 /* ---------- Hero parallax constants (JS fallback) ---------- */
 const HERO_SCALE_MIN = 1;
 const HERO_SCALE_MAX = 1.04;
-const HERO_POSITION_TOP_MIN = 50; // % — object-position stays at center
-const HERO_POSITION_TOP_MAX = 50; // % — image drifts upward as it scales, reduced range for desktop
+const HERO_POSITION_TOP_MIN = 50; // % - object-position stays at center
+const HERO_POSITION_TOP_MAX = 50; // % - image drifts upward as it scales, reduced range for desktop
+
+/* ---------- Hero overlay parallax constants (2.5D depth layer) ---------- */
+const OVERLAY_SCALE_MIN = 1;
+const OVERLAY_SCALE_MAX = 1.02;
+const OVERLAY_TRANSLATE_MIN = 0; // px
+const OVERLAY_TRANSLATE_MAX = -16; // px - more drift than base for depth
 const PRESS_SCALE_ACTIVE = 0.98;
 
 /* ---------- Motion timing ---------- */
@@ -75,6 +81,7 @@ const HERO_MASK_DURATION = 0.9; // seconds for horizontal shutter
 /* ---------- State ---------- */
 let heroStage: HTMLElement | null = null;
 let heroImg: HTMLImageElement | null = null;
+let heroOverlay: HTMLImageElement | null = null;
 let heroFrame = 0;
 let heroPending = false;
 let reduced = false;
@@ -116,6 +123,16 @@ function updateHero(): void {
   const { scale, objectPositionTop } = heroValues();
   heroImg.style.transform = `scale(${scale})`;
   heroImg.style.objectPosition = `50% ${objectPositionTop}%`;
+  if (heroOverlay) {
+    const progress = clamp(
+      (window.innerHeight - (heroStage?.getBoundingClientRect().top ?? 0)) / window.innerHeight,
+      0,
+      1
+    );
+    const overlayScale = transform(progress, [0, 1], [OVERLAY_SCALE_MIN, OVERLAY_SCALE_MAX]);
+    const overlayTranslate = transform(progress, [0, 1], [OVERLAY_TRANSLATE_MIN, OVERLAY_TRANSLATE_MAX]);
+    heroOverlay.style.transform = `scale(${overlayScale}) translateY(${overlayTranslate}px)`;
+  }
 }
 
 function scheduleHero(): void {
@@ -141,6 +158,9 @@ function stopHero(): void {
   if (heroImg) {
     heroImg.style.transform = '';
     heroImg.style.objectPosition = '';
+  }
+  if (heroOverlay) {
+    heroOverlay.style.transform = '';
   }
 }
 
@@ -173,18 +193,21 @@ function choreographHeroMask(): void {
   try {
     // Horizontal shutter: start fully clipped, animate open
     heroImg.style.clipPath = 'inset(0 100% 0 0)';
+    if (heroOverlay) heroOverlay.style.clipPath = 'inset(0 100% 0 0)';
     const animation = animate(
-      heroImg,
+      [heroImg, heroOverlay].filter(Boolean) as HTMLElement[],
       { clipPath: ['inset(0 100% 0 0)', 'inset(0 0 0 0)'] },
       { duration: 900, ease: 'easeOut' }
     );
     trackAnimation(animation, () => {
       heroImg?.classList.add('mask-revealed');
       heroImg?.style.removeProperty('clip-path');
+      heroOverlay?.style.removeProperty('clip-path');
     });
   } catch {
     heroImg?.classList.add('mask-revealed');
     heroImg?.style.removeProperty('clip-path');
+    heroOverlay?.style.removeProperty('clip-path');
   }
 }
 
@@ -398,6 +421,9 @@ function onReduceChange(): void {
       heroImg.style.clipPath = '';
       heroImg.classList.remove('mask-revealed');
     }
+    if (heroOverlay) {
+      heroOverlay.style.transform = '';
+    }
     document.querySelectorAll<HTMLElement>('#galeria figure').forEach((figure) => {
       figure.style.clipPath = '';
     });
@@ -425,7 +451,8 @@ function init(): void {
   try {
     const stage = document.querySelector<HTMLElement>(HERO_SELECTOR);
     heroStage = stage ?? null;
-    heroImg = stage?.querySelector<HTMLImageElement>('img') ?? null;
+    heroImg = stage?.querySelector<HTMLImageElement>('#hero-img') ?? null;
+    heroOverlay = stage?.querySelector<HTMLImageElement>('.hero-overlay') ?? null;
 
     reduceMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
     reduced = reduceMedia.matches;
