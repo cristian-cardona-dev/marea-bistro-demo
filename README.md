@@ -20,7 +20,7 @@ npm run preview
 
 ## Customize Your Restaurant
 
-Edit `src/config/site.ts` to change everything: name, colors, menu, hours, social links, images, SEO.
+Edit `src/config/site.ts` to change everything: name, colors, menu, hours, social links, SEO, and the OG image. (Component images — Hero, About, Gallery and the Menu dishes — are imported directly in their Astro components from `src/assets/` or served from `public/images/`; they are not driven by `siteConfig.images` except `ogImage`.)
 
 See `docs/CUSTOMIZATION.md` for a step-by-step guide.
 

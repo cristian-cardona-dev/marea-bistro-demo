@@ -952,19 +952,6 @@ nav a:not(.btn-square)::after {
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Scroll cue indicator - fades out as scrolling begins */
-  .scroll-cue {
-    view-timeline: --hero-parallax block;
-    animation: scroll-cue-fade linear both;
-    animation-timeline: --hero-parallax;
-    animation-range: entry 0% entry 25%;
-    will-change: opacity;
-  }
-
-  @keyframes scroll-cue-fade {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
 
   /* ---------- Section reveals: each section animates on view entry ---------- */
   #carta,
@@ -1197,7 +1184,6 @@ nav a:not(.btn-square)::after {
     [data-hero-heading],
     [data-motion="hero"] .btn-square,
     [data-motion="hero"] a[href="#carta"],
-    .scroll-cue,
     #carta,
     #galeria,
     #reservas,

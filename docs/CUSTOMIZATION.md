@@ -134,16 +134,18 @@ Remove any link by setting it to `undefined` or deleting the line.
 
 ## 8. Change Images
 
-1. Add your photos to `public/images/`
-2. Update paths in config:
+Only the OG image is controlled from `src/config/site.ts` (`images.ogImage`). The images shown in the Hero, About and Gallery sections are imported directly in their Astro components (`src/components/Hero.astro`, `src/components/About.astro`, `src/components/Gallery.astro`) from `src/assets/` (Astro's `astro:assets` pipeline), and the Menu interlude image is served from `public/images/`. `siteConfig.images.hero` and `siteConfig.images.gallery` are not read by any component.
+
+To change a component image:
+
+1. Replace the imported asset (e.g. `src/assets/user-supplied/hero-desktop-original.png`, `src/assets/hero/mediterranean-sea-view.jpg`, `src/assets/gallery/marea-octopus-elegant.jpg`) — or add a new file under `src/assets/` and update the import in the component.
+2. For the Menu interlude, replace `public/images/fresh-ingredients-slate.jpg` (and its `*-800w.jpg` / `*-1600w.jpg` variants) and update the `creditByFile` lookup in `src/components/Menu.astro` if the filename changes.
+3. Update `images.ogImage` in `src/config/site.ts` for the social/SEO preview image.
+
+To change the OG image only:
 
 ```typescript
 images: {
-  hero: "/images/your-hero.jpg",
-  gallery: [
-    "/images/photo1.jpg",
-    "/images/photo2.jpg",
-  ],
   ogImage: "/images/og.jpg",
 }
 ```
@@ -153,6 +155,8 @@ images: {
 - Gallery: 800x800px (square)
 - OG image: 1200x630px
 - Format: WebP or JPEG
+
+**Credits:** per-image source and licence records live in `public/images/credits.json`. Components that display credited images (Gallery, Menu interlude, the coast beat in About) read from that file; uncredited images render "Imagen suministrada para esta demostración". Add a record there when introducing a new third-party image.
 
 ## 9. Change SEO
 
