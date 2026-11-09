@@ -12,36 +12,44 @@ const { brand } = siteConfig;
   data-chapter="light"
   class="sticky top-0 z-40 bg-ground px-5 sm:px-8 py-3"
 >
-  <div class="mx-auto max-w-[1400px] flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-6">
+  <div class="mx-auto max-w-[1400px] flex items-center justify-between gap-4">
     <a
       href="#hero"
       class="font-display text-xl sm:text-2xl font-bold text-ink inline-flex items-center min-h-[44px] leading-none tracking-tight"
     >
       {brand.name}
     </a>
-    <div data-marea-compact class="flex flex-wrap items-center gap-x-5 gap-y-1 text-base xl:hidden">
-      <a href="#sobre-nosotros" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Sobre nosotros</a>
-      <a href="#carta" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">La carta</a>
-      <a href="#galeria" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Galería</a>
-      <a href="#reservas" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Reservas</a>
-      <a href="#ubicacion" class="text-ink inline-flex items-center min-h-[44px] hover:text-accent">Ubicación</a>
-    </div>
+    <details data-marea-compact class="relative xl:hidden">
+      <summary class="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-2 text-sm font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current">
+        <span data-current-label>Secciones</span>
+        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="m3.5 6 4.5 4 4.5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </summary>
+      <div data-marea-menu-links class="absolute right-0 top-full z-50 mt-2 grid min-w-48 gap-1 border border-ink/15 bg-ground p-2 shadow-lg">
+        <a href="#sobre-nosotros" class="inline-flex min-h-[44px] items-center px-3 text-ink">Sobre nosotros</a>
+        <a href="#carta" class="inline-flex min-h-[44px] items-center px-3 text-ink">La carta</a>
+        <a href="#galeria" class="inline-flex min-h-[44px] items-center px-3 text-ink">Galería</a>
+        <a href="#reservas" class="inline-flex min-h-[44px] items-center px-3 text-ink">Reservas</a>
+        <a href="#ubicacion" class="inline-flex min-h-[44px] items-center px-3 text-ink">Ubicación</a>
+      </div>
+    </details>
     <!-- Desktop-only section rail: seven unique real targets, exposed at xl+
          instead of the compact link group above (no duplicated masthead).
          Row layout wraps so the links can never overlap the wordmark. -->
     <div
       data-marea-rail
-      class="hidden xl:flex xl:flex-wrap xl:items-center xl:justify-end gap-2 xl:gap-3 text-sm font-medium"
+      class="hidden xl:flex xl:flex-nowrap xl:items-center xl:justify-end gap-1 xl:gap-2 text-sm font-medium"
     >
       <!-- Each rail link has a minimum 44×44 hit area and data-target for Observers.
            No aria-current is written in markup: the script sets exactly one. -->
-      <a href="#hero" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#hero">1. Hero</a>
-      <a href="#sobre-nosotros" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#sobre-nosotros">2. Sobre nosotros</a>
-      <a href="#carta" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#carta">3. La carta</a>
-      <a href="#galeria" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#galeria">4. Galería</a>
-      <a href="#reservas" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#reservas">5. Reservas</a>
-      <a href="#ubicacion" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#ubicacion">6. Ubicación</a>
-      <a href="#footer" class="relative px-3 py-2 rounded border min-w-[44px] min-h-[44px] inline-flex items-center hover:text-accent" data-target="#footer">7. Footer</a>
+      <a href="#hero" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#hero">Inicio</a>
+      <a href="#sobre-nosotros" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#sobre-nosotros">Sobre nosotros</a>
+      <a href="#carta" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#carta">La carta</a>
+      <a href="#galeria" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#galeria">Galería</a>
+      <a href="#reservas" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#reservas">Reservas</a>
+      <a href="#ubicacion" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#ubicacion">Ubicación</a>
+      <a href="#footer" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#footer">Contacto</a>
     </div>
 
   <script>
@@ -54,7 +62,7 @@ const { brand } = siteConfig;
   (() => {
     const rail = document.querySelector('#main-nav [data-marea-rail]');
     const nav = document.getElementById('main-nav');
-    const compactContainer = document.querySelector('#main-nav [data-marea-compact]');
+    const compactContainer = document.querySelector<HTMLDetailsElement>('#main-nav [data-marea-compact]');
     if (!rail || !nav) return;
 
     const pairs = Array.from(rail.querySelectorAll('a[data-target]')).map((link) => {
@@ -63,10 +71,12 @@ const { brand } = siteConfig;
     });
     const observable = pairs.filter((pair) => pair.section);
     if (!observable.length) return;
+    let pendingInitialHash = window.location.hash.replace(/^#/, '');
 
     const compactLinks = compactContainer
-      ? Array.from(compactContainer.querySelectorAll('a'))
+      ? Array.from(compactContainer.querySelectorAll<HTMLAnchorElement>('a'))
       : [];
+    const compactLabel = compactContainer?.querySelector<HTMLElement>('[data-current-label]');
 
     const clearCurrent = () => {
       pairs.forEach((pair) => pair.link.removeAttribute('aria-current'));
@@ -87,23 +97,34 @@ const { brand } = siteConfig;
       if (!compactContainer) return false;
       const style = window.getComputedStyle(compactContainer);
       if (style.display === 'none' || style.visibility === 'hidden') return false;
-      const rect = compactContainer.getBoundingClientRect();
-      if (rect.width === 0 && rect.height === 0) return false;
-      return true;
+      if (!compactContainer.open) return false;
+      return compactLinks.some((link) => {
+        const linkStyle = window.getComputedStyle(link);
+        return linkStyle.display !== 'none' && linkStyle.visibility !== 'hidden' && link.getClientRects().length > 0;
+      });
     };
 
     // Deterministic: the last section whose top has passed the rail line.
     const update = () => {
-      const line = 140; // sticky rail height + scroll padding
-      let current = null;
-      for (const pair of observable) {
-        if (pair.section.getBoundingClientRect().top - line <= 0) current = pair;
+      const line = 96; // sticky header height + a small reading offset
+      let current = pendingInitialHash
+        ? observable.find((pair) => pair.id === pendingInitialHash) ?? null
+        : null;
+      if (!current) {
+        for (const pair of observable) {
+          if (pair.section.getBoundingClientRect().top - line <= 0) current = pair;
+        }
       }
       if (!current) current = observable[0];
       // Chapter state applies on every viewport width. Only #carta is treated as
       // a dark chapter.
       const isDark = !!(current && current.id === 'carta');
       nav.setAttribute('data-chapter', isDark ? 'dark' : 'light');
+      if (compactLabel && current) {
+        compactLabel.textContent = current.id === 'hero'
+          ? 'Secciones'
+          : `Secciones · ${current.link.textContent?.trim() || 'Secciones'}`;
+      }
       // aria-current is exposed on whichever link group is actually visible:
       // the desktop rail or the compact (mobile) links.
       if (!isRailVisible() && !isCompactVisible()) {
@@ -131,12 +152,31 @@ const { brand } = siteConfig;
         update();
       });
     };
+    const syncAfterNavigation = () => {
+      schedule();
+      window.requestAnimationFrame(() => window.requestAnimationFrame(update));
+    };
 
     update();
-    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('scroll', () => {
+      pendingInitialHash = '';
+      schedule();
+    }, { passive: true });
     window.addEventListener('resize', schedule, { passive: true });
-    window.addEventListener('load', schedule);
-    document.addEventListener('astro:page-load', update);
+    window.addEventListener('load', syncAfterNavigation);
+    window.addEventListener('pageshow', syncAfterNavigation);
+    window.addEventListener('hashchange', () => {
+      pendingInitialHash = window.location.hash.replace(/^#/, '');
+      syncAfterNavigation();
+    });
+    document.addEventListener('astro:page-load', syncAfterNavigation);
+    compactContainer?.addEventListener('toggle', schedule);
+    compactContainer?.addEventListener('click', (event) => {
+      if ((event.target as Element | null)?.closest('a')) {
+        compactContainer.open = false;
+        schedule();
+      }
+    });
   })();
   </script>
   </div>
@@ -152,6 +192,26 @@ const { brand } = siteConfig;
       transition: color 180ms cubic-bezier(0.25, 0.1, 0.25, 1),
                   border-color 180ms cubic-bezier(0.25, 0.1, 0.25, 1);
     }
+    #main-nav [data-marea-compact] summary::-webkit-details-marker { display: none; }
+    #main-nav [data-marea-compact][open] summary svg { transform: rotate(180deg); }
+    #main-nav [data-marea-compact] summary svg { transition: transform 160ms ease; }
+    #main-nav [data-marea-compact] > div { box-shadow: var(--shadow-2); }
+    #main-nav [data-marea-rail] a[aria-current="location"]::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0.5rem;
+      bottom: 0.35rem;
+      height: 2px;
+      background: currentColor;
+    }
+    #main-nav [data-marea-rail] a[aria-current="location"] {
+      background: transparent;
+    }
+    #main-nav [data-marea-rail] a:focus-visible,
+    #main-nav [data-marea-compact] summary:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 3px;
+    }
     /* Light chapter (default): ground surface, ink foreground. */
     #main-nav[data-chapter="light"] {
       background-color: var(--color-ground);
@@ -160,9 +220,6 @@ const { brand } = siteConfig;
     #main-nav[data-chapter="light"] a {
       color: var(--color-ink);
     }
-    #main-nav[data-chapter="light"] [data-marea-rail] a {
-      border-color: var(--color-ink);
-    }
     #main-nav[data-chapter="light"] a:hover,
     #main-nav[data-chapter="light"] a:focus-visible {
       color: var(--color-accent);
@@ -170,7 +227,6 @@ const { brand } = siteConfig;
     #main-nav[data-chapter="light"] a[aria-current="location"] {
       color: var(--color-accent);
       font-weight: 600;
-      border-color: var(--color-accent);
     }
     /* Dark chapter (#carta): secondary surface, ground foreground. */
     #main-nav[data-chapter="dark"] {
@@ -180,8 +236,10 @@ const { brand } = siteConfig;
     #main-nav[data-chapter="dark"] a {
       color: var(--color-ground);
     }
-    #main-nav[data-chapter="dark"] [data-marea-rail] a {
-      border-color: var(--color-ground);
+    #main-nav[data-chapter="dark"] [data-marea-compact] summary { color: var(--color-ground); }
+    #main-nav[data-chapter="dark"] [data-marea-compact] > div {
+      background-color: var(--color-secondary);
+      border-color: color-mix(in oklab, var(--color-ground) 30%, transparent);
     }
     #main-nav[data-chapter="dark"] a:hover,
     #main-nav[data-chapter="dark"] a:focus-visible {
@@ -193,10 +251,12 @@ const { brand } = siteConfig;
     #main-nav[data-chapter="dark"] a[aria-current="location"] {
       color: var(--color-ground);
       font-weight: 600;
-      border-color: var(--color-ground);
       text-decoration: underline;
       text-underline-offset: 4px;
       text-decoration-thickness: 1.5px;
+    }
+    #main-nav[data-chapter="dark"] [data-marea-rail] a[aria-current="location"] {
+      text-decoration: none;
     }
     @media (prefers-reduced-motion: reduce) {
       #main-nav,

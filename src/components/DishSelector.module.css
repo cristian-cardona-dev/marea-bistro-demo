@@ -1,24 +1,27 @@
-/* Component-local crossfade container for selected dish content.
-   Holds outgoing and incoming dish images stacked absolutely so they
-   can crossfade (opacity transition) instead of remount/fade-in. */
+/* Reserved media stage keeps the dish image separate from its text while the
+   outgoing and incoming photos overlap during the crossfade. */
 .crossfade {
   position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 220px;
+  overflow: hidden;
   isolation: isolate;
+  background: var(--color-ground);
 }
 
-/* Outgoing/incoming dish layers: absolute fill, opacity-driven crossfade. */
-.crossfade img {
+/* Image layers fill only the reserved stage, never the description column. */
+.layer {
   position: absolute;
   inset: 0;
   width: 100%;
-  max-height: 320px;
+  height: 100%;
   object-fit: contain;
-  border-radius: var(--radius-xl, 0.75rem);
   transition: opacity 180ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .crossfade img {
+  .layer {
     transition: none;
   }
 }
