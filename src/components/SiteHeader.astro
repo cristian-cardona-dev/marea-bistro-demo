@@ -131,7 +131,7 @@ const { brand } = siteConfig;
     const heroSection = document.getElementById('hero');
     const updateScrolled = () => {
       const heroBottom = heroSection ? heroSection.getBoundingClientRect().bottom : 0;
-      const scrolled = heroBottom < 80;
+      const scrolled = heroBottom < window.innerHeight * 0.4;
       nav.classList.toggle('scrolled', scrolled);
     };
 

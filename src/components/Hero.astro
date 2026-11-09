@@ -64,7 +64,7 @@ const heroMobileSrcset = await heroSrcset(heroMobile, heroMobile.src);
 // Desktop-only parallax layer; hidden on mobile. Astro optimizes via getImage().
 const heroOliveOverlaySrcset = await heroSrcset(heroOliveOverlay, heroOliveOverlay.src);
 ---
-<section id="hero" data-motion="section" class="relative bg-ink text-ground">
+<section id="hero" data-motion="section" class="relative bg-ink text-ground -mt-[68px] pt-[68px]">
   <figure data-motion="hero" class="relative m-0 overflow-hidden">
     <picture>
   <source media="(min-width: 640px)" srcset={heroDesktopSrcset} type="image/png" />
@@ -110,6 +110,12 @@ const heroOliveOverlaySrcset = await heroSrcset(heroOliveOverlay, heroOliveOverl
       class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/92 via-ink/45 to-transparent taste-skill-ignore:gradient"
       aria-hidden="true"
       style="opacity: 0.6;"
+    ></div>
+
+    <!-- Top scrim: ensures nav text legibility over the hero image. -->
+    <div
+      class="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-ink/60 to-transparent taste-skill-ignore:gradient"
+      aria-hidden="true"
     ></div>
 
     <figcaption data-hero-text class="absolute inset-x-0 bottom-0">
