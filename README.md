@@ -69,3 +69,9 @@ public/
 ## License
 
 MIT — Use freely for your restaurant or client projects.
+
+## Changelog
+
+| Date | Version | Summary |
+|---|---|---|
+| 2026-11-09 | 0.0.2 | Full-screen hero with transparent minimal navbar |
