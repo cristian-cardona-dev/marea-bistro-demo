@@ -82,6 +82,8 @@ const HERO_MASK_DURATION = 0.9; // seconds for horizontal shutter
 let heroStage: HTMLElement | null = null;
 let heroImg: HTMLImageElement | null = null;
 let heroOverlay: HTMLImageElement | null = null;
+let heroText: HTMLElement | null = null;
+let heroScrim: HTMLElement | null = null;
 let heroFrame = 0;
 let heroPending = false;
 let reduced = false;
@@ -133,6 +135,26 @@ function updateHero(): void {
     const overlayTranslate = transform(progress, [0, 1], [OVERLAY_TRANSLATE_MIN, OVERLAY_TRANSLATE_MAX]);
     heroOverlay.style.transform = `scale(${overlayScale}) translateY(${overlayTranslate}px)`;
   }
+  if (heroText) {
+    const progress = clamp(
+      (window.innerHeight - (heroStage?.getBoundingClientRect().top ?? 0)) / window.innerHeight,
+      0,
+      1
+    );
+    const textTranslate = transform(progress, [0, 1], [0, -12]);
+    const textOpacity = transform(progress, [0, 1], [1, 0.6]);
+    heroText.style.transform = `translateY(${textTranslate}px)`;
+    heroText.style.opacity = String(textOpacity);
+  }
+  if (heroScrim) {
+    const progress = clamp(
+      (window.innerHeight - (heroStage?.getBoundingClientRect().top ?? 0)) / window.innerHeight,
+      0,
+      1
+    );
+    const scrimOpacity = transform(progress, [0, 1], [0.6, 0.9]);
+    heroScrim.style.opacity = String(scrimOpacity);
+  }
 }
 
 function scheduleHero(): void {
@@ -161,6 +183,13 @@ function stopHero(): void {
   }
   if (heroOverlay) {
     heroOverlay.style.transform = '';
+  }
+  if (heroText) {
+    heroText.style.transform = '';
+    heroText.style.opacity = '';
+  }
+  if (heroScrim) {
+    heroScrim.style.opacity = '';
   }
 }
 
@@ -424,6 +453,13 @@ function onReduceChange(): void {
     if (heroOverlay) {
       heroOverlay.style.transform = '';
     }
+    if (heroText) {
+      heroText.style.transform = '';
+      heroText.style.opacity = '';
+    }
+    if (heroScrim) {
+      heroScrim.style.opacity = '';
+    }
     document.querySelectorAll<HTMLElement>('#galeria figure').forEach((figure) => {
       figure.style.clipPath = '';
     });
@@ -453,6 +489,8 @@ function init(): void {
     heroStage = stage ?? null;
     heroImg = stage?.querySelector<HTMLImageElement>('#hero-img') ?? null;
     heroOverlay = stage?.querySelector<HTMLImageElement>('.hero-overlay') ?? null;
+    heroText = stage?.querySelector<HTMLElement>('[data-hero-text]') ?? null;
+    heroScrim = stage?.querySelector<HTMLElement>('[data-hero-scrim]') ?? null;
 
     reduceMedia = window.matchMedia('(prefers-reduced-motion: reduce)');
     reduced = reduceMedia.matches;

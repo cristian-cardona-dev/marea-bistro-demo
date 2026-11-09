@@ -1,8 +1,8 @@
 ---
 // src/components/SiteHeader.astro
 // Slim editorial masthead: wordmark on the left, section navigation plus the
-// booking action on the right. Sticky, plain ground surface. Sentence case
-// throughout. Every control keeps a 44px minimum hit area. No initial hidden states.
+// booking action on the right. Transparent over the hero, solid on scroll.
+// Sticky, sentence case throughout. Every control keeps a 44px minimum hit area.
 import { siteConfig } from '../config/site';
 const { brand } = siteConfig;
 ---
@@ -10,23 +10,23 @@ const { brand } = siteConfig;
   id="main-nav"
   aria-label="Principal"
   data-chapter="light"
-  class="sticky top-0 z-40 bg-ground px-5 sm:px-8 py-3"
+  class="sticky top-0 z-40 px-5 sm:px-8 py-3"
 >
   <div class="mx-auto max-w-[1400px] flex items-center justify-between gap-4">
     <a
       href="#hero"
-      class="font-display text-xl sm:text-2xl font-bold text-ink inline-flex items-center min-h-[44px] leading-none tracking-tight"
+      class="font-display text-xl sm:text-2xl font-bold inline-flex items-center min-h-[44px] leading-none tracking-tight"
     >
       {brand.name}
     </a>
     <details data-marea-compact class="relative xl:hidden">
-      <summary class="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-2 text-sm font-medium text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current">
+      <summary class="inline-flex min-h-[44px] cursor-pointer list-none items-center gap-2 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current">
         <span data-current-label>Secciones</span>
         <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path d="m3.5 6 4.5 4 4.5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </summary>
-      <div data-marea-menu-links class="absolute right-0 top-full z-50 mt-2 grid min-w-48 gap-1 border border-ink/15 bg-ground p-2 shadow-lg">
+      <div data-marea-menu-links class="absolute right-0 top-full z-50 mt-2 grid min-w-48 gap-1 border border-ink/15 bg-ground/95 backdrop-blur-md p-2 shadow-lg">
         <a href="#sobre-nosotros" class="inline-flex min-h-[44px] items-center px-3 text-ink">Sobre nosotros</a>
         <a href="#carta" class="inline-flex min-h-[44px] items-center px-3 text-ink">La carta</a>
         <a href="#galeria" class="inline-flex min-h-[44px] items-center px-3 text-ink">Galería</a>
@@ -34,15 +34,10 @@ const { brand } = siteConfig;
         <a href="#ubicacion" class="inline-flex min-h-[44px] items-center px-3 text-ink">Ubicación</a>
       </div>
     </details>
-    <!-- Desktop-only section rail: seven unique real targets, exposed at xl+
-         instead of the compact link group above (no duplicated masthead).
-         Row layout wraps so the links can never overlap the wordmark. -->
     <div
       data-marea-rail
       class="hidden xl:flex xl:flex-nowrap xl:items-center xl:justify-end gap-1 xl:gap-2 text-sm font-medium"
     >
-      <!-- Each rail link has a minimum 44×44 hit area and data-target for Observers.
-           No aria-current is written in markup: the script sets exactly one. -->
       <a href="#hero" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#hero">Inicio</a>
       <a href="#sobre-nosotros" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#sobre-nosotros">Sobre nosotros</a>
       <a href="#carta" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#carta">La carta</a>
@@ -51,14 +46,9 @@ const { brand } = siteConfig;
       <a href="#ubicacion" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#ubicacion">Ubicación</a>
       <a href="#footer" class="relative inline-flex min-h-[44px] items-center px-2" data-target="#footer">Contacto</a>
     </div>
+  </div>
 
   <script>
-  // Section rail: exactly one link carries aria-current="location" for the
-  // section currently under the rail, and none carry any placeholder value.
-  // Targets come from each link's own data-target hash (#ubicacion and
-  // #footer included), not from a section-attribute subset.
-  // Visibility is measured (computed style + geometry), never by testing a
-  // literal class name; while hidden, no current state is exposed.
   (() => {
     const rail = document.querySelector('#main-nav [data-marea-rail]');
     const nav = document.getElementById('main-nav');
@@ -83,13 +73,11 @@ const { brand } = siteConfig;
       compactLinks.forEach((link) => link.removeAttribute('aria-current'));
     };
 
-    // Responsive visibility: real layout, not a class-name literal.
     const isRailVisible = () => {
       const style = window.getComputedStyle(rail);
       if (style.display === 'none' || style.visibility === 'hidden') return false;
       const rect = rail.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) return false;
-      // Only mark a section while the rail is actually on screen.
       return rect.top < window.innerHeight && rect.bottom > 0;
     };
 
@@ -104,9 +92,8 @@ const { brand } = siteConfig;
       });
     };
 
-    // Deterministic: the last section whose top has passed the rail line.
     const update = () => {
-      const line = 96; // sticky header height + a small reading offset
+      const line = 96;
       let current = pendingInitialHash
         ? observable.find((pair) => pair.id === pendingInitialHash) ?? null
         : null;
@@ -116,8 +103,6 @@ const { brand } = siteConfig;
         }
       }
       if (!current) current = observable[0];
-      // Chapter state applies on every viewport width. Only #carta is treated as
-      // a dark chapter.
       const isDark = !!(current && current.id === 'carta');
       nav.setAttribute('data-chapter', isDark ? 'dark' : 'light');
       if (compactLabel && current) {
@@ -125,8 +110,6 @@ const { brand } = siteConfig;
           ? 'Secciones'
           : `Secciones · ${current.link.textContent?.trim() || 'Secciones'}`;
       }
-      // aria-current is exposed on whichever link group is actually visible:
-      // the desktop rail or the compact (mobile) links.
       if (!isRailVisible() && !isCompactVisible()) {
         clearCurrent();
         return;
@@ -144,12 +127,21 @@ const { brand } = siteConfig;
       }
     };
 
+    // Transparent nav: toggle .scrolled when past hero
+    const heroSection = document.getElementById('hero');
+    const updateScrolled = () => {
+      const heroBottom = heroSection ? heroSection.getBoundingClientRect().bottom : 0;
+      const scrolled = heroBottom < 80;
+      nav.classList.toggle('scrolled', scrolled);
+    };
+
     let frame = 0;
     const schedule = () => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
         update();
+        updateScrolled();
       });
     };
     const syncAfterNavigation = () => {
@@ -158,6 +150,7 @@ const { brand } = siteConfig;
     };
 
     update();
+    updateScrolled();
     window.addEventListener('scroll', () => {
       pendingInitialHash = '';
       schedule();
@@ -182,15 +175,16 @@ const { brand } = siteConfig;
   </div>
 
   <style>
-    /* Chapter transition: only background-color, text and border color animate. */
+    /* Chapter transition + transparent-to-solid on scroll. */
     #main-nav {
-      transition: background-color 180ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                  color 180ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                  border-color 180ms cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: background-color 300ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                  color 300ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                  border-color 300ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                  backdrop-filter 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
     }
     #main-nav a {
-      transition: color 180ms cubic-bezier(0.25, 0.1, 0.25, 1),
-                  border-color 180ms cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: color 300ms cubic-bezier(0.25, 0.1, 0.25, 1),
+                  border-color 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
     }
     #main-nav [data-marea-compact] summary::-webkit-details-marker { display: none; }
     #main-nav [data-marea-compact][open] summary svg { transform: rotate(180deg); }
@@ -212,50 +206,73 @@ const { brand } = siteConfig;
       outline: 2px solid currentColor;
       outline-offset: 3px;
     }
-    /* Light chapter (default): ground surface, ink foreground. */
-    #main-nav[data-chapter="light"] {
-      background-color: var(--color-ground);
+    /* Transparent over hero (not scrolled). */
+    #main-nav:not(.scrolled) {
+      background-color: transparent;
+      color: var(--color-ground);
+    }
+    #main-nav:not(.scrolled) a {
+      color: var(--color-ground);
+    }
+    #main-nav:not(.scrolled) a:hover,
+    #main-nav:not(.scrolled) a:focus-visible {
+      color: var(--color-ground);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    #main-nav:not(.scrolled) [data-marea-compact] > div {
+      background-color: color-mix(in oklab, var(--color-ground) 10%, transparent);
+      backdrop-filter: blur(12px);
+      border-color: color-mix(in oklab, var(--color-ground) 20%, transparent);
+    }
+    #main-nav:not(.scrolled) [data-marea-compact] summary {
+      color: var(--color-ground);
+    }
+    /* Scrolled: solid surface. */
+    #main-nav.scrolled[data-chapter="light"] {
+      background-color: color-mix(in oklab, var(--color-ground) 92%, transparent);
+      backdrop-filter: blur(12px);
       color: var(--color-ink);
     }
-    #main-nav[data-chapter="light"] a {
+    #main-nav.scrolled[data-chapter="light"] a {
       color: var(--color-ink);
     }
-    #main-nav[data-chapter="light"] a:hover,
-    #main-nav[data-chapter="light"] a:focus-visible {
+    #main-nav.scrolled[data-chapter="light"] a:hover,
+    #main-nav.scrolled[data-chapter="light"] a:focus-visible {
       color: var(--color-accent);
     }
-    #main-nav[data-chapter="light"] a[aria-current="location"] {
+    #main-nav.scrolled[data-chapter="light"] a[aria-current="location"] {
       color: var(--color-accent);
       font-weight: 600;
     }
-    /* Dark chapter (#carta): secondary surface, ground foreground. */
-    #main-nav[data-chapter="dark"] {
-      background-color: var(--color-secondary);
+    #main-nav.scrolled[data-chapter="dark"] {
+      background-color: color-mix(in oklab, var(--color-secondary) 92%, transparent);
+      backdrop-filter: blur(12px);
       color: var(--color-ground);
     }
-    #main-nav[data-chapter="dark"] a {
+    #main-nav.scrolled[data-chapter="dark"] a {
       color: var(--color-ground);
     }
-    #main-nav[data-chapter="dark"] [data-marea-compact] summary { color: var(--color-ground); }
-    #main-nav[data-chapter="dark"] [data-marea-compact] > div {
-      background-color: var(--color-secondary);
+    #main-nav.scrolled[data-chapter="dark"] [data-marea-compact] summary { color: var(--color-ground); }
+    #main-nav.scrolled[data-chapter="dark"] [data-marea-compact] > div {
+      background-color: color-mix(in oklab, var(--color-secondary) 92%, transparent);
       border-color: color-mix(in oklab, var(--color-ground) 30%, transparent);
     }
-    #main-nav[data-chapter="dark"] a:hover,
-    #main-nav[data-chapter="dark"] a:focus-visible {
+    #main-nav.scrolled[data-chapter="dark"] a:hover,
+    #main-nav.scrolled[data-chapter="dark"] a:focus-visible {
       color: var(--color-ground);
       text-decoration: underline;
       text-underline-offset: 4px;
       text-decoration-thickness: 1.5px;
     }
-    #main-nav[data-chapter="dark"] a[aria-current="location"] {
+    #main-nav.scrolled[data-chapter="dark"] a[aria-current="location"] {
       color: var(--color-ground);
       font-weight: 600;
       text-decoration: underline;
       text-underline-offset: 4px;
       text-decoration-thickness: 1.5px;
     }
-    #main-nav[data-chapter="dark"] [data-marea-rail] a[aria-current="location"] {
+    #main-nav.scrolled[data-chapter="dark"] [data-marea-rail] a[aria-current="location"] {
       text-decoration: none;
     }
     @media (prefers-reduced-motion: reduce) {

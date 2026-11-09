@@ -103,13 +103,16 @@ const heroOliveOverlaySrcset = await heroSrcset(heroOliveOverlay, heroOliveOverl
     />
 
 
-    <!-- Functional legibility scrim behind the overlaid wordmark (not decorative). -->
+    <!-- Functional legibility scrim behind the overlaid wordmark (not decorative).
+         Opacity increases on scroll for deeper immersion. -->
     <div
+      data-hero-scrim
       class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/92 via-ink/45 to-transparent taste-skill-ignore:gradient"
       aria-hidden="true"
+      style="opacity: 0.6;"
     ></div>
 
-    <figcaption class="absolute inset-x-0 bottom-0">
+    <figcaption data-hero-text class="absolute inset-x-0 bottom-0">
       <div class="mx-auto max-w-[1400px] px-5 sm:px-8 pb-8 sm:pb-10">
         <p class="text-ground/90 text-base sm:text-lg">{brand.tagline}</p>
         <h1
