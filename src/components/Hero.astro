@@ -11,6 +11,7 @@ import { siteConfig } from '../config/site';
 import { getImage } from 'astro:assets';
 import heroDesktop from '../assets/user-supplied/hero-desktop-original.png';
 import heroMobile from '../assets/user-supplied/hero-mobile-original.png';
+import heroOliveOverlay from '../assets/user-supplied/hero-olive-overlay.png';
 import creditsData from '../../public/images/credits.json';
 
 const { images, brand } = siteConfig;
@@ -59,6 +60,9 @@ async function heroSrcset(image: typeof heroDesktop, fallback: string): Promise<
 
 const heroDesktopSrcset = await heroSrcset(heroDesktop, heroDesktop.src);
 const heroMobileSrcset = await heroSrcset(heroMobile, heroMobile.src);
+// Olive overlay: RGBA PNG (1774x887), geometric pair of hero-desktop.png.
+// Desktop-only parallax layer; hidden on mobile. Astro optimizes via getImage().
+const heroOliveOverlaySrcset = await heroSrcset(heroOliveOverlay, heroOliveOverlay.src);
 ---
 <section id="hero" data-motion="section" class="relative bg-ink text-ground">
   <figure data-motion="hero" class="relative m-0 overflow-hidden">
@@ -79,6 +83,24 @@ const heroMobileSrcset = await heroSrcset(heroMobile, heroMobile.src);
       class="block w-full h-[52svh] min-h-[320px] lg:h-[74svh] lg:min-h-[520px] object-cover object-center"
   />
 </picture>
+
+    <!-- Olive foliage overlay: RGBA parallax layer (desktop only, 2.5D depth).
+         Moves at a different rate than the base image to create depth.
+         Reduced opacity prevents literal duplication of foliage.
+         Hidden on mobile; Astro optimizes via srcset. -->
+    <img
+      class="hero-overlay hidden lg:block absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+      src={heroOliveOverlay.src}
+      srcset={heroOliveOverlaySrcset}
+      sizes={heroSizes}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      decoding="async"
+      width={heroOliveOverlay.width}
+      height={heroOliveOverlay.height}
+      style="opacity: 0.7;"
+    />
 
 
     <!-- Functional legibility scrim behind the overlaid wordmark (not decorative). -->

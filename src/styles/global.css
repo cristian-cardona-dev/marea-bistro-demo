@@ -262,9 +262,12 @@ button:active {
    effects. Everything stays static and fully visible. */
 @media (prefers-reduced-motion: reduce) {
   [data-motion="hero"] img,
+  [data-motion="hero"] .hero-overlay,
   [data-motion="section"],
   [data-motion="dish"] {
     transition: none !important;
+    animation: none !important;
+    transform: none !important;
   }
 
   [data-motion="section"]:hover,
@@ -921,6 +924,24 @@ nav a:not(.btn-square)::after {
     to {
       transform: scale(1.04) translateY(-8px);
       object-position: 50% 50%;
+    }
+  }
+
+  /* ---------- Hero overlay: differential parallax for 2.5D depth ---------- */
+  [data-motion="hero"] .hero-overlay {
+    animation: hero-overlay-parallax linear;
+    animation-timeline: --hero-parallax;
+    animation-range: entry 0% cover 85%;
+    will-change: transform;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes hero-overlay-parallax {
+    from {
+      transform: scale(1) translateY(0);
+    }
+    to {
+      transform: scale(1.02) translateY(-16px);
     }
   }
   }
