@@ -45,25 +45,54 @@ const INTERACTION_SELECTORS =
   '[data-motion="section"] a, [data-motion="section"] button, [data-motion="dish"] a, [data-motion="dish"] button';
 const REVEAL_SELECTORS = '.market-item, #galeria figure, #carta h3, #reservas, #reservas li, footer';
 
-/* ---------- Hero parallax is desktop-only ---------- */
+/* ---------- Hero parallax runs at any width (mobile gets reduced amplitude) ---------- */
 const HERO_DESKTOP_QUERY = '(min-width: 1024px)';
 let heroDesktopMedia: MediaQueryList | null = null;
 
-function heroParallaxAllowed(): boolean {
+function heroIsDesktop(): boolean {
   return heroDesktopMedia?.matches ?? false;
+}
+
+function heroParallaxAllowed(): boolean {
+  // Parallax is allowed at ANY viewport width; only reduced motion disables it.
+  return !reduced;
+}
+
+function heroAmplitudes(): {
+  scaleMin: number;
+  scaleMax: number;
+  translateMin: number;
+  translateMax: number;
+} {
+  if (heroIsDesktop()) {
+    return {
+      scaleMin: HERO_SCALE_MIN,
+      scaleMax: HERO_SCALE_MAX_DESKTOP,
+      translateMin: HERO_TRANSLATE_MIN,
+      translateMax: HERO_TRANSLATE_MAX_DESKTOP,
+    };
+  }
+  return {
+    scaleMin: HERO_SCALE_MIN,
+    scaleMax: HERO_SCALE_MAX_MOBILE,
+    translateMin: HERO_TRANSLATE_MIN,
+    translateMax: HERO_TRANSLATE_MAX_MOBILE,
+  };
 }
 
 /* ---------- Hero parallax constants (JS fallback) ---------- */
 const HERO_SCALE_MIN = 1;
-const HERO_SCALE_MAX = 1.04;
-const HERO_POSITION_TOP_MIN = 50; // % - object-position stays at center
-const HERO_POSITION_TOP_MAX = 50; // % - image drifts upward as it scales, reduced range for desktop
+const HERO_SCALE_MAX_DESKTOP = 1.12;
+const HERO_SCALE_MAX_MOBILE = 1.05;
+const HERO_TRANSLATE_MIN = 0; // px
+const HERO_TRANSLATE_MAX_DESKTOP = -48; // px
+const HERO_TRANSLATE_MAX_MOBILE = -18; // px
 
 /* ---------- Hero overlay parallax constants (2.5D depth layer) ---------- */
 const OVERLAY_SCALE_MIN = 1;
-const OVERLAY_SCALE_MAX = 1.02;
+const OVERLAY_SCALE_MAX = 1.06;
 const OVERLAY_TRANSLATE_MIN = 0; // px
-const OVERLAY_TRANSLATE_MAX = -16; // px - more drift than base for depth
+const OVERLAY_TRANSLATE_MAX = -64; // px - more drift than base for depth
 const PRESS_SCALE_ACTIVE = 0.98;
 
 /* ---------- Motion timing ---------- */
@@ -104,54 +133,32 @@ function clearEntranceTimers(): void {
   entranceTimers = [];
 }
 
-function heroValues(): { scale: number; objectPositionTop: number } {
-  const rect = heroStage?.getBoundingClientRect() ?? { top: 0, height: 0 };
-  const viewHeight = window.innerHeight;
-  const progress = clamp((viewHeight - rect.top) / viewHeight, 0, 1);
-  return {
-    scale: transform(progress, [0, 1], [HERO_SCALE_MIN, HERO_SCALE_MAX]),
-    objectPositionTop: transform(
-      progress,
-      [0, 1],
-      [HERO_POSITION_TOP_MIN, HERO_POSITION_TOP_MAX]
-    ),
-  };
-}
-
 function updateHero(): void {
   heroFrame = 0;
   heroPending = false;
   if (reduced || !heroImg || !heroParallaxAllowed()) return;
-  const { scale, objectPositionTop } = heroValues();
-  heroImg.style.transform = `scale(${scale})`;
-  heroImg.style.objectPosition = `50% ${objectPositionTop}%`;
+  const rect = heroStage?.getBoundingClientRect() ?? { top: 0, height: 0 };
+  const viewHeight = window.innerHeight;
+  const progress = clamp((viewHeight - rect.top) / viewHeight, 0, 1);
+
+  const amp = heroAmplitudes();
+  const scale = transform(progress, [0, 1], [amp.scaleMin, amp.scaleMax]);
+  const translate = transform(progress, [0, 1], [amp.translateMin, amp.translateMax]);
+  heroImg.style.transform = `scale(${scale}) translateY(${translate}px)`;
+  heroImg.style.objectPosition = '50% 50%';
+
   if (heroOverlay) {
-    const progress = clamp(
-      (window.innerHeight - (heroStage?.getBoundingClientRect().top ?? 0)) / window.innerHeight,
-      0,
-      1
-    );
     const overlayScale = transform(progress, [0, 1], [OVERLAY_SCALE_MIN, OVERLAY_SCALE_MAX]);
     const overlayTranslate = transform(progress, [0, 1], [OVERLAY_TRANSLATE_MIN, OVERLAY_TRANSLATE_MAX]);
     heroOverlay.style.transform = `scale(${overlayScale}) translateY(${overlayTranslate}px)`;
   }
   if (heroText) {
-    const progress = clamp(
-      (window.innerHeight - (heroStage?.getBoundingClientRect().top ?? 0)) / window.innerHeight,
-      0,
-      1
-    );
     const textTranslate = transform(progress, [0, 1], [0, -12]);
     const textOpacity = transform(progress, [0, 1], [1, 0.6]);
     heroText.style.transform = `translateY(${textTranslate}px)`;
     heroText.style.opacity = String(textOpacity);
   }
   if (heroScrim) {
-    const progress = clamp(
-      (window.innerHeight - (heroStage?.getBoundingClientRect().top ?? 0)) / window.innerHeight,
-      0,
-      1
-    );
     const scrimOpacity = transform(progress, [0, 1], [0.6, 0.9]);
     heroScrim.style.opacity = String(scrimOpacity);
   }
@@ -193,10 +200,13 @@ function stopHero(): void {
   }
 }
 
-/* ---------- Breakpoint change: parallax lives on desktop only ---------- */
+/* ---------- Breakpoint change: restart hero layer with new amplitude ---------- */
 function onHeroBreakpointChange(): void {
-  if (heroParallaxAllowed() && !reduced && !SUPPORTS_SCROLL_DRIVEN) startHero();
-  else stopHero();
+  if (reduced || SUPPORTS_SCROLL_DRIVEN) {
+    stopHero();
+    return;
+  }
+  if (heroImg) startHero();
 }
 
 function restoreVisible(targets: HTMLElement[]): void {
@@ -226,7 +236,7 @@ function choreographHeroMask(): void {
     const animation = animate(
       [heroImg, heroOverlay].filter(Boolean) as HTMLElement[],
       { clipPath: ['inset(0 100% 0 0)', 'inset(0 0 0 0)'] },
-      { duration: 900, ease: 'easeOut' }
+      { duration: HERO_MASK_DURATION, ease: 'easeOut' }
     );
     trackAnimation(animation, () => {
       heroImg?.classList.add('mask-revealed');

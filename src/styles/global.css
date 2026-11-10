@@ -252,7 +252,6 @@ button:active {
    fails to load. */
 [data-motion="hero"] img {
   transform-origin: 50% 50%;
-  will-change: transform;
 }
 
 /* Section/dish wrappers are non-interactive: no hover/focus/press transforms.
@@ -907,15 +906,11 @@ nav a:not(.btn-square)::after {
 
   /* ---------- Hero: scroll-bound parallax zoom + object-position drift ---------- */
   @media (min-width: 1024px) {
-  [data-motion="hero"] {
-    view-timeline: --hero-parallax block;
-  }
-
   [data-motion="hero"] img {
-    animation: hero-parallax linear;
+    animation-name: hero-parallax;
+    animation-timing-function: linear;
     animation-timeline: --hero-parallax;
-    animation-range: entry 0% cover 85%;
-    will-change: transform;
+    animation-range: exit 0% exit 100%;
     transform-origin: 50% 50%;
   }
 
@@ -925,17 +920,17 @@ nav a:not(.btn-square)::after {
       object-position: 50% 50%;
     }
     to {
-      transform: scale(1.08) translateY(-20px);
+      transform: scale(1.12) translateY(-48px);
       object-position: 50% 50%;
     }
   }
 
   /* ---------- Hero overlay: differential parallax for 2.5D depth ---------- */
   [data-motion="hero"] .hero-overlay {
-    animation: hero-overlay-parallax linear;
+    animation-name: hero-overlay-parallax;
+    animation-timing-function: linear;
     animation-timeline: --hero-parallax;
-    animation-range: entry 0% cover 85%;
-    will-change: transform;
+    animation-range: exit 0% exit 100%;
     transform-origin: 50% 50%;
   }
 
@@ -944,16 +939,16 @@ nav a:not(.btn-square)::after {
       transform: scale(1) translateY(0);
     }
     to {
-      transform: scale(1.04) translateY(-32px);
+      transform: scale(1.06) translateY(-64px);
     }
   }
 
   /* ---------- Hero text parallax: text drifts up and fades ---------- */
   [data-motion="hero"] [data-hero-text] {
-    animation: hero-text-parallax linear;
+    animation-name: hero-text-parallax;
+    animation-timing-function: linear;
     animation-timeline: --hero-parallax;
-    animation-range: entry 0% cover 85%;
-    will-change: transform, opacity;
+    animation-range: exit 0% exit 100%;
   }
 
   @keyframes hero-text-parallax {
@@ -969,10 +964,10 @@ nav a:not(.btn-square)::after {
 
   /* ---------- Hero scrim: darkens on scroll ---------- */
   [data-motion="hero"] [data-hero-scrim] {
-    animation: hero-scrim-fade linear;
+    animation-name: hero-scrim-fade;
+    animation-timing-function: linear;
     animation-timeline: --hero-parallax;
-    animation-range: entry 0% cover 85%;
-    will-change: opacity;
+    animation-range: exit 0% exit 100%;
   }
 
   @keyframes hero-scrim-fade {
@@ -982,10 +977,10 @@ nav a:not(.btn-square)::after {
 
   /* ---------- Hero fade-out: dissolves into story ---------- */
   [data-motion="hero"] {
-    animation: hero-fade-out linear;
+    animation-name: hero-fade-out;
+    animation-timing-function: linear;
     animation-timeline: --hero-parallax;
     animation-range: cover 85% cover 100%;
-    will-change: opacity;
   }
 
   @keyframes hero-fade-out {
@@ -994,21 +989,49 @@ nav a:not(.btn-square)::after {
   }
   }
 
-  /* Hero entrance: staggered reveal of text/CTA on scroll into view */
+  /* ---------- Hero parallax on mobile: same timeline, reduced amplitude ----------
+     The mobile hero is a vertical crop shown at 100svh, so the same
+     scroll-bound range applies with a smaller scale/translate budget to keep
+     the motion legible without feeling unstable on a phone. */
+  @media (max-width: 1023px) {
+  [data-motion="hero"] img {
+    animation-name: hero-parallax-mobile;
+    animation-timing-function: linear;
+    animation-timeline: --hero-parallax;
+    animation-range: exit 0% exit 100%;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes hero-parallax-mobile {
+    from {
+      transform: scale(1) translateY(0);
+      object-position: 50% 50%;
+    }
+    to {
+      transform: scale(1.05) translateY(-18px);
+      object-position: 50% 50%;
+    }
+  }
+  }
+
+  /* Hero timelines: declared once as a comma list so both names coexist
+     (fixes the view-timeline collision where the second declaration
+     replaced the first). */
   [data-motion="hero"] {
-    view-timeline: --hero-reveal block;
+    view-timeline: --hero-parallax block, --hero-reveal block;
   }
 
   [data-motion="hero"] figcaption > div > p:first-child,
   [data-hero-heading],
   [data-motion="hero"] .btn-square,
   [data-motion="hero"] a[href="#carta"] {
-    animation: hero-text-reveal linear both;
+    animation-name: hero-text-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --hero-reveal;
     animation-range: entry 15% entry 55%;
     opacity: 0;
     transform: translateY(30px);
-    will-change: opacity, transform;
   }
 
   [data-motion="hero"] figcaption > div > p:first-child { animation-delay: 0ms; }
@@ -1024,14 +1047,13 @@ nav a:not(.btn-square)::after {
 
   /* ---------- Section reveals: each section animates on view entry ---------- */
   #carta,
-  #galeria,
   #reservas,
   footer {
     view-timeline: --section-reveal block;
   }
 
   #carta { animation-timeline: --section-reveal; animation-range: entry 10% cover 35%; }
-  #galeria { animation-timeline: --section-reveal; animation-range: entry 10% cover 35%; }
+  #galeria { animation-timeline: --gallery-reveal; animation-range: entry 10% cover 35%; }
   #reservas { animation-timeline: --section-reveal; animation-range: entry 10% cover 40%; }
   footer { animation-timeline: --section-reveal; animation-range: entry 10% cover 50%; }
 
@@ -1039,8 +1061,9 @@ nav a:not(.btn-square)::after {
   #galeria,
   #reservas,
   footer {
-    animation: section-reveal linear both;
-    will-change: opacity, transform;
+    animation-name: section-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
   }
 
   @keyframes section-reveal {
@@ -1051,12 +1074,13 @@ nav a:not(.btn-square)::after {
   /* ---------- Menu: category heading + item staggered choreography ---------- */
   #carta h3 {
     view-timeline: --section-reveal block;
-    animation: menu-category-reveal linear both;
+    animation-name: menu-category-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --section-reveal;
     animation-range: entry 15% cover 40%;
     opacity: 0;
     transform: translateY(24px);
-    will-change: opacity, transform;
   }
 
   @keyframes menu-category-reveal {
@@ -1066,12 +1090,13 @@ nav a:not(.btn-square)::after {
 
   .market-item {
     view-timeline: --section-reveal block;
-    animation: menu-item-reveal linear both;
+    animation-name: menu-item-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --section-reveal;
     animation-range: entry 25% cover 55%;
     opacity: 0;
     transform: translateY(20px);
-    will-change: opacity, transform;
   }
 
   .market-item:nth-child(1) { animation-range: entry 25% cover 45%; }
@@ -1095,12 +1120,13 @@ nav a:not(.btn-square)::after {
   }
 
   #galeria figure {
-    animation: gallery-figure-reveal linear both;
+    animation-name: gallery-figure-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --gallery-reveal;
     animation-range: entry 10% cover 50%;
     opacity: 0;
     transform: translateY(32px) scale(0.98);
-    will-change: opacity, transform;
   }
 
   #galeria figure:nth-child(1) { animation-range: entry 10% cover 45%; }
@@ -1118,10 +1144,11 @@ nav a:not(.btn-square)::after {
   /* Gallery images: subtle scroll-linked scale/position within each figure */
   #galeria .gallery-img {
     view-timeline: --gallery-reveal block;
-    animation: gallery-img-drift linear;
+    animation-name: gallery-img-drift;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --gallery-reveal;
-    animation-range: entry 0% cover 100%;
-    will-change: transform;
+    animation-range: cover 0% cover 100%;
     transform-origin: 50% 50%;
   }
 
@@ -1132,12 +1159,13 @@ nav a:not(.btn-square)::after {
 
   /* Gallery captions reveal after image */
   #galeria figcaption {
-    animation: gallery-caption-reveal linear both;
+    animation-name: gallery-caption-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --gallery-reveal;
     animation-range: entry 35% cover 70%;
     opacity: 0;
     transform: translateY(16px);
-    will-change: opacity, transform;
   }
 
   @keyframes gallery-caption-reveal {
@@ -1159,10 +1187,11 @@ nav a:not(.btn-square)::after {
       color-mix(in oklab, var(--color-accent) 8%, transparent) 100%
     );
     opacity: 0;
-    animation: reservas-bridge-wash linear both;
-    animation-timeline: --reservas-bridge;
+    animation-name: reservas-bridge-wash;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: --gallery-reveal;
     animation-range: exit 0% exit 100%;
-    will-change: opacity;
   }
 
   @keyframes reservas-bridge-wash {
@@ -1173,24 +1202,26 @@ nav a:not(.btn-square)::after {
   /* ---------- Reservas: deep teal closing scene reveal ---------- */
   #reservas > div {
     view-timeline: --reservas-reveal block;
-    animation: reservas-panel-reveal linear both;
+    animation-name: reservas-panel-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --reservas-reveal;
     animation-range: entry 15% cover 50%;
     opacity: 0;
     transform: translateY(32px);
-    will-change: opacity, transform;
   }
 
   #reservas h2,
   #reservas > div > div:first-child > p:not([id="ubicacion"]),
   #reservas .btn-square {
     view-timeline: --reservas-reveal block;
-    animation: reservas-content-reveal linear both;
+    animation-name: reservas-content-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --reservas-reveal;
     animation-range: entry 25% cover 60%;
     opacity: 0;
     transform: translateY(20px);
-    will-change: opacity, transform;
   }
 
   #reservas h2 { animation-delay: 0ms; }
@@ -1210,12 +1241,13 @@ nav a:not(.btn-square)::after {
   /* Hours list items stagger */
   #reservas li {
     view-timeline: --reservas-reveal block;
-    animation: reservas-hours-reveal linear both;
+    animation-name: reservas-hours-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --reservas-reveal;
     animation-range: entry 35% cover 75%;
     opacity: 0;
     transform: translateX(-20px);
-    will-change: opacity, transform;
   }
 
   #reservas li:nth-child(1) { animation-range: entry 35% cover 65%; }
@@ -1231,12 +1263,13 @@ nav a:not(.btn-square)::after {
   /* ---------- Footer: gentle close ---------- */
   footer > div {
     view-timeline: --footer-reveal block;
-    animation: footer-reveal linear both;
+    animation-name: footer-reveal;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
     animation-timeline: --footer-reveal;
     animation-range: entry 10% cover 60%;
     opacity: 0;
     transform: translateY(24px);
-    will-change: opacity, transform;
   }
 
   @keyframes footer-reveal {
