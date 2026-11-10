@@ -137,9 +137,12 @@ function updateHero(): void {
   heroFrame = 0;
   heroPending = false;
   if (reduced || !heroImg || !heroParallaxAllowed()) return;
-  const rect = heroStage?.getBoundingClientRect() ?? { top: 0, height: 0 };
+  const rect = heroStage?.getBoundingClientRect() ?? { top: 0, bottom: 0, height: 0 };
   const viewHeight = window.innerHeight;
-  const progress = clamp((viewHeight - rect.top) / viewHeight, 0, 1);
+  // Mirror the CSS range `exit 0% exit 100%`: progress is driven by the
+  // figure's BOTTOM edge leaving the viewport. Using rect.top instead would
+  // peg progress at 1 from scrollY 0 and freeze the fallback parallax.
+  const progress = clamp((viewHeight - rect.bottom) / viewHeight, 0, 1);
 
   const amp = heroAmplitudes();
   const scale = transform(progress, [0, 1], [amp.scaleMin, amp.scaleMax]);

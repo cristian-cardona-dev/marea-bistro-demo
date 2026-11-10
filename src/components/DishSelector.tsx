@@ -19,50 +19,41 @@ interface Dish {
 
 interface Props {
   dishes: Dish[];
-  imageSrc?: string;
-  imageSrcset?: string;
-  imageSizes?: string;
-  imageWidth?: number;
-  imageHeight?: number;
 }
 
-export default function DishSelector({
-  dishes,
-  imageSrc,
-  imageSrcset,
-  imageSizes,
-  imageWidth,
-  imageHeight,
-}: Props) {
+export default function DishSelector({ dishes }: Props) {
   const [selected, setSelected] = useState<Dish | null>(dishes[0] || null);
   const [prevDish, setPrevDish] = useState<Dish | null>(null);
   const [entering, setEntering] = useState(true);
 
   if (!dishes.length) return null;
 
+  // Every dish carries its own generated candidates. Nothing is inherited from
+  // a sibling dish, so a dish missing them renders without a srcset instead of
+  // silently borrowing another dish's assets.
   function resolveSrc(dish: Dish | null): string | undefined {
     if (!dish) return undefined;
-    return dish.imageSrc ?? imageSrc ?? dish.image;
+    return dish.imageSrc ?? dish.image;
   }
 
   function resolveSrcset(dish: Dish | null): string | undefined {
     if (!dish) return undefined;
-    return dish.imageSrcset ?? imageSrcset;
+    return dish.imageSrcset;
   }
 
   function resolveSizes(dish: Dish | null): string | undefined {
     if (!dish) return undefined;
-    return dish.imageSizes ?? imageSizes;
+    return dish.imageSizes;
   }
 
   function resolveWidth(dish: Dish | null): number | undefined {
     if (!dish) return undefined;
-    return dish.imageWidth ?? imageWidth;
+    return dish.imageWidth;
   }
 
   function resolveHeight(dish: Dish | null): number | undefined {
     if (!dish) return undefined;
-    return dish.imageHeight ?? imageHeight;
+    return dish.imageHeight;
   }
 
   function handleSelect(dish: Dish): void {

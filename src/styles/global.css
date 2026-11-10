@@ -901,7 +901,7 @@ nav a:not(.btn-square)::after {
 @supports ((animation-timeline: scroll()) and (animation-range: 0% 100%) and (view-timeline: --test block) and (timeline-scope: --test)) {
   /* Make named timelines available to descendants */
   :root {
-    timeline-scope: --hero-parallax, --hero-reveal, --section-reveal, --gallery-reveal, --reservas-reveal, --footer-reveal, --reservas-bridge;
+    timeline-scope: --hero-parallax, --hero-reveal, --section-reveal, --gallery-reveal, --reservas-reveal, --footer-reveal;
   }
 
   /* ---------- Hero: scroll-bound parallax zoom + object-position drift ---------- */

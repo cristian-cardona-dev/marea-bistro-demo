@@ -135,14 +135,10 @@ const ingredientsSizes = '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, 1
         <p class="text-sm text-ground mb-6 max-w-[42ch]">
           Fotografías ilustrativas generadas por IA para platos de ejemplo. Marea es un restaurante ficticio de demostración.
         </p>
-        <DishSelector
-          client:visible
-          dishes={featuredDishData}
-          imageSrcset={featuredDishData[0]?.imageSrcset}
-          imageSizes={dishSizes}
-          imageWidth={featuredDishData[0]?.imageWidth}
-          imageHeight={featuredDishData[0]?.imageHeight}
-        />
+        {/* Every dish carries its own generated srcset/sizes/dimensions, so no
+            component-level fallback is passed: a dish missing them must fail
+            visibly instead of silently borrowing another dish's assets. */}
+        <DishSelector client:visible dishes={featuredDishData} />
       </section>
 
       {menu.categories.map((category, catIndex) => (
