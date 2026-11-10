@@ -1261,13 +1261,16 @@ nav a:not(.btn-square)::after {
   }
 
   /* ---------- Footer: gentle close ---------- */
+  /* entry-based range (not cover): the footer is the last element of the
+     document, so a "cover" range never reaches its end — the footer stayed
+     at 0.83 opacity instead of fully visible. */
   footer > div {
     view-timeline: --footer-reveal block;
     animation-name: footer-reveal;
     animation-timing-function: linear;
     animation-fill-mode: both;
     animation-timeline: --footer-reveal;
-    animation-range: entry 10% cover 60%;
+    animation-range: entry 10% entry 100%;
     opacity: 0;
     transform: translateY(24px);
   }
