@@ -74,4 +74,5 @@ MIT — Use freely for your restaurant or client projects.
 
 | Date | Version | Summary |
 |---|---|---|
+| 2026-11-10 | 0.0.3 | Fix hero rendering: mask duration, scroll-driven animation shorthand, parallax and image pipeline |
 | 2026-11-09 | 0.0.2 | Full-screen hero with transparent minimal navbar |
