@@ -1,5 +1,5 @@
 // src/components/DishSelector.tsx
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import styles from './DishSelector.module.css';
 
 interface Dish {
@@ -10,27 +10,72 @@ interface Dish {
   ingredients?: string[];
   story?: string;
   pairing?: string;
+  imageSrc?: string;
+  imageSrcset?: string;
+  imageSizes?: string;
+  imageWidth?: number;
+  imageHeight?: number;
 }
 
 interface Props {
   dishes: Dish[];
+  imageSrc?: string;
+  imageSrcset?: string;
+  imageSizes?: string;
+  imageWidth?: number;
+  imageHeight?: number;
 }
 
-export default function DishSelector({ dishes }: Props) {
+export default function DishSelector({
+  dishes,
+  imageSrc,
+  imageSrcset,
+  imageSizes,
+  imageWidth,
+  imageHeight,
+}: Props) {
   const [selected, setSelected] = useState<Dish | null>(dishes[0] || null);
-  const [prevImage, setPrevImage] = useState<string | null>(null);
+  const [prevDish, setPrevDish] = useState<Dish | null>(null);
   const [entering, setEntering] = useState(true);
 
   if (!dishes.length) return null;
 
+  function resolveSrc(dish: Dish | null): string | undefined {
+    if (!dish) return undefined;
+    return dish.imageSrc ?? imageSrc ?? dish.image;
+  }
+
+  function resolveSrcset(dish: Dish | null): string | undefined {
+    if (!dish) return undefined;
+    return dish.imageSrcset ?? imageSrcset;
+  }
+
+  function resolveSizes(dish: Dish | null): string | undefined {
+    if (!dish) return undefined;
+    return dish.imageSizes ?? imageSizes;
+  }
+
+  function resolveWidth(dish: Dish | null): number | undefined {
+    if (!dish) return undefined;
+    return dish.imageWidth ?? imageWidth;
+  }
+
+  function resolveHeight(dish: Dish | null): number | undefined {
+    if (!dish) return undefined;
+    return dish.imageHeight ?? imageHeight;
+  }
+
   function handleSelect(dish: Dish): void {
     if (selected?.name === dish.name) return;
-    setPrevImage(selected?.image ?? null);
+    setPrevDish(selected);
     setSelected(dish);
     setEntering(false);
     // Crossfade real: el plato saliente se desvanece mientras el entrante aparece.
     requestAnimationFrame(() => setEntering(true));
   }
+
+  const prevSrc = resolveSrc(prevDish);
+  const currSrc = resolveSrc(selected);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -53,25 +98,36 @@ export default function DishSelector({ dishes }: Props) {
       {selected && (
         <div className="bg-ground-alt p-5 md:p-8 border border-ink/15">
           <div className="grid items-center gap-6 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            {selected.image && (
+            {currSrc && (
               <div className={styles.crossfade}>
-                {prevImage && (
+                {prevSrc && (
                   <img
                     key="prev"
-                    src={prevImage}
+                    src={prevSrc}
+                    srcSet={resolveSrcset(prevDish)}
+                    sizes={resolveSizes(prevDish)}
+                    width={resolveWidth(prevDish)}
+                    height={resolveHeight(prevDish)}
                     alt=""
                     className={styles.layer}
                     style={{ opacity: entering ? 0 : 1 }}
                     aria-hidden="true"
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
                 <img
                   key="curr"
-                  src={selected.image}
+                  src={currSrc}
+                  srcSet={resolveSrcset(selected)}
+                  sizes={resolveSizes(selected)}
+                  width={resolveWidth(selected)}
+                  height={resolveHeight(selected)}
                   alt={selected.name}
                   className={styles.layer}
                   style={{ opacity: entering ? 1 : 0 }}
                   loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

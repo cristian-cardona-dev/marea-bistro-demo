@@ -8,6 +8,7 @@
 import { siteConfig } from '../config/site';
 import creditsData from '../../public/images/credits.json';
 import DishSelector from './DishSelector.tsx';
+import { getImage } from 'astro:assets';
 import paellaImg from '../assets/dishes/paella-de-marisco.png';
 import lubinaImg from '../assets/dishes/lubina-a-la-brasa.png';
 import pulpoImg from '../assets/dishes/ensalada-de-pulpo.png';
@@ -17,6 +18,13 @@ const { menu, images } = siteConfig;
 
 // Featured interactive dishes (illustrative AI-generated photography, horizontal native aspect kept).
 // Matches siteConfig menu items by name/description/price; the config menu object is unchanged.
+const dishImageModules: Record<string, typeof paellaImg> = {
+  'Paella de marisco': paellaImg,
+  'Lubina a la brasa': lubinaImg,
+  'Ensalada de pulpo': pulpoImg,
+  'Crema catalana': cremaImg,
+};
+
 const featuredDishes = [
   {
     name: 'Paella de marisco',
@@ -44,6 +52,27 @@ const featuredDishes = [
   },
 ];
 
+const dishSizes = '(max-width: 767px) 100vw, 40vw';
+const featuredDishData = await Promise.all(
+  featuredDishes.map(async (dish) => {
+    const mod = dishImageModules[dish.name];
+    const generated = await getImage({
+      src: mod,
+      widths: [480, 768, 1080],
+      sizes: dishSizes,
+      format: 'webp',
+    });
+    return {
+      ...dish,
+      imageSrc: generated.src,
+      imageSrcset: generated.srcSet?.attribute ?? generated.src ?? dish.image,
+      imageSizes: dishSizes,
+      imageWidth: mod.width,
+      imageHeight: mod.height,
+    };
+  }),
+);
+
 const credits = creditsData as unknown as Array<Record<string, string | null>>;
 const creditByFile = Object.fromEntries(credits.map((c) => [c.file, c]));
 
@@ -55,12 +84,14 @@ const ingredientsWidth = Number(ingredientsCredit?.width ?? 7008) || 7008;
 const ingredientsHeight = Number(ingredientsCredit?.height ?? 4672) || 4672;
 
 function buildSrcset(credit: Record<string, string | null> | null): string {
-  if (!credit?.localVariants) return '';
+  const c = credit as any;
+  if (!c?.localVariants) return '';
   const parts: string[] = [];
-  for (const [key, variant] of Object.entries(credit.localVariants)) {
-    const w = variant.width;
+  for (const [, variant] of Object.entries(c.localVariants)) {
+    const v = variant as any;
+    const w = v.width;
     const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-    parts.push(`${base}/images/${variant.file} ${w}w`);
+    parts.push(`${base}/images/${v.file} ${w}w`);
   }
   return parts.join(', ');
 }
@@ -104,7 +135,14 @@ const ingredientsSizes = '(max-width: 639px) 100vw, (max-width: 1023px) 100vw, 1
         <p class="text-sm text-ground mb-6 max-w-[42ch]">
           Fotografías ilustrativas generadas por IA para platos de ejemplo. Marea es un restaurante ficticio de demostración.
         </p>
-        <DishSelector client:visible dishes={featuredDishes} />
+        <DishSelector
+          client:visible
+          dishes={featuredDishData}
+          imageSrcset={featuredDishData[0]?.imageSrcset}
+          imageSizes={dishSizes}
+          imageWidth={featuredDishData[0]?.imageWidth}
+          imageHeight={featuredDishData[0]?.imageHeight}
+        />
       </section>
 
       {menu.categories.map((category, catIndex) => (

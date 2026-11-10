@@ -34,45 +34,65 @@ const archiveAlt =
 // multi-width candidates. The result is read defensively (string or per-format
 // map) and falls back to the original single candidate, so the honest 100vw
 // metadata holds either way.
-const heroWidths = [640, 828, 1080, 1440, 1920, 2560];
+const heroWidths = [480, 768, 1080, 1440, 1920];
 const heroSizes = '100vw';
+const heroOverlayWidths = [1024, 1440, 1920];
 
-type GeneratedSrcset = string | Record<string, string | undefined> | false | null | undefined;
+type GeneratedImage = { src: string; srcset: string };
 
-function readSrcset(value: GeneratedSrcset): string | null {
+function readSrcset(value: unknown): string | null {
   if (!value) return null;
   if (typeof value === 'string') return value.trim() || null;
-  const first = Object.values(value).find((entry) => typeof entry === 'string' && entry.length > 0);
-  return typeof first === 'string' ? first : null;
+  if (typeof value === 'object') {
+    const first = Object.values(value as Record<string, unknown>).find(
+      (entry) => typeof entry === 'string' && (entry as string).length > 0,
+    );
+    return typeof first === 'string' ? first : null;
+  }
+  return null;
 }
 
-async function heroSrcset(image: typeof heroDesktop, fallback: string): Promise<string> {
+async function heroGenerated(
+  image: typeof heroDesktop,
+  widths: number[],
+  fallback: string,
+): Promise<GeneratedImage> {
   try {
-    const generated = await getImage({ src: image, widths: heroWidths, sizes: heroSizes });
-    const built = readSrcset(generated?.srcset);
-    if (built) return built;
-    if (typeof generated?.src === 'string' && generated.src.length > 0) return generated.src;
+    const generated = await getImage({ src: image, widths, sizes: heroSizes, format: 'webp' });
+    // Astro's getImage() returns `srcSet` (camelCase) with an `.attribute`
+    // string; fall back to legacy lowercase `srcset` then `src`.
+    const built = readSrcset(
+  generated?.srcSet?.attribute ?? (generated as any)?.srcset ?? generated?.src,
+);
+    const src =
+      typeof generated?.src === 'string' && generated.src.length > 0 ? generated.src : fallback;
+    const srcset = built ?? src;
+    return { src, srcset };
   } catch {
     // Keep the original candidate rather than breaking the hero.
+    return { src: fallback, srcset: fallback };
   }
-  return fallback;
 }
 
-const heroDesktopSrcset = await heroSrcset(heroDesktop, heroDesktop.src);
-const heroMobileSrcset = await heroSrcset(heroMobile, heroMobile.src);
+const heroDesktopGenerated = await heroGenerated(heroDesktop, heroWidths, heroDesktop.src);
+const heroMobileGenerated = await heroGenerated(heroMobile, heroWidths, heroMobile.src);
 // Olive overlay: RGBA PNG (1774x887), geometric pair of hero-desktop.png.
 // Desktop-only parallax layer; hidden on mobile. Astro optimizes via getImage().
-const heroOliveOverlaySrcset = await heroSrcset(heroOliveOverlay, heroOliveOverlay.src);
+const heroOliveOverlayGenerated = await heroGenerated(
+  heroOliveOverlay,
+  heroOverlayWidths,
+  heroOliveOverlay.src,
+);
 ---
 <section id="hero" data-motion="section" class="relative bg-ink text-ground -mt-[68px]">
   <figure data-motion="hero" class="relative m-0 overflow-hidden">
     <picture>
-  <source media="(min-width: 640px)" srcset={heroDesktopSrcset} type="image/png" />
-  <source media="(max-width: 639px)" srcset={heroMobileSrcset} type="image/png" />
+  <source media="(min-width: 640px)" srcset={heroDesktopGenerated.srcset} type="image/webp" />
+  <source media="(max-width: 639px)" srcset={heroMobileGenerated.srcset} type="image/webp" />
   <img
       id="hero-img"
-      src={heroDesktop.src}
-      srcset={heroDesktopSrcset}
+      src={heroDesktopGenerated.src}
+      srcset={heroDesktopGenerated.srcset}
       sizes={heroSizes}
       alt={archiveAlt}
       width={heroWidth}
@@ -90,8 +110,8 @@ const heroOliveOverlaySrcset = await heroSrcset(heroOliveOverlay, heroOliveOverl
          Hidden on mobile; Astro optimizes via srcset. -->
     <img
       class="hero-overlay hidden lg:block absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
-      src={heroOliveOverlay.src}
-      srcset={heroOliveOverlaySrcset}
+      src={heroOliveOverlayGenerated.src}
+      srcset={heroOliveOverlayGenerated.srcset}
       sizes={heroSizes}
       alt=""
       aria-hidden="true"
